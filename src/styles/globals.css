@@ -1,0 +1,177 @@
+@import 'tailwindcss';
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
+
+@theme {
+  --color-primary: #ef7e71;
+  --color-primary-dark: #e66b5d;
+  --color-primary-light: #f29287;
+  --color-secondary: #d4654f;
+  --color-secondary-dark: #b8543c;
+  --color-accent: #ffe066;
+  --color-neutral-50: #fafafa;
+  --color-neutral-100: #f5f5f5;
+  --color-neutral-200: #eeeeee;
+  --color-neutral-300: #e0e0e0;
+  --color-neutral-800: #424242;
+  --color-neutral-900: #212121;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: 'DM Sans', 'Inter', sans-serif;
+  line-height: 1.6;
+}
+
+body {
+  color: #212121;
+  background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+  font-feature-settings: 'kern' 1, 'liga' 1;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Modern Button Styles */
+.btn-primary {
+  @apply relative bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl;
+  box-shadow: 0 8px 32px rgba(239, 126, 113, 0.3);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 12px 40px rgba(239, 126, 113, 0.4);
+}
+
+.btn-secondary {
+  @apply relative border-2 border-primary/20 backdrop-blur-sm bg-white/70 text-primary hover:bg-primary hover:text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-300 transform hover:scale-105;
+  box-shadow: 0 4px 24px rgba(239, 126, 113, 0.1);
+}
+
+.btn-secondary:hover {
+  border-color: transparent;
+  box-shadow: 0 8px 32px rgba(239, 126, 113, 0.3);
+}
+
+.btn-ghost {
+  @apply relative text-neutral-800 hover:text-primary px-6 py-3 rounded-xl font-medium transition-all duration-300 hover:bg-white/50 backdrop-blur-sm;
+}
+
+/* Glassmorphism Effect */
+.glass {
+  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-dark {
+  backdrop-filter: blur(20px);
+  background: rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Gradient Text */
+.gradient-text {
+  background: linear-gradient(135deg, #ef7e71 0%, #d4654f 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Card Styles */
+.card-modern {
+  @apply bg-white/80 backdrop-blur-xl rounded-3xl border border-white/20 transition-all duration-300 hover:shadow-2xl hover:bg-white/90;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.card-modern:hover {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  transform: translateY(-8px);
+}
+
+/* Animation Classes */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 20px rgba(239, 126, 113, 0.4);
+  }
+  to {
+    box-shadow: 0 0 30px rgba(239, 126, 113, 0.8),
+      0 0 40px rgba(239, 126, 113, 0.6);
+  }
+}
+
+/* Section Styles */
+.section-padding {
+  @apply px-6 sm:px-8 lg:px-12;
+}
+
+.container {
+  @apply max-w-7xl mx-auto;
+}
+
+/* Typography */
+.heading-xl {
+  @apply text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight;
+  font-family: 'Playfair Display', serif;
+  line-height: 1.1;
+}
+
+.heading-lg {
+  @apply text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight;
+  font-family: 'Playfair Display', serif;
+  line-height: 1.2;
+}
+
+.heading-md {
+  @apply text-2xl md:text-3xl lg:text-4xl font-semibold tracking-tight;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.text-lg-modern {
+  @apply text-lg md:text-xl leading-relaxed;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #ef7e71, #d4654f);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #e66b5d, #b8543c);
+}
