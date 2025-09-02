@@ -53,15 +53,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
       <div className="flex items-center">
         <div className="w-12 h-12 rounded-2xl mr-4 relative overflow-hidden ring-2 ring-primary/20">
           <Image
-            src={`/static/${
-              review.id === '1'
-                ? 4
-                : review.id === '2'
-                ? 5
-                : review.id === '3'
-                ? 6
-                : 7
-            }.jpg`}
+            src={`/reviewers/reviewer-${review.id}.png`}
             alt={`${review.name} avatar`}
             fill
             className="object-cover"

@@ -340,7 +340,7 @@ function RegimeFormContent() {
               value={formData.allergies}
               onChange={(e) => handleInputChange('allergies', e.target.value)}
               placeholder="Please list any ingredients or products you're allergic to or sensitive to..."
-              className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent focus:outline-none"
               rows={4}
             />
           </div>
@@ -643,7 +643,7 @@ function RegimeFormContent() {
               value={formData.brandsUsed}
               onChange={(e) => handleInputChange('brandsUsed', e.target.value)}
               placeholder="Please list any skincare brands you have tried or are currently using..."
-              className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full p-4 focus:outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               rows={4}
             />
           </div>
@@ -661,7 +661,7 @@ function RegimeFormContent() {
                 handleInputChange('additionalComments', e.target.value)
               }
               placeholder="Please share any additional comments, requests, or specific requirements..."
-              className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full p-4 focus:outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               rows={4}
             />
           </div>

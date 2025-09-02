@@ -75,7 +75,7 @@ export default function Payment() {
                     placeholder="Email address"
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="w-full p-3 focus:outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     required
                   />
                 </div>
@@ -99,7 +99,7 @@ export default function Payment() {
                     onChange={(e) =>
                       handleInputChange('firstName', e.target.value)
                     }
-                    className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     required
                   />
                   <input
@@ -109,7 +109,7 @@ export default function Payment() {
                     onChange={(e) =>
                       handleInputChange('lastName', e.target.value)
                     }
-                    className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     required
                   />
                   <input
@@ -119,7 +119,7 @@ export default function Payment() {
                     onChange={(e) =>
                       handleInputChange('address', e.target.value)
                     }
-                    className="md:col-span-2 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="focus:outline-none md:col-span-2 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     required
                   />
                   <input
@@ -127,7 +127,7 @@ export default function Payment() {
                     placeholder="City"
                     value={formData.city}
                     onChange={(e) => handleInputChange('city', e.target.value)}
-                    className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     required
                   />
                   <input
@@ -137,7 +137,7 @@ export default function Payment() {
                     onChange={(e) =>
                       handleInputChange('postalCode', e.target.value)
                     }
-                    className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     required
                   />
                 </div>
@@ -165,7 +165,7 @@ export default function Payment() {
                     onChange={(e) =>
                       handleInputChange('nameOnCard', e.target.value)
                     }
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="focus:outline-none w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     required
                   />
                   <input
@@ -175,7 +175,7 @@ export default function Payment() {
                     onChange={(e) =>
                       handleInputChange('cardNumber', e.target.value)
                     }
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="focus:outline-none w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     required
                   />
                   <div className="grid grid-cols-2 gap-4">
@@ -186,7 +186,7 @@ export default function Payment() {
                       onChange={(e) =>
                         handleInputChange('expiryDate', e.target.value)
                       }
-                      className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                       required
                     />
                     <input
@@ -194,7 +194,7 @@ export default function Payment() {
                       placeholder="CVV"
                       value={formData.cvv}
                       onChange={(e) => handleInputChange('cvv', e.target.value)}
-                      className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                       required
                     />
                   </div>
