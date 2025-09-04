@@ -1,54 +1,21 @@
 'use client';
 
-import { FormData, Product } from '@/types';
+import { FormData } from '@/types';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useState } from 'react';
-
-const products: Record<string, Product> = {
-  tribox: {
-    id: 'tribox',
-    name: 'TRIBOX',
-    description: '3-step Korean skincare routine',
-    price: 229,
-    steps: ['Cleanser', 'Moisturiser', 'Sunscreen'],
-    image: '/images/tribox.jpg',
-    stepCount: 3,
-  },
-  pentabox: {
-    id: 'pentabox',
-    name: 'PENTABOX',
-    description: '5-step Korean skincare routine',
-    price: 379,
-    steps: ['Cleanser', 'Toner', 'Serum', 'Moisturiser', 'Sunscreen'],
-    image: '/images/pentabox.jpg',
-    stepCount: 5,
-  },
-  septabox: {
-    id: 'septabox',
-    name: 'SEPTABOX',
-    description: '7-step Korean skincare routine',
-    price: 529,
-    steps: [
-      'Cleansing oil',
-      'Cleanser',
-      'Mask',
-      'Toner',
-      'Serum',
-      'Moisturiser',
-      'Sunscreen',
-    ],
-    image: '/images/septabox.jpg',
-    stepCount: 7,
-  },
-};
+import { Suspense, useState, useEffect } from 'react';
+import { regimeApi } from '@/lib/api';
+import { localStorage as localStorageUtils } from '@/lib/localStorage';
+import { Regime } from '@/models/database';
 
 function RegimeFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const productId = searchParams.get('product');
   const [currentStep, setCurrentStep] = useState(1);
+  const [product, setProduct] = useState<Regime | null>(null);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState<FormData>({
     age: '',
     gender: '',
@@ -69,7 +36,71 @@ function RegimeFormContent() {
     additionalComments: '',
   });
 
-  const product = productId ? products[productId as string] : null;
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!productId) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const data = await regimeApi.getById(productId);
+        setProduct(data);
+
+        // Load saved form data from localStorage
+        const savedData = localStorageUtils.getFormData(productId);
+        if (savedData) {
+          setFormData((prev) => ({ ...prev, ...savedData }));
+        }
+
+        // Load saved current step from localStorage
+        const savedStep = localStorage.getItem(`currentStep_${productId}`);
+        if (savedStep) {
+          setCurrentStep(parseInt(savedStep, 10));
+        }
+
+        // Save selected regime
+        localStorageUtils.saveSelectedRegime(productId);
+      } catch (error) {
+        console.error('Error fetching product:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [productId]);
+
+  // Auto-save form data to localStorage whenever it changes
+  useEffect(() => {
+    if (
+      productId &&
+      Object.keys(formData).some(
+        (key) =>
+          formData[key as keyof FormData] !== '' &&
+          formData[key as keyof FormData]?.length > 0
+      )
+    ) {
+      localStorageUtils.saveFormData(formData, productId);
+    }
+  }, [formData, productId]);
+
+  // Auto-save current step to localStorage whenever it changes
+  useEffect(() => {
+    if (productId && currentStep > 1) {
+      localStorage.setItem(`currentStep_${productId}`, currentStep.toString());
+    }
+  }, [currentStep, productId]);
+
+  if (loading) {
+    return (
+      <div className="container section-padding py-40 text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+        <p className="text-gray-600">Loading...</p>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -138,9 +169,30 @@ function RegimeFormContent() {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
-  const handleSubmit = () => {
-    // Add to cart logic
-    router.push('/cart');
+  const handleSubmit = async () => {
+    if (!product || !productId) return;
+
+    try {
+      // Save cart data to localStorage
+      const cartData = {
+        regimeId: productId,
+        regime: product,
+        formData: formData,
+        quantity: 1,
+        totalAmount: product.price,
+        finalAmount: product.price,
+      };
+
+      localStorageUtils.saveCartData(cartData);
+
+      // Clear the current step from localStorage since form is completed
+      localStorage.removeItem(`currentStep_${productId}`);
+
+      // Navigate to cart
+      router.push('/cart');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    }
   };
 
   const isStepValid = () => {

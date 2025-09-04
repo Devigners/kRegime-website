@@ -36,7 +36,7 @@ export default function KoreanBrandsSection() {
               viewport={{ once: true }}
               whileHover={{ y: -3 }}
             >
-              <div className="bg-white rounded-2xl p-3 shadow-soft hover:shadow-medium transition-all duration-300 border border-neutral-100 hover:border-neutral-200">
+              <div className="bg-white rounded-2xl p-3 shadow-soft hover:shadow-medium transition-all duration-300 border border-neutral-200 hover:border-neutral-300">
                 <div className="aspect-square relative rounded-xl overflow-hidden bg-white">
                   <Image
                     src={`/brands/${brand.file}`}

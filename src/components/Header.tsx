@@ -6,10 +6,12 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { ShoppingCart, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { localStorage as localStorageUtils } from '@/lib/localStorage';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -19,6 +21,37 @@ const Header: React.FC = () => {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const updateCartCount = () => {
+      const cartData = localStorageUtils.getCartData();
+      setCartCount(cartData?.quantity || 0);
+    };
+
+    // Initial load
+    updateCartCount();
+
+    // Listen for storage changes (when cart is updated in other tabs/components)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'kregime_cart') {
+        updateCartCount();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    // Custom event listener for same-tab cart updates
+    const handleCartUpdate = () => {
+      updateCartCount();
+    };
+
+    window.addEventListener('cartUpdated', handleCartUpdate);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('cartUpdated', handleCartUpdate);
+    };
   }, []);
 
   return (
@@ -79,9 +112,11 @@ const Header: React.FC = () => {
             >
               <div>
                 <ShoppingCart size={24} />
-                <span className="absolute -top-2 -right-2 bg-gradient-to-r from-primary to-secondary text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-semibold">
-                  0
-                </span>
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-gradient-to-r from-primary to-secondary text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-semibold">
+                    {cartCount}
+                  </span>
+                )}
               </div>
             </Link>
 

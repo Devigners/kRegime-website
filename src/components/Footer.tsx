@@ -169,7 +169,7 @@ const Footer: React.FC = () => {
           <div className="container section-padding py-8">
             <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
               <div className="flex items-center space-x-2 text-neutral-400 text-sm">
-                <span>© 2024 Kregime. Made with</span>
+                <span>© 2025 Kregime. Made with</span>
                 <Heart className="w-4 h-4 text-primary fill-current" />
                 <span>for your skin</span>
               </div>

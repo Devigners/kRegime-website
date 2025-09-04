@@ -39,7 +39,7 @@ export default function HowItWorksSection() {
           viewport={{ once: true }}
         >
           <h2 className="heading-lg text-neutral-900 mb-6">
-            HOW IT <span className="gradient-text">WORKS</span>
+            How It <span className="gradient-text">Works</span>
           </h2>
           <p className="text-xl text-neutral-600 max-w-3xl mx-auto leading-relaxed">
             Get a fully personalized Korean skincare routine in three simple
@@ -59,7 +59,7 @@ export default function HowItWorksSection() {
             >
               {/* Connecting Line */}
               {index < 2 && (
-                <div className="hidden md:block absolute top-16 left-1/2 w-full h-0.5 bg-gradient-to-r from-primary/30 to-secondary/30 transform translate-x-8"></div>
+                <div className="hidden md:block absolute top-10 left-1/2 w-full h-0.5 bg-gradient-to-r from-primary/30 to-secondary/30 transform translate-x-8"></div>
               )}
 
               <div className="relative">

@@ -8,6 +8,7 @@ A modern Next.js website built with TypeScript, Tailwind CSS, Framer Motion, and
 - **TypeScript** - Full type safety
 - **Tailwind CSS v4** - Modern utility-first CSS framework
 - **Framer Motion** - Smooth animations and transitions
+- **Supabase** - Modern PostgreSQL database with real-time capabilities
 - **Stripe** - Payment processing integration
 - **ESLint** - Code linting and formatting
 - **PostCSS & Autoprefixer** - Enhanced CSS processing
@@ -20,6 +21,7 @@ A modern Next.js website built with TypeScript, Tailwind CSS, Framer Motion, and
 - `react` & `react-dom` - React library
 - `typescript` - TypeScript support
 - `framer-motion` - Animation library
+- `@supabase/supabase-js` - Supabase client for database operations
 - `stripe` - Payment processing
 - `autoprefixer` - CSS prefixing
 
@@ -46,18 +48,45 @@ A modern Next.js website built with TypeScript, Tailwind CSS, Framer Motion, and
    ```
 
 3. **Set up environment variables**
-   Copy `.env.local` and add your Stripe keys:
+   Copy `.env.example` to `.env.local` and add your Supabase and Stripe keys:
 
    ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_public_key
+   SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key_here
    STRIPE_SECRET_KEY=your_stripe_secret_key_here
    NEXT_PUBLIC_APP_URL=http://localhost:3000
    ```
 
-4. **Run the development server**
+4. **Set up Supabase database**
+
+   - Create a Supabase project at [supabase.com](https://supabase.com)
+   - Run the SQL schema from `supabase-schema.sql` in your Supabase SQL Editor
+
+5. **Seed the database**
+
+   ```bash
+   curl -X POST http://localhost:3000/api/seed
+   ```
+
+6. **Run the development server**
+
    ```bash
    npm run dev
    ```
+
+   Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## 🗄️ Database
+
+This project uses **Supabase** (PostgreSQL) for data storage:
+
+- **regimes** - Skincare routine packages
+- **orders** - Customer orders with detailed form data
+- **reviews** - Customer reviews and testimonials
+
+See `SUPABASE_SETUP.md` for detailed setup instructions.
 
 ## 🏗️ Project Structure
 
@@ -92,6 +121,15 @@ Stripe is configured for payment processing:
 - Server-side Stripe instance in `src/lib/stripe.ts`
 - Environment variables for API keys
 - TypeScript support with latest API version
+
+## 🔌 Supabase Integration
+
+Supabase provides the backend database with:
+
+- PostgreSQL database with real-time capabilities
+- Row Level Security (RLS) for data protection
+- Auto-generated API endpoints
+- TypeScript support with generated types
 
 ## 📝 Scripts
 

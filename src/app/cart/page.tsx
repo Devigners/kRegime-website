@@ -1,53 +1,60 @@
 'use client';
 
-import { CartItem } from '@/types';
 import { motion } from 'framer-motion';
 import { Minus, Plus } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { localStorage as localStorageUtils } from '@/lib/localStorage';
+import { Regime } from '@/models/database';
+
+interface CartData {
+  regimeId: string;
+  regime: Regime;
+  formData: Record<string, string | string[]>;
+  quantity: number;
+  totalAmount: number;
+  finalAmount: number;
+}
 
 export default function Cart() {
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      product: {
-        id: 'tribox',
-        name: 'TRIBOX',
-        description: '3-step Korean skincare routine',
-        price: 229,
-        steps: ['Cleanser', 'Moisturiser', 'Sunscreen'],
-        image: '/images/tribox.jpg',
-        stepCount: 3,
-      },
-      quantity: 1,
-      customization: {
-        skinType: 'Combination',
-        skinConcerns: ['Acne', 'Large Pores'],
-        preferences: {},
-      },
-    },
-  ]);
+  const [cartData, setCartData] = useState<CartData | null>(null);
+  const [, setQuantity] = useState(1);
 
-  const updateQuantity = (id: string, newQuantity: number) => {
-    if (newQuantity < 1) return;
-    setCartItems((items) =>
-      items.map((item) =>
-        item.product.id === id ? { ...item, quantity: newQuantity } : item
-      )
-    );
+  useEffect(() => {
+    const loadCartData = () => {
+      const data = localStorageUtils.getCartData();
+      if (data) {
+        setCartData(data);
+        setQuantity(data.quantity || 1);
+      }
+    };
+
+    loadCartData();
+  }, []);
+
+  const updateQuantity = (newQuantity: number) => {
+    if (newQuantity < 1 || !cartData) return;
+
+    setQuantity(newQuantity);
+
+    const updatedCartData = {
+      ...cartData,
+      quantity: newQuantity,
+      totalAmount: cartData.regime.price * newQuantity,
+      finalAmount: cartData.regime.price * newQuantity,
+    };
+
+    setCartData(updatedCartData);
+    localStorageUtils.saveCartData(updatedCartData);
   };
 
-  const removeItem = (id: string) => {
-    setCartItems((items) => items.filter((item) => item.product.id !== id));
+  const removeItem = () => {
+    localStorageUtils.clearCartData();
+    setCartData(null);
   };
 
-  const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
-    0
-  );
-  const shipping = 25;
-  const total = subtotal + shipping;
-
-  if (cartItems.length === 0) {
+  if (!cartData) {
     return (
       <div className="container section-padding py-40 text-center">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">
@@ -70,74 +77,75 @@ export default function Cart() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Cart Items */}
         <div className="lg:col-span-2 space-y-6">
-          {cartItems.map((item) => (
-            <motion.div
-              key={item.product.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-lg shadow-md p-6"
-            >
-              <div className="flex items-start space-x-4">
-                <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center">
-                  <span className="text-gray-400 text-xs">Product</span>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-lg shadow-md p-6"
+          >
+            <div className="flex items-start space-x-4">
+              <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center">
+                <Image
+                  src={cartData.regime.image}
+                  alt={cartData.regime.name}
+                  width={96}
+                  height={96}
+                  className="w-full h-full object-cover rounded-lg"
+                />
+              </div>
+
+              <div className="flex-1">
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  {cartData.regime.name}
+                </h3>
+                <p className="text-gray-600 text-sm mb-3">
+                  {cartData.regime.description}
+                </p>
+
+                <div className="text-sm text-gray-500 mb-3">
+                  <p>
+                    Skin Type: {cartData.formData.skinType || 'Not specified'}
+                  </p>
+                  {cartData.formData.skinConcerns &&
+                    Array.isArray(cartData.formData.skinConcerns) &&
+                    cartData.formData.skinConcerns.length > 0 && (
+                      <p>
+                        Concerns: {cartData.formData.skinConcerns.join(', ')}
+                      </p>
+                    )}
                 </div>
 
-                <div className="flex-1">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                    {item.product.name}
-                  </h3>
-                  <p className="text-gray-600 text-sm mb-3">
-                    {item.product.description}
-                  </p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <button
+                      onClick={() => updateQuantity(cartData.quantity - 1)}
+                      className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+                    >
+                      <Minus size={16} />
+                    </button>
+                    <span className="font-semibold">{cartData.quantity}</span>
+                    <button
+                      onClick={() => updateQuantity(cartData.quantity + 1)}
+                      className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+                    >
+                      <Plus size={16} />
+                    </button>
+                  </div>
 
-                  {item.customization && (
-                    <div className="text-sm text-gray-500 mb-3">
-                      <p>Skin Type: {item.customization.skinType}</p>
-                      {item.customization.skinConcerns.length > 0 && (
-                        <p>
-                          Concerns: {item.customization.skinConcerns.join(', ')}
-                        </p>
-                      )}
-                    </div>
-                  )}
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <button
-                        onClick={() =>
-                          updateQuantity(item.product.id, item.quantity - 1)
-                        }
-                        className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50"
-                      >
-                        <Minus size={16} />
-                      </button>
-                      <span className="font-semibold">{item.quantity}</span>
-                      <button
-                        onClick={() =>
-                          updateQuantity(item.product.id, item.quantity + 1)
-                        }
-                        className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50"
-                      >
-                        <Plus size={16} />
-                      </button>
-                    </div>
-
-                    <div className="text-right">
-                      <p className="text-xl font-bold text-gray-900">
-                        AED {item.product.price * item.quantity}
-                      </p>
-                      <button
-                        onClick={() => removeItem(item.product.id)}
-                        className="text-red-500 hover:text-red-700 text-sm mt-1"
-                      >
-                        Remove
-                      </button>
-                    </div>
+                  <div className="text-right">
+                    <p className="text-xl font-bold text-gray-900">
+                      AED {cartData.totalAmount}
+                    </p>
+                    <button
+                      onClick={removeItem}
+                      className="text-red-500 hover:text-red-700 text-sm mt-1"
+                    >
+                      Remove
+                    </button>
                   </div>
                 </div>
               </div>
-            </motion.div>
-          ))}
+            </div>
+          </motion.div>
         </div>
 
         {/* Order Summary */}
@@ -150,31 +158,31 @@ export default function Cart() {
             <div className="space-y-4 mb-6">
               <div className="flex justify-between">
                 <span className="text-gray-600">Subtotal</span>
-                <span className="text-gray-900">AED {subtotal}</span>
+                <span className="text-gray-900">
+                  AED {cartData.totalAmount}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Shipping</span>
-                <span className="text-gray-900">AED {shipping}</span>
+                <span className="text-gray-900">Free</span>
               </div>
-              <div className="border-t pt-4">
+              <div className="border-t border-gray-200 pt-4">
                 <div className="flex justify-between">
                   <span className="text-lg font-semibold text-gray-900">
                     Total
                   </span>
                   <span className="text-lg font-semibold text-gray-900">
-                    AED {total}
+                    AED {cartData.finalAmount}
                   </span>
                 </div>
               </div>
             </div>
-
             <Link
               href="/payment"
               className="w-full btn-primary text-center block"
             >
               Proceed to Checkout
             </Link>
-
             <Link
               href="/"
               className="w-full text-center text-primary hover:text-primary-dark mt-4 block"

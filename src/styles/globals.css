@@ -137,14 +137,14 @@ a {
 
 /* Typography */
 .heading-xl {
-  @apply text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight;
-  font-family: 'Playfair Display', serif;
+  @apply text-5xl md:text-7xl lg:text-8xl font-semibold tracking-tight;
+  font-family: 'Poppins', 'DM Sans', 'Inter', sans-serif;
   line-height: 1.1;
 }
 
 .heading-lg {
   @apply text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Poppins', 'DM Sans', 'Inter', sans-serif;
   line-height: 1.2;
 }
 
