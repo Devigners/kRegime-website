@@ -1,12 +1,71 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import ReviewCard from '@/components/ReviewCard';
-import { reviews } from '@/data';
+import { reviewApi } from '@/lib/api';
+import { Review } from '@/models/database';
 
 export default function ReviewsSection() {
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        setLoading(true);
+        const data = await reviewApi.getAll();
+        setReviews(data);
+      } catch (err) {
+        console.error('Error fetching reviews:', err);
+        setError('Failed to load reviews. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, []);
+
+  if (loading) {
+    return (
+      <section
+        id="reviews"
+        className="py-32 bg-gradient-to-b from-neutral-50 to-white"
+      >
+        <div className="container section-padding">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-black">Loading reviews...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section
+        id="reviews"
+        className="py-32 bg-gradient-to-b from-neutral-50 to-white"
+      >
+        <div className="container section-padding">
+          <div className="text-center">
+            <p className="text-red-600 mb-4">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="btn-primary"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section
       id="reviews"
@@ -23,9 +82,9 @@ export default function ReviewsSection() {
           <h2 className="heading-lg text-neutral-900 mb-6">
             What Our <span className="gradient-text">Customers Say</span>
           </h2>
-          <p className="text-xl text-neutral-600 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-black max-w-3xl mx-auto leading-relaxed">
             Join thousands of satisfied customers who have transformed their
-            skin with our personalized K-beauty routines
+            skin with <br /> our personalized K-beauty routines
           </p>
         </motion.div>
 
@@ -38,7 +97,15 @@ export default function ReviewsSection() {
               transition={{ duration: 0.6, delay: index * 0.1 }}
               viewport={{ once: true }}
             >
-              <ReviewCard review={review} />
+              <ReviewCard
+                review={{
+                  id: review.id,
+                  name: review.name,
+                  rating: review.rating,
+                  comment: review.comment,
+                  avatar: review.avatar,
+                }}
+              />
             </motion.div>
           ))}
         </div>

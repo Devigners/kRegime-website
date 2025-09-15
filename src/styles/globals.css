@@ -43,7 +43,7 @@ a {
 
 /* Modern Button Styles */
 .btn-primary {
-  @apply relative bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl;
+  @apply relative bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl;
   box-shadow: 0 8px 32px rgba(239, 126, 113, 0.3);
 }
 
@@ -52,7 +52,7 @@ a {
 }
 
 .btn-secondary {
-  @apply relative border-2 border-primary/20 backdrop-blur-sm bg-white/70 text-primary hover:bg-primary hover:text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-300 transform hover:scale-105;
+  @apply relative border-2 border-primary/20 backdrop-blur-sm bg-white/70 text-primary hover:bg-primary hover:text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105;
   box-shadow: 0 4px 24px rgba(239, 126, 113, 0.1);
 }
 
@@ -62,7 +62,7 @@ a {
 }
 
 .btn-ghost {
-  @apply relative text-neutral-800 hover:text-primary px-6 py-3 rounded-xl font-medium transition-all duration-300 hover:bg-white/50 backdrop-blur-sm;
+  @apply relative text-neutral-800 hover:text-primary px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:bg-white/50 backdrop-blur-sm;
 }
 
 /* Glassmorphism Effect */
@@ -88,7 +88,7 @@ a {
 
 /* Card Styles */
 .card-modern {
-  @apply bg-white/80 backdrop-blur-xl rounded-3xl border border-white/20 transition-all duration-300 hover:shadow-2xl hover:bg-white/90;
+  @apply bg-white/80 backdrop-blur-xl rounded-lg border border-white/20 transition-all duration-300 hover:shadow-2xl hover:bg-white/90;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
@@ -137,14 +137,14 @@ a {
 
 /* Typography */
 .heading-xl {
-  @apply text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight;
-  font-family: 'Playfair Display', serif;
+  @apply text-5xl md:text-7xl lg:text-8xl font-semibold tracking-tight;
+  font-family: 'Poppins', 'DM Sans', 'Inter', sans-serif;
   line-height: 1.1;
 }
 
 .heading-lg {
   @apply text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Poppins', 'DM Sans', 'Inter', sans-serif;
   line-height: 1.2;
 }
 

@@ -1,11 +1,11 @@
-import { Sparkles, Shield, Zap } from 'lucide-react';
+import { Sparkles, Shield, Zap, Truck } from 'lucide-react';
 
 export const features = [
   {
     icon: Sparkles,
-    title: 'AI-Powered Curation',
+    title: 'Hand-Picked by Experts',
     description:
-      'Our advanced AI analyzes your skin type and concerns to create the perfect routine just for you.',
+      'Our team of skincare experts carefully selects each product to create a personalized routine just for you.',
   },
   {
     icon: Shield,
@@ -15,8 +15,14 @@ export const features = [
   },
   {
     icon: Zap,
-    title: 'Instant Results',
+    title: 'Instant Results You Can See',
     description:
       'See visible improvements in your skin within just 7-14 days of using your personalized regime.',
+  },
+  {
+    icon: Truck,
+    title: 'Free Shipping & Returns',
+    description:
+      'Quick, secure delivery across UAE. Hassle-free returns if needed. Your satisfaction is our priority.',
   },
 ];

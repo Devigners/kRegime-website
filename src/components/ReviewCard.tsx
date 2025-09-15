@@ -33,13 +33,13 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
               size={18}
               className={
                 i < review.rating
-                  ? 'text-yellow-400 fill-current'
+                  ? 'text-primary fill-current'
                   : 'text-neutral-300'
               }
             />
           </motion.div>
         ))}
-        <span className="ml-3 text-sm font-medium text-neutral-600">
+        <span className="ml-3 text-sm font-medium text-black">
           {review.rating}.0
         </span>
       </div>
@@ -51,7 +51,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
 
       {/* Reviewer Info */}
       <div className="flex items-center">
-        <div className="w-12 h-12 rounded-2xl mr-4 relative overflow-hidden ring-2 ring-primary/20">
+        <div className="w-12 h-12 rounded-lg mr-4 relative overflow-hidden ring-2 ring-primary/20">
           <Image
             src={`/reviewers/reviewer-${review.id}.png`}
             alt={`${review.name} avatar`}
@@ -63,7 +63,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
           <span className="font-semibold text-neutral-900 block">
             {review.name}
           </span>
-          <span className="text-sm text-neutral-500">Verified Customer</span>
+          <span className="text-sm text-black">Verified Customer</span>
         </div>
       </div>
 

@@ -19,7 +19,7 @@ export default function KoreanBrandsSection() {
           <h2 className="heading-lg text-neutral-900">
             Trusted <span className="gradient-text">Korean Brands</span>
           </h2>
-          <p className="text-xl text-neutral-600 max-w-4xl mx-auto leading-relaxed">
+          <p className="text-xl text-black max-w-4xl mx-auto leading-relaxed">
             We partner with the most respected Korean beauty brands to bring you
             authentic, high-quality products that deliver real results
           </p>
@@ -36,8 +36,8 @@ export default function KoreanBrandsSection() {
               viewport={{ once: true }}
               whileHover={{ y: -3 }}
             >
-              <div className="bg-white rounded-2xl p-3 shadow-soft hover:shadow-medium transition-all duration-300 border border-neutral-100 hover:border-neutral-200">
-                <div className="aspect-square relative rounded-xl overflow-hidden bg-white">
+              <div className="bg-white rounded-lg p-3 shadow-soft hover:shadow-medium transition-all duration-300 border border-neutral-200 hover:border-neutral-300">
+                <div className="aspect-square relative rounded-lg overflow-hidden bg-white">
                   <Image
                     src={`/brands/${brand.file}`}
                     alt={`${brand.name} Korean Beauty Brand`}
@@ -51,13 +51,13 @@ export default function KoreanBrandsSection() {
         </div>
 
         <motion.div
-          className="mt-8 text-center"
+          className="mt-12 text-center"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
           viewport={{ once: true }}
         >
-          <p className="text-neutral-500 text-sm">
+          <p className="text-black text-lg">
             And many more premium K-beauty brands curated for your skin
           </p>
         </motion.div>

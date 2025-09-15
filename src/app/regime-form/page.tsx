@@ -1,54 +1,21 @@
 'use client';
 
-import { FormData, Product } from '@/types';
+import { FormData } from '@/types';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useState } from 'react';
-
-const products: Record<string, Product> = {
-  tribox: {
-    id: 'tribox',
-    name: 'TRIBOX',
-    description: '3-step Korean skincare routine',
-    price: 229,
-    steps: ['Cleanser', 'Moisturiser', 'Sunscreen'],
-    image: '/images/tribox.jpg',
-    stepCount: 3,
-  },
-  pentabox: {
-    id: 'pentabox',
-    name: 'PENTABOX',
-    description: '5-step Korean skincare routine',
-    price: 379,
-    steps: ['Cleanser', 'Toner', 'Serum', 'Moisturiser', 'Sunscreen'],
-    image: '/images/pentabox.jpg',
-    stepCount: 5,
-  },
-  septabox: {
-    id: 'septabox',
-    name: 'SEPTABOX',
-    description: '7-step Korean skincare routine',
-    price: 529,
-    steps: [
-      'Cleansing oil',
-      'Cleanser',
-      'Mask',
-      'Toner',
-      'Serum',
-      'Moisturiser',
-      'Sunscreen',
-    ],
-    image: '/images/septabox.jpg',
-    stepCount: 7,
-  },
-};
+import { Suspense, useState, useEffect } from 'react';
+import { regimeApi } from '@/lib/api';
+import { localStorage as localStorageUtils } from '@/lib/localStorage';
+import { Regime } from '@/models/database';
 
 function RegimeFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const productId = searchParams.get('product');
   const [currentStep, setCurrentStep] = useState(1);
+  const [product, setProduct] = useState<Regime | null>(null);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState<FormData>({
     age: '',
     gender: '',
@@ -69,15 +36,79 @@ function RegimeFormContent() {
     additionalComments: '',
   });
 
-  const product = productId ? products[productId as string] : null;
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!productId) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const data = await regimeApi.getById(productId);
+        setProduct(data);
+
+        // Load saved form data from localStorage
+        const savedData = localStorageUtils.getFormData(productId);
+        if (savedData) {
+          setFormData((prev) => ({ ...prev, ...savedData }));
+        }
+
+        // Load saved current step from localStorage
+        const savedStep = localStorage.getItem(`currentStep_${productId}`);
+        if (savedStep) {
+          setCurrentStep(parseInt(savedStep, 10));
+        }
+
+        // Save selected regime
+        localStorageUtils.saveSelectedRegime(productId);
+      } catch (error) {
+        console.error('Error fetching product:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [productId]);
+
+  // Auto-save form data to localStorage whenever it changes
+  useEffect(() => {
+    if (
+      productId &&
+      Object.keys(formData).some(
+        (key) =>
+          formData[key as keyof FormData] !== '' &&
+          formData[key as keyof FormData]?.length > 0
+      )
+    ) {
+      localStorageUtils.saveFormData(formData, productId);
+    }
+  }, [formData, productId]);
+
+  // Auto-save current step to localStorage whenever it changes
+  useEffect(() => {
+    if (productId && currentStep > 1) {
+      localStorage.setItem(`currentStep_${productId}`, currentStep.toString());
+    }
+  }, [currentStep, productId]);
+
+  if (loading) {
+    return (
+      <div className="container section-padding py-40 text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+        <p className="text-black">Loading...</p>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
       <div className="container section-padding py-40 text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">
+        <h1 className="text-3xl font-bold text-black mb-4">
           Product Not Found
         </h1>
-        <p className="text-gray-600 mb-8">
+        <p className="text-black mb-8">
           The product you&apos;re looking for doesn&apos;t exist.
         </p>
         <button
@@ -138,9 +169,30 @@ function RegimeFormContent() {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
-  const handleSubmit = () => {
-    // Add to cart logic
-    router.push('/cart');
+  const handleSubmit = async () => {
+    if (!product || !productId) return;
+
+    try {
+      // Save cart data to localStorage
+      const cartData = {
+        regimeId: productId,
+        regime: product,
+        formData: formData,
+        quantity: 1,
+        totalAmount: product.price,
+        finalAmount: product.price,
+      };
+
+      localStorageUtils.saveCartData(cartData);
+
+      // Clear the current step from localStorage since form is completed
+      localStorage.removeItem(`currentStep_${productId}`);
+
+      // Navigate to cart
+      router.push('/cart');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    }
   };
 
   const isStepValid = () => {
@@ -189,7 +241,7 @@ function RegimeFormContent() {
       case 1:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               What is your age range?
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -215,7 +267,7 @@ function RegimeFormContent() {
       case 2:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Gender?</h2>
+            <h2 className="text-2xl font-bold text-black">Gender?</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {['Male', 'Female', 'Prefer not to say'].map((gender) => (
                 <button
@@ -237,7 +289,7 @@ function RegimeFormContent() {
       case 3:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               What is your skin type?
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -268,10 +320,10 @@ function RegimeFormContent() {
       case 4:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               What are your primary skin concerns?
             </h2>
-            <p className="text-gray-600">
+            <p className="text-black">
               Select up to 3 options ({formData.skinConcerns.length}/3)
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -295,7 +347,7 @@ function RegimeFormContent() {
                       ? 'border-primary bg-primary/5 text-primary cursor-pointer'
                       : !formData.skinConcerns.includes(concern) &&
                         formData.skinConcerns.length >= 3
-                      ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                      ? 'border-gray-200 bg-gray-100 text-black cursor-not-allowed'
                       : 'border-gray-200 hover:border-gray-300 cursor-pointer'
                   }`}
                 >
@@ -309,7 +361,7 @@ function RegimeFormContent() {
       case 5:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               What is your complexion like?
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -333,8 +385,9 @@ function RegimeFormContent() {
       case 6:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
-              Do you have any skincare allergies or sensitivities?
+            <h2 className="text-2xl font-bold text-black">
+              Do you want to share skin concerns with our experts so they can
+              tailor your regime with precision?
             </h2>
             <textarea
               value={formData.allergies}
@@ -349,10 +402,10 @@ function RegimeFormContent() {
       case 7:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               Choose your skincare steps:
             </h2>
-            <p className="text-gray-600">
+            <p className="text-black">
               Select exactly {product.stepCount} steps (
               {formData.skincareSteps.length}/{product.stepCount})
             </p>
@@ -383,7 +436,7 @@ function RegimeFormContent() {
                       ? 'border-primary bg-primary/5 text-primary cursor-pointer'
                       : !formData.skincareSteps.includes(step) &&
                         formData.skincareSteps.length >= product.stepCount
-                      ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                      ? 'border-gray-200 bg-gray-100 text-black cursor-not-allowed'
                       : 'border-gray-200 hover:border-gray-300 cursor-pointer'
                   }`}
                 >
@@ -397,7 +450,7 @@ function RegimeFormContent() {
       case 8:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               Are you familiar with korean skincare routines?
             </h2>
             <div className="space-y-4">
@@ -427,10 +480,10 @@ function RegimeFormContent() {
       case 9:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               What attracts you to korean skincare?
             </h2>
-            <p className="text-gray-600">Select all that apply</p>
+            <p className="text-black">Select all that apply</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
                 'Natural ingredients',
@@ -459,10 +512,10 @@ function RegimeFormContent() {
       case 10:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               What&apos;s your skincare goal from using korean products?
             </h2>
-            <p className="text-gray-600">
+            <p className="text-black">
               Select up to 3 options ({formData.skincareGoal.length}/3)
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -485,7 +538,7 @@ function RegimeFormContent() {
                       ? 'border-primary bg-primary/5 text-primary cursor-pointer'
                       : !formData.skincareGoal.includes(goal) &&
                         formData.skincareGoal.length >= 3
-                      ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                      ? 'border-gray-200 bg-gray-100 text-black cursor-not-allowed'
                       : 'border-gray-200 hover:border-gray-300 cursor-pointer'
                   }`}
                 >
@@ -499,7 +552,7 @@ function RegimeFormContent() {
       case 11:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               How many skincare products do you use daily?
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -523,7 +576,7 @@ function RegimeFormContent() {
       case 12:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               Do you follow a regular skincare routine?
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -549,7 +602,7 @@ function RegimeFormContent() {
       case 13:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               Where do you usually buy your skincare products?
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -580,7 +633,7 @@ function RegimeFormContent() {
       case 14:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               What is your monthly skincare budget?
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -606,7 +659,7 @@ function RegimeFormContent() {
       case 15:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               Would you be interested in customized skincare recommendations
               based on your answers?
             </h2>
@@ -636,7 +689,7 @@ function RegimeFormContent() {
       case 16:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               What brands have you tried or are currently using?
             </h2>
             <textarea
@@ -652,7 +705,7 @@ function RegimeFormContent() {
       case 17:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               Any additional comments or requests?
             </h2>
             <textarea
@@ -678,10 +731,10 @@ function RegimeFormContent() {
         <div className="max-w-3xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h1 className="text-3xl md:text-4xl font-bold text-black mb-4">
               Customize Your {product.name}
             </h1>
-            <p className="text-gray-600">
+            <p className="text-black">
               Help us create the perfect skincare routine for you
             </p>
           </div>
@@ -692,7 +745,7 @@ function RegimeFormContent() {
               <span className="text-sm font-medium text-primary">
                 Step {currentStep} of 17
               </span>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-black">
                 {Math.round((currentStep / 17) * 100)}% Complete
               </span>
             </div>
@@ -713,7 +766,7 @@ function RegimeFormContent() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -50 }}
             transition={{ duration: 0.3 }}
-            className="bg-white rounded-xl shadow-lg p-8 mb-8"
+            className="bg-white rounded-lg shadow-lg p-8 mb-8"
           >
             {renderStep()}
           </motion.div>
@@ -725,8 +778,8 @@ function RegimeFormContent() {
               disabled={currentStep === 1}
               className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-semibold transition-all ${
                 currentStep === 1
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300 cursor-pointer'
+                  ? 'bg-gray-100 text-black cursor-not-allowed'
+                  : 'bg-gray-200 text-black hover:bg-gray-300 cursor-pointer'
               }`}
             >
               <ArrowLeft size={20} />
@@ -739,7 +792,7 @@ function RegimeFormContent() {
                 disabled={!isStepValid()}
                 className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-semibold transition-all ${
                   !isStepValid()
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    ? 'bg-gray-100 text-black cursor-not-allowed'
                     : 'btn-primary cursor-pointer'
                 }`}
               >
@@ -767,7 +820,7 @@ export default function RegimeForm() {
       fallback={
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-black">Loading...</p>
         </div>
       }
     >
