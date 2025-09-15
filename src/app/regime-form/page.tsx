@@ -766,7 +766,7 @@ function RegimeFormContent() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -50 }}
             transition={{ duration: 0.3 }}
-            className="bg-white rounded-xl shadow-lg p-8 mb-8"
+            className="bg-white rounded-lg shadow-lg p-8 mb-8"
           >
             {renderStep()}
           </motion.div>

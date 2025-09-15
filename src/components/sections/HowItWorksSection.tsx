@@ -60,7 +60,7 @@ export default function HowItWorksSection() {
 
               <div className="relative">
                 <motion.div
-                  className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-glow relative overflow-hidden"
+                  className="w-20 h-20 bg-white rounded-lg flex items-center justify-center mx-auto mb-6 shadow-glow relative overflow-hidden"
                   whileHover={{ scale: 1.1, rotate: 5 }}
                   transition={{ duration: 0.3 }}
                 >
