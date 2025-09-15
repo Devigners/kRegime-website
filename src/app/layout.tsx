@@ -19,14 +19,14 @@ const playfairDisplay = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: 'Kregime - AI-Curated Korean Skincare Regimes Simplified',
+  title: 'Kregime - Handpicked Korean Skincare Regimes Simplified',
   description:
     'Discover your perfect Korean skincare routine with our expertly curated 3, 5, or 7-step regime boxes featuring premium Korean skincare products.',
   keywords: [
     'Korean skincare',
     'K-beauty',
     'skincare routine',
-    'AI-curated',
+    'Handpicked',
     'personalized skincare',
     'Korean beauty products',
     'skincare regime',
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     apple: '/favicon.ico',
   },
   openGraph: {
-    title: 'Kregime - AI-Curated Korean Skincare Regimes Simplified',
+    title: 'Kregime - Handpicked Korean Skincare Regimes Simplified',
     description:
       'Discover your perfect Korean skincare routine with our expertly curated 3, 5, or 7-step regime boxes featuring premium Korean skincare products.',
     type: 'website',
@@ -57,9 +57,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Kregime - AI-Curated Korean Skincare Regimes',
+    title: 'Kregime - Handpicked Korean Skincare Regimes',
     description:
-      'Discover your perfect Korean skincare routine with AI-curated regime boxes.',
+      'Discover your perfect Korean skincare routine with Handpicked regime boxes.',
     images: ['/logo.svg'],
   },
   robots: {
