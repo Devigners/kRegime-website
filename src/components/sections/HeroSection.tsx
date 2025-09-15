@@ -60,7 +60,7 @@ export default function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
           >
-            AI-Curated Korean Skincare Regime Boxes Delivered to You
+            Personalized Korean Skincare Regime Boxes Delivered to You
           </motion.p>
           <motion.p
             className="text-lg md:text-xl text-black max-w-3xl mx-auto"

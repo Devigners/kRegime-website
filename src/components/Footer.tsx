@@ -49,7 +49,7 @@ const Footer: React.FC = () => {
                 </div>
               </div>
               <p className="text-white leading-relaxed max-w-md">
-                AI-Curated Korean Skincare Regimes Simplified. Discover your
+                Personalized Korean Skincare Regimes Simplified. Discover your
                 perfect skincare routine with our expertly curated regime boxes
                 featuring premium Korean products.
               </p>
