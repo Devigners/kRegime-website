@@ -19,7 +19,7 @@ export default function KoreanBrandsSection() {
           <h2 className="heading-lg text-neutral-900">
             Trusted <span className="gradient-text">Korean Brands</span>
           </h2>
-          <p className="text-xl text-neutral-600 max-w-4xl mx-auto leading-relaxed">
+          <p className="text-xl text-black max-w-4xl mx-auto leading-relaxed">
             We partner with the most respected Korean beauty brands to bring you
             authentic, high-quality products that deliver real results
           </p>

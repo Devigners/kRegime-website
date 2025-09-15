@@ -68,7 +68,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <h3 className="text-3xl font-bold text-neutral-900 group-hover:gradient-text transition-all duration-300">
             {product.name}
           </h3>
-          <p className="text-neutral-600 md:h-40 leading-relaxed">
+          <p className="text-black md:h-40 leading-relaxed">
             {product.description}
           </p>
         </div>
@@ -83,7 +83,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             {product.steps.map((step, index) => (
               <motion.div
                 key={index}
-                className="flex items-center text-neutral-600 py-1"
+                className="flex items-center text-black py-1"
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
@@ -103,10 +103,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               <div className="text-3xl font-bold text-neutral-900">
                 AED {product.price}
               </div>
-              <div className="text-sm text-neutral-500">One-time purchase</div>
+              <div className="text-sm text-black">One-time purchase</div>
             </div>
             <div className="text-right">
-              <div className="text-sm text-neutral-500 mb-1">Starting from</div>
+              <div className="text-sm text-black mb-1">Starting from</div>
               <div className="text-lg font-semibold text-primary">
                 AED {Math.round(product.price / product.stepCount)}/step
               </div>
@@ -121,7 +121,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </Link>
 
           <div className="text-center">
-            <span className="text-sm text-neutral-500">✨ Free shipping</span>
+            <span className="text-sm text-black">✨ Free shipping</span>
           </div>
         </div>
       </div>

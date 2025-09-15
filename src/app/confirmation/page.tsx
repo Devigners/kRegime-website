@@ -56,7 +56,7 @@ function ConfirmationContent() {
         <div className="container section-padding">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading order details...</p>
+            <p className="text-black">Loading order details...</p>
           </div>
         </div>
       </div>
@@ -71,10 +71,10 @@ function ConfirmationContent() {
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle size={40} className="text-green-500" />
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h1 className="text-3xl md:text-4xl font-bold text-black mb-4">
               Order Confirmed!
             </h1>
-            <p className="text-lg text-gray-600 mb-2">
+            <p className="text-lg text-black mb-2">
               Thank you for your purchase. Your Korean skincare journey begins
               now!
             </p>
@@ -104,10 +104,10 @@ function ConfirmationContent() {
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle size={40} className="text-green-500" />
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h1 className="text-3xl md:text-4xl font-bold text-black mb-4">
               Order Confirmed!
             </h1>
-            <p className="text-lg text-gray-600 mb-2">
+            <p className="text-lg text-black mb-2">
               Thank you for your purchase. Your Korean skincare journey begins
               now!
             </p>
@@ -123,7 +123,7 @@ function ConfirmationContent() {
             transition={{ delay: 0.2 }}
             className="bg-white rounded-lg shadow-md p-6 mb-8"
           >
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">
+            <h2 className="text-xl font-semibold text-black mb-6">
               Order Details
             </h2>
 
@@ -140,13 +140,9 @@ function ConfirmationContent() {
                     />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">
-                      {regime.name}
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      {regime.description}
-                    </p>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <h3 className="font-semibold text-black">{regime.name}</h3>
+                    <p className="text-sm text-black">{regime.description}</p>
+                    <p className="text-sm text-black mt-1">
                       {regime.stepCount}-step routine • Customized for{' '}
                       {order.userDetails.skinType} skin
                       {order.userDetails.skinConcerns.length > 0 && (
@@ -157,10 +153,10 @@ function ConfirmationContent() {
                       )}
                     </p>
                     <div className="flex justify-between items-center mt-2">
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-black">
                         Quantity: {order.quantity}
                       </span>
-                      <span className="font-semibold text-gray-900">
+                      <span className="font-semibold text-black">
                         AED {order.totalAmount}
                       </span>
                     </div>
@@ -169,31 +165,31 @@ function ConfirmationContent() {
 
                 {/* Customer Details */}
                 <div className="mt-6 pt-6 border-t border-gray-100">
-                  <h3 className="font-semibold text-gray-900 mb-3">
+                  <h3 className="font-semibold text-black mb-3">
                     Customer Information
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span className="text-gray-600">Age:</span>
-                      <span className="ml-2 text-gray-900">
+                      <span className="text-black">Age:</span>
+                      <span className="ml-2 text-black">
                         {order.userDetails.age}
                       </span>
                     </div>
                     <div>
-                      <span className="text-gray-600">Gender:</span>
-                      <span className="ml-2 text-gray-900">
+                      <span className="text-black">Gender:</span>
+                      <span className="ml-2 text-black">
                         {order.userDetails.gender}
                       </span>
                     </div>
                     <div>
-                      <span className="text-gray-600">Complexion:</span>
-                      <span className="ml-2 text-gray-900">
+                      <span className="text-black">Complexion:</span>
+                      <span className="ml-2 text-black">
                         {order.userDetails.complexion}
                       </span>
                     </div>
                     <div>
-                      <span className="text-gray-600">Experience:</span>
-                      <span className="ml-2 text-gray-900">
+                      <span className="text-black">Experience:</span>
+                      <span className="ml-2 text-black">
                         {order.userDetails.koreanSkincareExperience}
                       </span>
                     </div>
@@ -204,23 +200,23 @@ function ConfirmationContent() {
               <div className="space-y-4">
                 <div className="flex items-start space-x-4 pb-4 border-b border-gray-100">
                   <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <span className="text-gray-400 text-xs">Regime</span>
+                    <span className="text-black text-xs">Regime</span>
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">
+                    <h3 className="font-semibold text-black">
                       {order.regimeId.toUpperCase()}
                     </h3>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-black">
                       Korean skincare routine
                     </p>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-sm text-black mt-1">
                       Customized for {order.userDetails.skinType} skin
                     </p>
                     <div className="flex justify-between items-center mt-2">
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-black">
                         Quantity: {order.quantity}
                       </span>
-                      <span className="font-semibold text-gray-900">
+                      <span className="font-semibold text-black">
                         AED {order.totalAmount}
                       </span>
                     </div>
@@ -229,19 +225,17 @@ function ConfirmationContent() {
 
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Subtotal</span>
-                    <span className="text-gray-900">
-                      AED {order.totalAmount}
-                    </span>
+                    <span className="text-black">Subtotal</span>
+                    <span className="text-black">AED {order.totalAmount}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Shipping</span>
-                    <span className="text-gray-900">Free</span>
+                    <span className="text-black">Shipping</span>
+                    <span className="text-black">Free</span>
                   </div>
                   <div className="border-t pt-2">
                     <div className="flex justify-between font-semibold">
-                      <span className="text-gray-900">Total</span>
-                      <span className="text-gray-900">
+                      <span className="text-black">Total</span>
+                      <span className="text-black">
                         AED {order.finalAmount}
                       </span>
                     </div>
@@ -252,13 +246,13 @@ function ConfirmationContent() {
               <div className="space-y-4">
                 <div className="flex items-start space-x-4 pb-4 border-b border-gray-100">
                   <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <span className="text-gray-400 text-xs">Product</span>
+                    <span className="text-black text-xs">Product</span>
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">
+                    <h3 className="font-semibold text-black">
                       Processing Order...
                     </h3>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-black">
                       Your order is being processed
                     </p>
                   </div>
@@ -274,7 +268,7 @@ function ConfirmationContent() {
             transition={{ delay: 0.3 }}
             className="bg-white rounded-lg shadow-md p-6 mb-8"
           >
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">
+            <h2 className="text-xl font-semibold text-black mb-6">
               What&apos;s Next?
             </h2>
 
@@ -284,10 +278,10 @@ function ConfirmationContent() {
                   <Mail size={20} className="text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">
+                  <h3 className="font-semibold text-black">
                     Confirmation Email
                   </h3>
-                  <p className="text-gray-600 text-sm">
+                  <p className="text-black text-sm">
                     We&apos;ll send you an order confirmation email with all the
                     details.
                   </p>
@@ -299,10 +293,8 @@ function ConfirmationContent() {
                   <Package size={20} className="text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">
-                    Order Processing
-                  </h3>
-                  <p className="text-gray-600 text-sm">
+                  <h3 className="font-semibold text-black">Order Processing</h3>
+                  <p className="text-black text-sm">
                     Our skincare experts will curate your personalized regime
                     within 1 business day.
                   </p>
@@ -314,10 +306,10 @@ function ConfirmationContent() {
                   <Truck size={20} className="text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">
+                  <h3 className="font-semibold text-black">
                     Shipping & Delivery
                   </h3>
-                  <p className="text-gray-600 text-sm">
+                  <p className="text-black text-sm">
                     Your Korean skincare regime box will be delivered within 2-3
                     business days.
                   </p>
@@ -336,7 +328,7 @@ function ConfirmationContent() {
             <Link href="/" className="btn-primary inline-block">
               Continue Shopping
             </Link>
-            <p className="text-gray-600">
+            <p className="text-black">
               Questions about your order?{' '}
               <a
                 href="mailto:care@kregime.com"
@@ -360,7 +352,7 @@ export default function Confirmation() {
           <div className="container section-padding">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading...</p>
+              <p className="text-black">Loading...</p>
             </div>
           </div>
         </div>

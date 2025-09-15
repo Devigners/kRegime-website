@@ -18,7 +18,7 @@ export default function TransformationsSection() {
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-neutral-900 mb-4 sm:mb-6">
             Transformation <span className="gradient-text">Journey</span>
           </h2>
-          <p className="text-base sm:text-lg md:text-xl text-neutral-600 max-w-3xl mx-auto leading-relaxed px-4">
+          <p className="text-base sm:text-lg md:text-xl text-black max-w-3xl mx-auto leading-relaxed px-4">
             See the amazing results our customers have achieved with their
             personalized Korean skincare routines
           </p>
@@ -86,10 +86,10 @@ export default function TransformationsSection() {
                         {milestone.time}
                       </div>
                     </div>
-                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 leading-tight">
+                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-black mb-2 leading-tight">
                       {milestone.title}
                     </h3>
-                    <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 leading-relaxed">
+                    <p className="text-sm sm:text-base text-black mb-4 sm:mb-6 leading-relaxed">
                       {milestone.description}
                     </p>
                   </div>

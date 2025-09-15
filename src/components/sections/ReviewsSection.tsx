@@ -38,7 +38,7 @@ export default function ReviewsSection() {
         <div className="container section-padding">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading reviews...</p>
+            <p className="text-black">Loading reviews...</p>
           </div>
         </div>
       </section>
@@ -82,7 +82,7 @@ export default function ReviewsSection() {
           <h2 className="heading-lg text-neutral-900 mb-6">
             What Our <span className="gradient-text">Customers Say</span>
           </h2>
-          <p className="text-xl text-neutral-600 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-black max-w-3xl mx-auto leading-relaxed">
             Join thousands of satisfied customers who have transformed their
             skin with <br /> our personalized K-beauty routines
           </p>

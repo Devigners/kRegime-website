@@ -63,7 +63,7 @@ export default function HeroSection() {
             AI-Curated Korean Skincare Regime Boxes Delivered to You
           </motion.p>
           <motion.p
-            className="text-lg md:text-xl text-neutral-600 max-w-3xl mx-auto"
+            className="text-lg md:text-xl text-black max-w-3xl mx-auto"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
@@ -106,7 +106,7 @@ export default function HeroSection() {
               <div className="text-3xl md:text-4xl font-bold text-neutral-900">
                 {stat.number}
               </div>
-              <div className="text-sm md:text-base text-neutral-600 font-medium">
+              <div className="text-sm md:text-base text-black font-medium">
                 {stat.label}
               </div>
             </motion.div>

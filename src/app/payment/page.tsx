@@ -151,7 +151,7 @@ export default function Payment() {
         <div className="container section-padding">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading...</p>
+            <p className="text-black">Loading...</p>
           </div>
         </div>
       </div>
@@ -166,13 +166,13 @@ export default function Payment() {
           <div className="mb-8">
             <Link
               href="/cart"
-              className="flex items-center text-gray-600 hover:text-primary mb-4"
+              className="flex items-center text-black hover:text-primary mb-4"
             >
               <ArrowLeft size={20} className="mr-2" />
               Back to Cart
             </Link>
-            <h1 className="text-3xl font-bold text-gray-900">Checkout</h1>
-            <p className="text-sm text-gray-600 mt-2">
+            <h1 className="text-3xl font-bold text-black">Checkout</h1>
+            <p className="text-sm text-black mt-2">
               Fields marked with * are required
             </p>
           </div>
@@ -186,7 +186,7 @@ export default function Payment() {
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-white rounded-lg shadow-md p-6"
               >
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                <h2 className="text-xl font-semibold text-black mb-4">
                   Contact Information
                 </h2>
                 <div className="space-y-4">
@@ -217,7 +217,7 @@ export default function Payment() {
                 transition={{ delay: 0.1 }}
                 className="bg-white rounded-lg shadow-md p-6"
               >
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                <h2 className="text-xl font-semibold text-black mb-4">
                   Shipping Address
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -280,7 +280,7 @@ export default function Payment() {
               >
                 <div className="flex items-center mb-4">
                   <CreditCard size={24} className="text-primary mr-2" />
-                  <h2 className="text-xl font-semibold text-gray-900">
+                  <h2 className="text-xl font-semibold text-black">
                     Payment Information
                   </h2>
                 </div>
@@ -327,7 +327,7 @@ export default function Payment() {
                     />
                   </div>
 
-                  <div className="flex items-center text-sm text-gray-600 mt-4">
+                  <div className="flex items-center text-sm text-black mt-4">
                     <Lock size={16} className="mr-2" />
                     Your payment information is secure and encrypted
                   </div>
@@ -343,7 +343,7 @@ export default function Payment() {
                 transition={{ delay: 0.3 }}
                 className="bg-white rounded-lg shadow-md p-6 sticky top-24"
               >
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">
+                <h2 className="text-xl font-semibold text-black mb-6">
                   Order Summary
                 </h2>
 
@@ -359,13 +359,13 @@ export default function Payment() {
                       />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900">
+                      <h3 className="font-semibold text-black">
                         {cartData.regime.name}
                       </h3>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-black">
                         {cartData.regime.description}
                       </p>
-                      <p className="text-sm font-semibold text-gray-900 mt-1">
+                      <p className="text-sm font-semibold text-black mt-1">
                         AED {cartData.regime.price} x {cartData.quantity}
                       </p>
                     </div>
@@ -373,21 +373,21 @@ export default function Payment() {
 
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Subtotal</span>
-                      <span className="text-gray-900">
+                      <span className="text-black">Subtotal</span>
+                      <span className="text-black">
                         AED {cartData.totalAmount}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Shipping</span>
-                      <span className="text-gray-900">Free</span>
+                      <span className="text-black">Shipping</span>
+                      <span className="text-black">Free</span>
                     </div>
                     <div className="border-t border-gray-200 pt-2">
                       <div className="flex justify-between">
-                        <span className="text-lg font-semibold text-gray-900">
+                        <span className="text-lg font-semibold text-black">
                           Total
                         </span>
-                        <span className="text-lg font-semibold text-gray-900">
+                        <span className="text-lg font-semibold text-black">
                           AED {cartData.finalAmount}
                         </span>
                       </div>
@@ -410,7 +410,7 @@ export default function Payment() {
                   )}
                 </button>
 
-                <p className="text-xs text-gray-500 text-center mt-4">
+                <p className="text-xs text-black text-center mt-4">
                   By completing your order, you agree to our Terms of Service
                   and Privacy Policy.
                 </p>

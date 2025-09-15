@@ -37,7 +37,7 @@ export default function ProductsSection() {
         <div className="container section-padding">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading regimes...</p>
+            <p className="text-black">Loading regimes...</p>
           </div>
         </div>
       </section>
@@ -81,7 +81,7 @@ export default function ProductsSection() {
           <h2 className="heading-lg text-neutral-900 mb-6">
             Choose Your <span className="gradient-text">Regime</span>
           </h2>
-          <p className="text-xl text-neutral-600 max-w-4xl mx-auto leading-relaxed">
+          <p className="text-xl text-black max-w-4xl mx-auto leading-relaxed">
             Pick your preferred 3, 5 & 7 steps and we&apos;ll fill them with
             expertly matched Korean beauty products made for your unique skin
           </p>

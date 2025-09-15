@@ -29,7 +29,7 @@ export default function FeaturesSection() {
           <h2 className="heading-lg text-neutral-900 mb-6">
             The Handpicked <span className="gradient-text">Regime</span>
           </h2>
-          <p className="text-xl text-neutral-600 max-w-3xl mx-auto">
+          <p className="text-xl text-black max-w-3xl mx-auto">
             We curate handpicked Korean skincare regimens, with products
             carefully selected by our experts based on individual skin needs.
           </p>
@@ -52,7 +52,7 @@ export default function FeaturesSection() {
               <h3 className="text-2xl font-semibold text-neutral-900 mb-4">
                 {feature.title}
               </h3>
-              <p className="text-neutral-600 leading-relaxed">
+              <p className="text-black leading-relaxed">
                 {feature.description}
               </p>
             </motion.div>

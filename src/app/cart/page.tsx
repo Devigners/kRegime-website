@@ -57,10 +57,10 @@ export default function Cart() {
   if (!cartData) {
     return (
       <div className="container section-padding py-40 text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">
+        <h1 className="text-3xl font-bold text-black mb-4">
           Your Cart is Empty
         </h1>
-        <p className="text-gray-600 mb-8">
+        <p className="text-black mb-8">
           Looks like you haven&apos;t added any products to your cart yet.
         </p>
         <Link href="/" className="btn-primary">
@@ -72,7 +72,7 @@ export default function Cart() {
 
   return (
     <div className="container section-padding py-40">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
+      <h1 className="text-3xl font-bold text-black mb-8">Shopping Cart</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Cart Items */}
@@ -94,14 +94,14 @@ export default function Cart() {
               </div>
 
               <div className="flex-1">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                <h3 className="text-xl font-semibold text-black mb-2">
                   {cartData.regime.name}
                 </h3>
-                <p className="text-gray-600 text-sm mb-3">
+                <p className="text-black text-sm mb-3">
                   {cartData.regime.description}
                 </p>
 
-                <div className="text-sm text-gray-500 mb-3">
+                <div className="text-sm text-black mb-3">
                   <p>
                     Skin Type: {cartData.formData.skinType || 'Not specified'}
                   </p>
@@ -132,7 +132,7 @@ export default function Cart() {
                   </div>
 
                   <div className="text-right">
-                    <p className="text-xl font-bold text-gray-900">
+                    <p className="text-xl font-bold text-black">
                       AED {cartData.totalAmount}
                     </p>
                     <button
@@ -151,27 +151,25 @@ export default function Cart() {
         {/* Order Summary */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">
+            <h2 className="text-xl font-semibold text-black mb-6">
               Order Summary
             </h2>
 
             <div className="space-y-4 mb-6">
               <div className="flex justify-between">
-                <span className="text-gray-600">Subtotal</span>
-                <span className="text-gray-900">
-                  AED {cartData.totalAmount}
-                </span>
+                <span className="text-black">Subtotal</span>
+                <span className="text-black">AED {cartData.totalAmount}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Shipping</span>
-                <span className="text-gray-900">Free</span>
+                <span className="text-black">Shipping</span>
+                <span className="text-black">Free</span>
               </div>
               <div className="border-t border-gray-200 pt-4">
                 <div className="flex justify-between">
-                  <span className="text-lg font-semibold text-gray-900">
+                  <span className="text-lg font-semibold text-black">
                     Total
                   </span>
-                  <span className="text-lg font-semibold text-gray-900">
+                  <span className="text-lg font-semibold text-black">
                     AED {cartData.finalAmount}
                   </span>
                 </div>

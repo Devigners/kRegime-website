@@ -97,7 +97,7 @@ function RegimeFormContent() {
     return (
       <div className="container section-padding py-40 text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-        <p className="text-gray-600">Loading...</p>
+        <p className="text-black">Loading...</p>
       </div>
     );
   }
@@ -105,10 +105,10 @@ function RegimeFormContent() {
   if (!product) {
     return (
       <div className="container section-padding py-40 text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">
+        <h1 className="text-3xl font-bold text-black mb-4">
           Product Not Found
         </h1>
-        <p className="text-gray-600 mb-8">
+        <p className="text-black mb-8">
           The product you&apos;re looking for doesn&apos;t exist.
         </p>
         <button
@@ -241,7 +241,7 @@ function RegimeFormContent() {
       case 1:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               What is your age range?
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -267,7 +267,7 @@ function RegimeFormContent() {
       case 2:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Gender?</h2>
+            <h2 className="text-2xl font-bold text-black">Gender?</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {['Male', 'Female', 'Prefer not to say'].map((gender) => (
                 <button
@@ -289,7 +289,7 @@ function RegimeFormContent() {
       case 3:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               What is your skin type?
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -320,10 +320,10 @@ function RegimeFormContent() {
       case 4:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               What are your primary skin concerns?
             </h2>
-            <p className="text-gray-600">
+            <p className="text-black">
               Select up to 3 options ({formData.skinConcerns.length}/3)
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -347,7 +347,7 @@ function RegimeFormContent() {
                       ? 'border-primary bg-primary/5 text-primary cursor-pointer'
                       : !formData.skinConcerns.includes(concern) &&
                         formData.skinConcerns.length >= 3
-                      ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                      ? 'border-gray-200 bg-gray-100 text-black cursor-not-allowed'
                       : 'border-gray-200 hover:border-gray-300 cursor-pointer'
                   }`}
                 >
@@ -361,7 +361,7 @@ function RegimeFormContent() {
       case 5:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               What is your complexion like?
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -385,7 +385,7 @@ function RegimeFormContent() {
       case 6:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               Do you want to share skin concerns with our experts so they can
               tailor your regime with precision?
             </h2>
@@ -402,10 +402,10 @@ function RegimeFormContent() {
       case 7:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               Choose your skincare steps:
             </h2>
-            <p className="text-gray-600">
+            <p className="text-black">
               Select exactly {product.stepCount} steps (
               {formData.skincareSteps.length}/{product.stepCount})
             </p>
@@ -436,7 +436,7 @@ function RegimeFormContent() {
                       ? 'border-primary bg-primary/5 text-primary cursor-pointer'
                       : !formData.skincareSteps.includes(step) &&
                         formData.skincareSteps.length >= product.stepCount
-                      ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                      ? 'border-gray-200 bg-gray-100 text-black cursor-not-allowed'
                       : 'border-gray-200 hover:border-gray-300 cursor-pointer'
                   }`}
                 >
@@ -450,7 +450,7 @@ function RegimeFormContent() {
       case 8:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               Are you familiar with korean skincare routines?
             </h2>
             <div className="space-y-4">
@@ -480,10 +480,10 @@ function RegimeFormContent() {
       case 9:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               What attracts you to korean skincare?
             </h2>
-            <p className="text-gray-600">Select all that apply</p>
+            <p className="text-black">Select all that apply</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
                 'Natural ingredients',
@@ -512,10 +512,10 @@ function RegimeFormContent() {
       case 10:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               What&apos;s your skincare goal from using korean products?
             </h2>
-            <p className="text-gray-600">
+            <p className="text-black">
               Select up to 3 options ({formData.skincareGoal.length}/3)
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -538,7 +538,7 @@ function RegimeFormContent() {
                       ? 'border-primary bg-primary/5 text-primary cursor-pointer'
                       : !formData.skincareGoal.includes(goal) &&
                         formData.skincareGoal.length >= 3
-                      ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                      ? 'border-gray-200 bg-gray-100 text-black cursor-not-allowed'
                       : 'border-gray-200 hover:border-gray-300 cursor-pointer'
                   }`}
                 >
@@ -552,7 +552,7 @@ function RegimeFormContent() {
       case 11:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               How many skincare products do you use daily?
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -576,7 +576,7 @@ function RegimeFormContent() {
       case 12:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               Do you follow a regular skincare routine?
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -602,7 +602,7 @@ function RegimeFormContent() {
       case 13:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               Where do you usually buy your skincare products?
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -633,7 +633,7 @@ function RegimeFormContent() {
       case 14:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               What is your monthly skincare budget?
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -659,7 +659,7 @@ function RegimeFormContent() {
       case 15:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               Would you be interested in customized skincare recommendations
               based on your answers?
             </h2>
@@ -689,7 +689,7 @@ function RegimeFormContent() {
       case 16:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               What brands have you tried or are currently using?
             </h2>
             <textarea
@@ -705,7 +705,7 @@ function RegimeFormContent() {
       case 17:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black">
               Any additional comments or requests?
             </h2>
             <textarea
@@ -731,10 +731,10 @@ function RegimeFormContent() {
         <div className="max-w-3xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h1 className="text-3xl md:text-4xl font-bold text-black mb-4">
               Customize Your {product.name}
             </h1>
-            <p className="text-gray-600">
+            <p className="text-black">
               Help us create the perfect skincare routine for you
             </p>
           </div>
@@ -745,7 +745,7 @@ function RegimeFormContent() {
               <span className="text-sm font-medium text-primary">
                 Step {currentStep} of 17
               </span>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-black">
                 {Math.round((currentStep / 17) * 100)}% Complete
               </span>
             </div>
@@ -778,8 +778,8 @@ function RegimeFormContent() {
               disabled={currentStep === 1}
               className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-semibold transition-all ${
                 currentStep === 1
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300 cursor-pointer'
+                  ? 'bg-gray-100 text-black cursor-not-allowed'
+                  : 'bg-gray-200 text-black hover:bg-gray-300 cursor-pointer'
               }`}
             >
               <ArrowLeft size={20} />
@@ -792,7 +792,7 @@ function RegimeFormContent() {
                 disabled={!isStepValid()}
                 className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-semibold transition-all ${
                   !isStepValid()
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    ? 'bg-gray-100 text-black cursor-not-allowed'
                     : 'btn-primary cursor-pointer'
                 }`}
               >
@@ -820,7 +820,7 @@ export default function RegimeForm() {
       fallback={
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-black">Loading...</p>
         </div>
       }
     >
