@@ -18,7 +18,7 @@ const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="relative bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 text-white overflow-hidden">
+    <footer className="relative bg-gradient-to-r from-primary to-primary-light text-white overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-full blur-3xl"></div>
@@ -48,7 +48,7 @@ const Footer: React.FC = () => {
                   />
                 </div>
               </div>
-              <p className="text-neutral-300 leading-relaxed max-w-md">
+              <p className="text-white leading-relaxed max-w-md">
                 AI-Curated Korean Skincare Regimes Simplified. Discover your
                 perfect skincare routine with our expertly curated regime boxes
                 featuring premium Korean products.
@@ -110,13 +110,13 @@ const Footer: React.FC = () => {
             >
               <h3 className="text-xl font-semibold">Support</h3>
               <div className="space-y-4">
-                <p className="text-neutral-300 text-sm leading-relaxed">
+                <p className="text-white text-sm leading-relaxed">
                   Have questions? We&apos;re here to help you on your skincare
                   journey.
                 </p>
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
-                    <Mail className="w-4 h-4 text-primary" />
+                    <Mail className="w-4 h-4 text-white" />
                     <a
                       href="mailto:care@kregime.com"
                       className="text-primary hover:text-primary-light transition-colors duration-300"
@@ -124,9 +124,7 @@ const Footer: React.FC = () => {
                       care@kregime.com
                     </a>
                   </div>
-                  <p className="text-neutral-400 text-sm">
-                    Response within 24 hours
-                  </p>
+                  <p className="text-white text-sm">Response within 24 hours</p>
                 </div>
               </div>
             </motion.div>
@@ -135,7 +133,7 @@ const Footer: React.FC = () => {
 
         {/* Newsletter Section */}
         <motion.div
-          className="border-t border-white/10 bg-white/5 backdrop-blur-sm"
+          className="border-t border-black/10 bg-black/20 backdrop-blur-sm"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
@@ -146,7 +144,7 @@ const Footer: React.FC = () => {
               <h3 className="text-2xl font-semibold">
                 Join the Glow Community
               </h3>
-              <p className="text-neutral-300 max-w-2xl mx-auto">
+              <p className="text-white max-w-2xl mx-auto">
                 Get exclusive skincare tips, early access to new products, and
                 special offers delivered to your inbox.
               </p>
@@ -154,9 +152,9 @@ const Footer: React.FC = () => {
                 <input
                   type="email"
                   placeholder="Enter your email"
-                  className="flex-1 px-6 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-300"
+                  className="flex-1 px-6 py-4 bg-black/10 backdrop-blur-sm border border-black/10 rounded-lg text-white placeholder-white/90 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all duration-300"
                 />
-                <button className="btn-primary px-8 py-4 whitespace-nowrap">
+                <button className="btn-secondary !bg-white hover:!text-primary px-8 py-4 whitespace-nowrap">
                   Subscribe
                 </button>
               </div>
@@ -168,9 +166,9 @@ const Footer: React.FC = () => {
         <div className="border-t border-white/10">
           <div className="container section-padding py-8">
             <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-              <div className="flex items-center space-x-2 text-neutral-400 text-sm">
+              <div className="flex items-center space-x-2 text-white text-sm">
                 <span>© 2025 Kregime. Made with</span>
-                <Heart className="w-4 h-4 text-primary fill-current" />
+                <Heart className="w-4 h-4 text-white fill-current" />
                 <span>for your skin</span>
               </div>
 
@@ -178,13 +176,13 @@ const Footer: React.FC = () => {
                 <div className="flex space-x-6">
                   <Link
                     href="/privacy"
-                    className="text-neutral-400 hover:text-white transition-colors duration-300"
+                    className="text-white hover:text-white transition-colors duration-300"
                   >
                     Privacy Policy
                   </Link>
                   <Link
                     href="/terms"
-                    className="text-neutral-400 hover:text-white transition-colors duration-300"
+                    className="text-white hover:text-white transition-colors duration-300"
                   >
                     Terms of Service
                   </Link>
@@ -192,7 +190,7 @@ const Footer: React.FC = () => {
 
                 <motion.button
                   onClick={scrollToTop}
-                  className="flex items-center space-x-2 text-neutral-400 hover:text-primary transition-colors duration-300 group"
+                  className="flex items-center space-x-2 text-white hover:text-primary transition-colors duration-300 group"
                   whileHover={{ y: -2 }}
                   whileTap={{ scale: 0.95 }}
                 >
