@@ -33,7 +33,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
               size={18}
               className={
                 i < review.rating
-                  ? 'text-yellow-400 fill-current'
+                  ? 'text-primary fill-current'
                   : 'text-neutral-300'
               }
             />
