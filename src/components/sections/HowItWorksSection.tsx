@@ -27,7 +27,7 @@ export default function HowItWorksSection() {
   ];
 
   return (
-    <section id="how-it-works" className="py-32 bg-white">
+    <section id="how-it-works" className="py-32 bg-primary text-white">
       <div className="container section-padding">
         <motion.div
           className="text-center mb-20"
@@ -36,10 +36,8 @@ export default function HowItWorksSection() {
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          <h2 className="heading-lg text-neutral-900 mb-6">
-            How It <span className="gradient-text">Works</span>
-          </h2>
-          <p className="text-xl text-neutral-600 max-w-3xl mx-auto leading-relaxed">
+          <h2 className="heading-lg mb-6">How It Works</h2>
+          <p className="text-xl max-w-3xl mx-auto leading-relaxed">
             Get a fully personalized Korean skincare routine in three simple
             steps
           </p>
@@ -57,24 +55,22 @@ export default function HowItWorksSection() {
             >
               {/* Connecting Line */}
               {index < 2 && (
-                <div className="hidden md:block absolute top-10 left-1/2 w-full h-0.5 bg-gradient-to-r from-primary/30 to-secondary/30 transform translate-x-8"></div>
+                <div className="hidden md:block absolute top-10 left-1/2 w-full h-0.5 bg-white/20 transform translate-x-8"></div>
               )}
 
               <div className="relative">
                 <motion.div
-                  className="w-20 h-20 bg-primary rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-glow relative overflow-hidden"
+                  className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-glow relative overflow-hidden"
                   whileHover={{ scale: 1.1, rotate: 5 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <span className="text-white font-bold text-sm">
+                  <span className="text-primary font-bold text-sm">
                     <item.icon className="w-8 h-8" />
                   </span>
                 </motion.div>
               </div>
-              <h3 className="text-2xl font-semibold text-neutral-900">
-                {item.title}
-              </h3>
-              <p className="text-neutral-600 leading-relaxed max-w-sm mx-auto">
+              <h3 className="text-2xl font-semibold">{item.title}</h3>
+              <p className="leading-relaxed max-w-sm mx-auto">
                 {item.description}
               </p>
             </motion.div>
