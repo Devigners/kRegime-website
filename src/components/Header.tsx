@@ -69,7 +69,7 @@ const Header: React.FC = () => {
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3 group">
-            <div className="relative w-32 h-32 rounded-2xl flex items-center justify-center overflow-hidden">
+            <div className="relative w-36 h-36 rounded-lg flex items-center justify-center overflow-hidden">
               <Image
                 src="/logo.svg"
                 alt="Kregime Logo"
@@ -85,7 +85,6 @@ const Header: React.FC = () => {
             {[
               { href: '/', label: 'Home' },
               { href: '/#brands', label: 'Brands' },
-              { href: '/#regimes', label: 'Regimes' },
               { href: '/#how-it-works', label: 'How It Works' },
               { href: '/#reviews', label: 'Reviews' },
             ].map((item) => (
@@ -122,7 +121,7 @@ const Header: React.FC = () => {
 
             <div className="hidden md:block">
               <Link href="/#regimes" className="btn-primary text-sm">
-                Get Started
+                Find Your Regime
               </Link>
             </div>
 

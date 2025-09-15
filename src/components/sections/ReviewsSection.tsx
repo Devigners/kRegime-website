@@ -84,7 +84,7 @@ export default function ReviewsSection() {
           </h2>
           <p className="text-xl text-neutral-600 max-w-3xl mx-auto leading-relaxed">
             Join thousands of satisfied customers who have transformed their
-            skin with our personalized K-beauty routines
+            skin with <br /> our personalized K-beauty routines
           </p>
         </motion.div>
 

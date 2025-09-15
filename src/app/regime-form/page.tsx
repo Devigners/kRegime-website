@@ -386,7 +386,8 @@ function RegimeFormContent() {
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-gray-900">
-              Do you have any skincare allergies or sensitivities?
+              Do you want to share skin concerns with our experts so they can
+              tailor your regime with precision?
             </h2>
             <textarea
               value={formData.allergies}

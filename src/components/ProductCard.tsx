@@ -1,9 +1,9 @@
-import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Product } from '../types';
 import { motion } from 'framer-motion';
-import { ArrowRight, CheckCircle, Sparkles } from 'lucide-react';
+import { CheckCircle, Sparkles } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import React from 'react';
+import { Product } from '../types';
 
 interface ProductCardProps {
   product: Product;
@@ -24,7 +24,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       {isPopular && (
         <div className="absolute -top-1 -right-1 z-10">
           <motion.div
-            className="bg-gradient-to-r from-primary to-secondary text-white px-4 py-2 rounded-2xl shadow-lg flex items-center space-x-1"
+            className="bg-gradient-to-r from-primary to-secondary text-white px-4 py-2 rounded-lg shadow-lg flex items-center space-x-1"
             initial={{ scale: 0, rotate: -180 }}
             animate={{ scale: 1, rotate: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -48,11 +48,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         {/* Overlay Content */}
         <div className="absolute inset-0 flex items-end p-6">
           <div className="text-white">
-            <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-4 shadow-glow">
-              <span className="text-white font-bold text-2xl">
-                {product.stepCount}
-              </span>
-            </div>
             <span className="text-white/90 text-sm font-medium bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full">
               {product.stepCount} Steps Routine
             </span>
@@ -73,7 +68,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <h3 className="text-3xl font-bold text-neutral-900 group-hover:gradient-text transition-all duration-300">
             {product.name}
           </h3>
-          <p className="text-neutral-600 leading-relaxed">
+          <p className="text-neutral-600 md:h-40 leading-relaxed">
             {product.description}
           </p>
         </div>
@@ -82,7 +77,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <div className="space-y-3">
           <h4 className="font-semibold text-neutral-900 flex items-center">
             <CheckCircle className="w-5 h-5 text-secondary mr-2" />
-            Included Steps:
+            Suggested Steps:
           </h4>
           <div className="grid grid-cols-1 gap-2">
             {product.steps.map((step, index) => (
@@ -123,13 +118,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             className="btn-primary w-full text-center group flex items-center justify-center"
           >
             Select This Regime
-            <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
           </Link>
 
           <div className="text-center">
-            <span className="text-xs text-neutral-500">
-              ✨ Free shipping • 30-day money-back guarantee
-            </span>
+            <span className="text-sm text-neutral-500">✨ Free shipping</span>
           </div>
         </div>
       </div>

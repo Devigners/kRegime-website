@@ -2,29 +2,27 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { ShoppingBag, ClipboardList, Sparkles } from 'lucide-react';
 
 export default function HowItWorksSection() {
   const steps = [
     {
-      step: '1',
-      title: 'Choose Your Regime Box',
+      icon: ShoppingBag,
+      title: 'Choose Your Regime',
       description:
-        'Select from our 3, 5, or 7-step Korean skincare regime boxes based on your preferences and skin goals.',
-      image: '/static/10.jpg',
+        'Select from our 3, 5, or 7-step Korean skincare regime boxes based on your preferences and unique skin goals.',
     },
     {
-      step: '2',
-      title: 'Complete Our AI Quiz',
+      icon: ClipboardList,
+      title: 'Complete Our Quiz',
       description:
-        'Tell us about your skin type, concerns, and preferences so our AI can personalize your box perfectly.',
-      image: '/static/11.jpg',
+        'Tell us about your skin type, concerns, and preferences so our skincare experts can personalize your box perfectly.',
     },
     {
-      step: '3',
+      icon: Sparkles,
       title: 'Receive & Glow',
       description:
-        'Get your curated routine delivered and start seeing results within 7-14 days of consistent use.',
-      image: '/static/12.jpg',
+        'Get your curated skincare routine delivered and start seeing visible results within 7-14 days of consistent use.',
     },
   ];
 
@@ -50,7 +48,7 @@ export default function HowItWorksSection() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
           {steps.map((item, index) => (
             <motion.div
-              key={item.step}
+              key={index}
               className="relative text-center space-y-6"
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -68,11 +66,9 @@ export default function HowItWorksSection() {
                   whileHover={{ scale: 1.1, rotate: 5 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <div className="absolute w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-medium">
-                    <span className="text-primary font-bold text-sm">
-                      {item.step}
-                    </span>
-                  </div>
+                  <span className="text-white font-bold text-sm">
+                    <item.icon className="w-8 h-8" />
+                  </span>
                 </motion.div>
               </div>
               <h3 className="text-2xl font-semibold text-neutral-900">

@@ -79,7 +79,7 @@ export default function ProductsSection() {
           viewport={{ once: true }}
         >
           <h2 className="heading-lg text-neutral-900 mb-6">
-            Choose Your <span className="gradient-text">Skincare Journey</span>
+            Choose Your <span className="gradient-text">Regime</span>
           </h2>
           <p className="text-xl text-neutral-600 max-w-4xl mx-auto leading-relaxed">
             Pick your preferred 3, 5 & 7 steps and we&apos;ll fill them with
