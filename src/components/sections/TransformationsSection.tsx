@@ -80,7 +80,7 @@ export default function TransformationsSection() {
                     index % 2 === 0 ? 'md:pr-8 lg:pr-16' : 'md:pl-8 lg:pl-16'
                   }`}
                 >
-                  <div className="bg-white rounded-lg sm:rounded-xl p-4 sm:p-6 md:p-8 shadow-lg border border-gray-100">
+                  <div className="bg-white rounded-lg p-4 sm:p-6 md:p-8 shadow-lg border border-gray-100">
                     <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
                       <div className="bg-gradient-to-r from-primary to-secondary text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-semibold">
                         {milestone.time}
@@ -106,7 +106,7 @@ export default function TransformationsSection() {
                     whileHover={{ scale: 1.02 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <div className="aspect-[4/3] sm:aspect-[3/2] md:aspect-[4/3] relative rounded-lg sm:rounded-xl overflow-hidden shadow-lg">
+                    <div className="aspect-[4/3] sm:aspect-[3/2] md:aspect-[4/3] relative rounded-lg overflow-hidden shadow-lg">
                       <Image
                         src={`/static/${milestone.imageNum}.jpg`}
                         alt={`${milestone.title} transformation`}

@@ -37,7 +37,7 @@ export default function KoreanBrandsSection() {
               whileHover={{ y: -3 }}
             >
               <div className="bg-white rounded-lg p-3 shadow-soft hover:shadow-medium transition-all duration-300 border border-neutral-200 hover:border-neutral-300">
-                <div className="aspect-square relative rounded-xl overflow-hidden bg-white">
+                <div className="aspect-square relative rounded-lg overflow-hidden bg-white">
                   <Image
                     src={`/brands/${brand.file}`}
                     alt={`${brand.name} Korean Beauty Brand`}
