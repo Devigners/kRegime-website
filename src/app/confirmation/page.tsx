@@ -144,7 +144,7 @@ function ConfirmationContent() {
                     <h3 className="font-semibold text-black">{regime.name}</h3>
                     <p className="text-sm text-black">{regime.description}</p>
                     <p className="text-sm text-black mt-1">
-                      {regime.stepCount}-step routine • Customized for{' '}
+                      {regime.stepCount} steps routine • Customized for{' '}
                       {order.userDetails.skinType} skin
                       {order.userDetails.skinConcerns.length > 0 && (
                         <span>

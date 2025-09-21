@@ -72,7 +72,7 @@ export default function HeroSection() {
             transition={{ duration: 0.8, delay: 0.5 }}
           >
             Discover your perfect skincare routine with our expertly curated 3,
-            5, or 7-step regime boxes featuring premium Korean products
+            5, or 7 steps regime boxes featuring premium Korean products
           </motion.p>
         </motion.div>
 
