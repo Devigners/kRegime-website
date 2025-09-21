@@ -121,7 +121,7 @@ const Header: React.FC = () => {
 
             <div className="hidden md:block">
               <Link href="/#regimes" className="btn-primary text-sm">
-                Find Your Regime
+                FIND YOUR REGIME
               </Link>
             </div>
 
