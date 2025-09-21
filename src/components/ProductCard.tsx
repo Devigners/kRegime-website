@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 import { Product } from '../types';
+import DirhamIcon from './icons/DirhamIcon';
 
 interface ProductCardProps {
   product: Product;
@@ -100,15 +101,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <div className="pt-6 border-t border-neutral-200 space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <div className="text-3xl font-bold text-neutral-900">
-                AED {product.price}
+              <div className="text-3xl font-bold text-neutral-900 flex items-center gap-2">
+                <DirhamIcon size={20} className="text-neutral-900" />
+                {product.price}
               </div>
               <div className="text-sm text-black">One-time purchase</div>
             </div>
             <div className="text-right">
               <div className="text-sm text-black mb-1">Starting from</div>
-              <div className="text-lg font-semibold text-primary">
-                AED {Math.round(product.price / product.stepCount)}/step
+              <div className="text-lg font-semibold text-primary flex items-center gap-1 justify-end">
+                <DirhamIcon size={14} className="text-primary" />
+                {Math.round(product.price / product.stepCount)}/step
               </div>
             </div>
           </div>

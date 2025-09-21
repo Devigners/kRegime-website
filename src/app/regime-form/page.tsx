@@ -8,6 +8,7 @@ import { Suspense, useState, useEffect } from 'react';
 import { regimeApi } from '@/lib/api';
 import { localStorage as localStorageUtils } from '@/lib/localStorage';
 import { Regime } from '@/models/database';
+import DirhamIcon from '@/components/icons/DirhamIcon';
 
 function RegimeFormContent() {
   const router = useRouter();
@@ -648,13 +649,23 @@ function RegimeFormContent() {
                   <button
                     key={budget}
                     onClick={() => handleInputChange('budget', budget)}
-                    className={`p-4 rounded-lg border-2 text-left transition-all cursor-pointer ${
+                    className={`p-4 rounded-lg border-2 text-left transition-all cursor-pointer flex items-center gap-2 ${
                       formData.budget === budget
                         ? 'border-primary bg-primary/5 text-primary'
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
-                    <span className="font-semibold">{budget}</span>
+                    <DirhamIcon
+                      size={16}
+                      className={
+                        formData.budget === budget
+                          ? 'text-primary'
+                          : 'text-gray-600'
+                      }
+                    />
+                    <span className="font-semibold">
+                      {budget.replace('AED ', '').replace(' AED', '')}
+                    </span>
                   </button>
                 )
               )}
@@ -808,9 +819,10 @@ function RegimeFormContent() {
             ) : (
               <button
                 onClick={handleSubmit}
-                className="btn-primary cursor-pointer"
+                className="btn-primary cursor-pointer flex items-center gap-2 justify-center"
               >
-                Add to Cart - AED {product.price}
+                Add to Cart - <DirhamIcon size={16} className="!text-white" />{' '}
+                {product.price}
               </button>
             )}
           </div>

@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 import { localStorage as localStorageUtils } from '@/lib/localStorage';
 import { orderApi } from '@/lib/api';
+import DirhamIcon from '@/components/icons/DirhamIcon';
 
 interface CartData {
   regimeId: string;
@@ -365,8 +366,9 @@ export default function Payment() {
                       <p className="text-sm text-black">
                         {cartData.regime.description}
                       </p>
-                      <p className="text-sm font-semibold text-black mt-1">
-                        AED {cartData.regime.price} x {cartData.quantity}
+                      <p className="text-sm font-semibold text-black mt-1 flex items-center gap-1">
+                        <DirhamIcon size={12} className="text-black" />
+                        {cartData.regime.price} x {cartData.quantity}
                       </p>
                     </div>
                   </div>
@@ -374,8 +376,9 @@ export default function Payment() {
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="text-black">Subtotal</span>
-                      <span className="text-black">
-                        AED {cartData.totalAmount}
+                      <span className="text-black flex items-center gap-1">
+                        <DirhamIcon size={12} className="text-black" />
+                        {cartData.totalAmount}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -387,8 +390,9 @@ export default function Payment() {
                         <span className="text-lg font-semibold text-black">
                           Total
                         </span>
-                        <span className="text-lg font-semibold text-black">
-                          AED {cartData.finalAmount}
+                        <span className="text-lg font-semibold text-black flex items-center gap-1">
+                          <DirhamIcon size={14} className="text-black" />
+                          {cartData.finalAmount}
                         </span>
                       </div>
                     </div>
@@ -406,7 +410,11 @@ export default function Payment() {
                       Processing...
                     </div>
                   ) : (
-                    `Complete Order - AED ${cartData.finalAmount}`
+                    <span className="flex items-center gap-1 justify-center">
+                      Complete Order -{' '}
+                      <DirhamIcon size={14} className="text-white" />{' '}
+                      {cartData.finalAmount}
+                    </span>
                   )}
                 </button>
 
