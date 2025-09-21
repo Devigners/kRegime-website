@@ -1,8 +1,24 @@
-import { Users, Heart, Award, Star } from 'lucide-react';
+import { Star, Shield, Heart, Sparkles } from 'lucide-react';
 
 export const stats = [
-  { number: '50K+', label: 'Happy Customers', icon: Users },
-  { number: '98%', label: 'Satisfaction Rate', icon: Heart },
-  { number: '15+', label: 'Korean Brands', icon: Award },
-  { number: '4.9', label: 'Average Rating', icon: Star },
+  {
+    number: '1000+',
+    label: 'Happy Customers',
+    icon: Heart,
+  },
+  {
+    number: '50+',
+    label: 'Korean Brands',
+    icon: Sparkles,
+  },
+  {
+    number: '95%',
+    label: 'Satisfaction Rate',
+    icon: Star,
+  },
+  {
+    number: '24/7',
+    label: 'Expert Support',
+    icon: Shield,
+  },
 ];

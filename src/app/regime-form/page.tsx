@@ -188,6 +188,12 @@ function RegimeFormContent() {
       // Clear the current step from localStorage since form is completed
       localStorage.removeItem(`currentStep_${productId}`);
 
+      // Clear form data since it's completed
+      localStorageUtils.clearFormData(productId);
+
+      // Dispatch event to notify other components that form is completed
+      window.dispatchEvent(new CustomEvent('formCompleted'));
+
       // Navigate to cart
       router.push('/cart');
     } catch (error) {

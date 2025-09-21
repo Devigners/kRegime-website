@@ -4,12 +4,15 @@ import React from 'react';
 import Image from 'next/image';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import { stats } from '@/data';
+import ContinueFormCard from '@/components/ContinueFormCard';
+import { useIncompleteForm } from '@/hooks/useIncompleteForm';
 
 export default function HeroSection() {
   const { scrollYProgress } = useScroll();
   const y = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
   const opacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
+  const { incompleteForm, loading, dismissIncompleteForm } =
+    useIncompleteForm();
 
   return (
     <section className="relative min-h-screen flex pt-40 md:pt-0 items-center justify-center overflow-hidden">
@@ -88,30 +91,23 @@ export default function HeroSection() {
           </a>
         </motion.div>
 
-        {/* Stats Bar */}
-        <motion.div
-          className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16"
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.9 }}
-        >
-          {stats.map((stat) => (
-            <motion.div
-              key={stat.label}
-              className="text-center space-y-2"
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.2 }}
-            >
-              <stat.icon className="w-8 h-8 mx-auto text-primary mb-2" />
-              <div className="text-3xl md:text-4xl font-bold text-neutral-900">
-                {stat.number}
-              </div>
-              <div className="text-sm md:text-base text-black font-medium">
-                {stat.label}
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+        {/* Continue Form Card */}
+        {!loading && incompleteForm && (
+          <motion.div
+            className="mt-16 max-w-4xl mx-auto"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 1.0 }}
+          >
+            <div className="px-4">
+              <ContinueFormCard
+                regimeId={incompleteForm.regimeId}
+                regimeName={incompleteForm.regimeName}
+                onClose={dismissIncompleteForm}
+              />
+            </div>
+          </motion.div>
+        )}
       </div>
     </section>
   );
