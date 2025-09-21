@@ -86,6 +86,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Check if coming soon mode is enabled
+  const isComingSoon = process.env.NEXT_PUBLIC_COMING_SOON === 'true';
+
   return (
     <html lang="en" className="scroll-smooth">
       <head>
@@ -103,7 +106,7 @@ export default function RootLayout({
         <div className="min-h-screen flex flex-col overflow-hidden">
           <Header />
           <main className="flex-1">{children}</main>
-          <Footer />
+          {!isComingSoon && <Footer />}
         </div>
       </body>
     </html>
