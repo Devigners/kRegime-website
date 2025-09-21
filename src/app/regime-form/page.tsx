@@ -424,7 +424,6 @@ function RegimeFormContent() {
                 'Serum/Ampoule',
                 'Moisturizer',
                 'Sunscreen',
-                'Exfoliator',
                 'Mask',
                 'Sheet Masks',
                 'Eye Cream',
