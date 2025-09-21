@@ -14,6 +14,9 @@ const Header: React.FC = () => {
   const [cartCount, setCartCount] = useState(0);
   const pathname = usePathname();
 
+  // Check if coming soon mode is enabled
+  const isComingSoon = process.env.NEXT_PUBLIC_COMING_SOON === 'true';
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
@@ -66,7 +69,11 @@ const Header: React.FC = () => {
       transition={{ duration: 0.8, ease: 'easeOut' }}
     >
       <div className="container section-padding">
-        <div className="flex justify-between items-center h-20">
+        <div
+          className={`flex items-center h-20 ${
+            isComingSoon ? 'justify-center' : 'justify-between'
+          }`}
+        >
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3 group">
             <div className="relative w-36 h-36 rounded-lg flex items-center justify-center overflow-hidden">
@@ -81,87 +88,95 @@ const Header: React.FC = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-12">
-            {[
-              { href: '/', label: 'Home' },
-              { href: '/#brands', label: 'Brands' },
-              { href: '/#how-it-works', label: 'How It Works' },
-              { href: '/#reviews', label: 'Reviews' },
-            ].map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`relative text-lg font-medium transition-all duration-300 group ${
-                  pathname === item.href
-                    ? 'text-primary'
-                    : 'text-neutral-700 hover:text-primary'
-                }`}
-              >
-                {item.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-secondary transition-all duration-300 group-hover:w-full"></span>
-              </Link>
-            ))}
-          </nav>
+          {!isComingSoon && (
+            <nav className="hidden lg:flex items-center space-x-12">
+              {[
+                { href: '/', label: 'Home' },
+                { href: '/#brands', label: 'Brands' },
+                { href: '/#how-it-works', label: 'How It Works' },
+                { href: '/#reviews', label: 'Reviews' },
+              ].map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`relative text-lg font-medium transition-all duration-300 group ${
+                    pathname === item.href
+                      ? 'text-primary'
+                      : 'text-neutral-700 hover:text-primary'
+                  }`}
+                >
+                  {item.label}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-secondary transition-all duration-300 group-hover:w-full"></span>
+                </Link>
+              ))}
+            </nav>
+          )}
 
           {/* CTA and Cart */}
           <div className="flex items-center space-x-6">
-            <Link
-              href="/cart"
-              className="relative p-3 text-neutral-700 hover:text-primary transition-all duration-300 group"
-            >
-              <div>
-                <ShoppingCart size={24} />
-                {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-gradient-to-r from-primary to-secondary text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-semibold">
-                    {cartCount}
-                  </span>
-                )}
-              </div>
-            </Link>
+            {!isComingSoon && (
+              <>
+                <Link
+                  href="/cart"
+                  className="relative p-3 text-neutral-700 hover:text-primary transition-all duration-300 group"
+                >
+                  <div>
+                    <ShoppingCart size={24} />
+                    {cartCount > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-gradient-to-r from-primary to-secondary text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-semibold">
+                        {cartCount}
+                      </span>
+                    )}
+                  </div>
+                </Link>
 
-            <div className="hidden md:block">
-              <Link href="/#regimes" className="btn-primary text-sm">
-                Find Your Regime
-              </Link>
-            </div>
+                <div className="hidden md:block">
+                  <Link href="/#regimes" className="btn-primary text-sm">
+                    FIND YOUR REGIME
+                  </Link>
+                </div>
+              </>
+            )}
 
             {/* Mobile menu button */}
-            <motion.button
-              className="lg:hidden relative p-3 text-neutral-700 hover:text-primary transition-colors duration-300"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              whileTap={{ scale: 0.95 }}
-            >
-              <AnimatePresence mode="wait">
-                {isMenuOpen ? (
-                  <motion.div
-                    key="close"
-                    initial={{ rotate: -90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: 90, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <X size={24} />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="menu"
-                    initial={{ rotate: 90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: -90, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Menu size={24} />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.button>
+            {!isComingSoon && (
+              <motion.button
+                className="lg:hidden relative p-3 text-neutral-700 hover:text-primary transition-colors duration-300"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                whileTap={{ scale: 0.95 }}
+              >
+                <AnimatePresence mode="wait">
+                  {isMenuOpen ? (
+                    <motion.div
+                      key="close"
+                      initial={{ rotate: -90, opacity: 0 }}
+                      animate={{ rotate: 0, opacity: 1 }}
+                      exit={{ rotate: 90, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <X size={24} />
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="menu"
+                      initial={{ rotate: 90, opacity: 0 }}
+                      animate={{ rotate: 0, opacity: 1 }}
+                      exit={{ rotate: -90, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Menu size={24} />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.button>
+            )}
           </div>
         </div>
       </div>
 
       {/* Mobile Navigation */}
       <AnimatePresence>
-        {isMenuOpen && (
+        {isMenuOpen && !isComingSoon && (
           <motion.div
             className="lg:hidden z-40 h-full"
             initial={{ opacity: 0, y: -20, backgroundColor: 'transparent' }}
@@ -175,7 +190,6 @@ const Header: React.FC = () => {
                   {[
                     { href: '/', label: 'Home' },
                     { href: '/#brands', label: 'Brands' },
-                    { href: '/#regimes', label: 'Regimes' },
                     { href: '/#how-it-works', label: 'How It Works' },
                     { href: '/#reviews', label: 'Reviews' },
                   ].map((item, index) => (
@@ -205,7 +219,7 @@ const Header: React.FC = () => {
                       className="btn-primary w-full text-center block"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      Get Started
+                      FIND YOUR REGIME
                     </Link>
                   </motion.div>
                 </nav>

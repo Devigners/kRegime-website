@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { localStorage as localStorageUtils } from '@/lib/localStorage';
 import { Regime } from '@/models/database';
+import DirhamIcon from '@/components/icons/DirhamIcon';
 
 interface CartData {
   regimeId: string;
@@ -132,8 +133,9 @@ export default function Cart() {
                   </div>
 
                   <div className="text-right">
-                    <p className="text-xl font-bold text-black">
-                      AED {cartData.totalAmount}
+                    <p className="text-xl font-bold text-black flex items-center gap-2 justify-end">
+                      <DirhamIcon size={16} className="text-black" />
+                      {cartData.totalAmount}
                     </p>
                     <button
                       onClick={removeItem}
@@ -158,7 +160,10 @@ export default function Cart() {
             <div className="space-y-4 mb-6">
               <div className="flex justify-between">
                 <span className="text-black">Subtotal</span>
-                <span className="text-black">AED {cartData.totalAmount}</span>
+                <span className="text-black flex items-center gap-1">
+                  <DirhamIcon size={12} className="text-black" />
+                  {cartData.totalAmount}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-black">Shipping</span>
@@ -169,8 +174,9 @@ export default function Cart() {
                   <span className="text-lg font-semibold text-black">
                     Total
                   </span>
-                  <span className="text-lg font-semibold text-black">
-                    AED {cartData.finalAmount}
+                  <span className="text-lg font-semibold text-black flex items-center gap-1">
+                    <DirhamIcon size={14} className="text-black" />
+                    {cartData.finalAmount}
                   </span>
                 </div>
               </div>

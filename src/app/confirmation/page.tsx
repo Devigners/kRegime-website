@@ -8,6 +8,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { orderApi, regimeApi } from '@/lib/api';
 import { Order, Regime } from '@/models/database';
 import Image from 'next/image';
+import DirhamIcon from '@/components/icons/DirhamIcon';
 
 function ConfirmationContent() {
   const searchParams = useSearchParams();
@@ -143,7 +144,7 @@ function ConfirmationContent() {
                     <h3 className="font-semibold text-black">{regime.name}</h3>
                     <p className="text-sm text-black">{regime.description}</p>
                     <p className="text-sm text-black mt-1">
-                      {regime.stepCount}-step routine • Customized for{' '}
+                      {regime.stepCount} steps routine • Customized for{' '}
                       {order.userDetails.skinType} skin
                       {order.userDetails.skinConcerns.length > 0 && (
                         <span>
@@ -156,8 +157,9 @@ function ConfirmationContent() {
                       <span className="text-sm text-black">
                         Quantity: {order.quantity}
                       </span>
-                      <span className="font-semibold text-black">
-                        AED {order.totalAmount}
+                      <span className="font-semibold text-black flex items-center gap-1">
+                        <DirhamIcon size={12} className="text-black" />
+                        {order.totalAmount}
                       </span>
                     </div>
                   </div>
@@ -216,8 +218,9 @@ function ConfirmationContent() {
                       <span className="text-sm text-black">
                         Quantity: {order.quantity}
                       </span>
-                      <span className="font-semibold text-black">
-                        AED {order.totalAmount}
+                      <span className="font-semibold text-black flex items-center gap-1">
+                        <DirhamIcon size={12} className="text-black" />
+                        {order.totalAmount}
                       </span>
                     </div>
                   </div>
@@ -226,7 +229,10 @@ function ConfirmationContent() {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-black">Subtotal</span>
-                    <span className="text-black">AED {order.totalAmount}</span>
+                    <span className="text-black flex items-center gap-1">
+                      <DirhamIcon size={12} className="text-black" />
+                      {order.totalAmount}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-black">Shipping</span>
@@ -235,8 +241,9 @@ function ConfirmationContent() {
                   <div className="border-t pt-2">
                     <div className="flex justify-between font-semibold">
                       <span className="text-black">Total</span>
-                      <span className="text-black">
-                        AED {order.finalAmount}
+                      <span className="text-black flex items-center gap-1">
+                        <DirhamIcon size={14} className="text-black" />
+                        {order.finalAmount}
                       </span>
                     </div>
                   </div>

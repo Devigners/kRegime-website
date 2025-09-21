@@ -85,4 +85,53 @@ export const localStorage = {
       });
     }
   },
+
+  // Form progress management
+  getIncompleteFormProgress: (): {
+    regimeId: string;
+    currentStep: number;
+  } | null => {
+    if (typeof window !== 'undefined') {
+      const keys = Object.keys(window.localStorage);
+
+      // Find all currentStep entries
+      const stepKeys = keys.filter((key) => key.startsWith('currentStep_'));
+
+      for (const stepKey of stepKeys) {
+        const regimeId = stepKey.replace('currentStep_', '');
+        const currentStep = parseInt(
+          window.localStorage.getItem(stepKey) || '1',
+          10
+        );
+
+        // Check if there's corresponding form data
+        const formDataKey = `${FORM_DATA_KEY}_${regimeId}`;
+        const formData = window.localStorage.getItem(formDataKey);
+
+        // If we have a saved step > 1 and form data, consider it incomplete
+        if (currentStep > 1 && formData) {
+          return { regimeId, currentStep };
+        }
+      }
+    }
+    return null;
+  },
+
+  clearIncompleteForm: (regimeId: string) => {
+    if (typeof window !== 'undefined') {
+      // Clear form data
+      const formDataKey = `${FORM_DATA_KEY}_${regimeId}`;
+      window.localStorage.removeItem(formDataKey);
+
+      // Clear current step
+      window.localStorage.removeItem(`currentStep_${regimeId}`);
+
+      // Dispatch event to notify components
+      window.dispatchEvent(new CustomEvent('formCleared'));
+    }
+  },
+
+  hasIncompleteForm: (): boolean => {
+    return localStorage.getIncompleteFormProgress() !== null;
+  },
 };

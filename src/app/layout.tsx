@@ -21,7 +21,7 @@ const playfairDisplay = Playfair_Display({
 export const metadata: Metadata = {
   title: 'Kregime - Handpicked Korean Skincare Regimes Simplified',
   description:
-    'Discover your perfect Korean skincare routine with our expertly curated 3, 5, or 7-step regime boxes featuring premium Korean skincare products.',
+    'Discover your perfect Korean skincare routine with our expertly curated 3, 5, or 7 steps regime boxes featuring premium Korean skincare products.',
   keywords: [
     'Korean skincare',
     'K-beauty',
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Kregime - Handpicked Korean Skincare Regimes Simplified',
     description:
-      'Discover your perfect Korean skincare routine with our expertly curated 3, 5, or 7-step regime boxes featuring premium Korean skincare products.',
+      'Discover your perfect Korean skincare routine with our expertly curated 3, 5, or 7 steps regime boxes featuring premium Korean skincare products.',
     type: 'website',
     locale: 'en_US',
     url: 'https://kregime.com',
@@ -86,6 +86,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Check if coming soon mode is enabled
+  const isComingSoon = process.env.NEXT_PUBLIC_COMING_SOON === 'true';
+
   return (
     <html lang="en" className="scroll-smooth">
       <head>
@@ -103,7 +106,7 @@ export default function RootLayout({
         <div className="min-h-screen flex flex-col overflow-hidden">
           <Header />
           <main className="flex-1">{children}</main>
-          <Footer />
+          {!isComingSoon && <Footer />}
         </div>
       </body>
     </html>

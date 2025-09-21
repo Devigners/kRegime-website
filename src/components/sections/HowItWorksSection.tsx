@@ -10,7 +10,7 @@ export default function HowItWorksSection() {
       icon: ShoppingBag,
       title: 'Choose Your Regime',
       description:
-        'Select from our 3, 5, or 7-step Korean skincare regime boxes based on your preferences and unique skin goals.',
+        'Select from our 3, 5, or 7 steps Korean skincare regime boxes based on your preferences and unique skin goals.',
     },
     {
       icon: ClipboardList,
