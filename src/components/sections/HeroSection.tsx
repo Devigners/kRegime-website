@@ -55,7 +55,7 @@ export default function HeroSection() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1.2, ease: 'easeOut' }}
           >
-            Glow Starts Here
+            GLOW STARTS HERE
           </motion.h1>
           <motion.p
             className="text-2xl md:text-3xl text-neutral-700 max-w-4xl mx-auto leading-relaxed"
