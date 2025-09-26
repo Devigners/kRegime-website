@@ -2,8 +2,10 @@ import { supabase, supabaseClient } from '@/lib/supabase';
 import {
   convertOrderRowToOrder,
   convertOrderToOrderInsert,
+  convertRegimeRowToRegime,
   type Order,
 } from '@/models/database';
+import { sendOrderCompleteEmail } from '@/lib/email';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET() {
@@ -87,6 +89,39 @@ export async function POST(request: NextRequest) {
     }
 
     const convertedOrder = convertOrderRowToOrder(data);
+
+    // Send order completion email immediately after order creation
+    try {
+      // Fetch regime details for the email
+      let regime = undefined;
+      if (convertedOrder.regimeId) {
+        const { data: regimeData } = await supabase
+          .from('regimes')
+          .select('*')
+          .eq('id', convertedOrder.regimeId)
+          .single();
+
+        if (regimeData) {
+          regime = convertRegimeRowToRegime(regimeData);
+        }
+      }
+
+      // Send the completion email
+      const emailResult = await sendOrderCompleteEmail({
+        order: convertedOrder,
+        regime,
+      });
+
+      if (!emailResult.success) {
+        console.error('Failed to send order completion email:', emailResult.error);
+        // Don't fail the order creation if email fails, just log it
+      } else {
+        console.log('Order completion email sent successfully:', emailResult.id);
+      }
+    } catch (emailError) {
+      console.error('Error sending order completion email:', emailError);
+      // Don't fail the order creation if email fails, just log it
+    }
 
     return NextResponse.json({
       success: true,
