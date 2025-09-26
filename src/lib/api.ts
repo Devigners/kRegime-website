@@ -149,18 +149,3 @@ export const reviewApi = {
     return data.data;
   },
 };
-
-// Utility function to seed the database
-export const seedDatabase = async () => {
-  const response = await fetch(`${API_BASE_URL}/api/seed`, {
-    method: 'POST',
-  });
-
-  const data = await response.json();
-
-  if (!data.success) {
-    throw new Error(data.error || 'Failed to seed database');
-  }
-
-  return data;
-};
