@@ -4,7 +4,7 @@ export interface Product {
   description: string;
   price: number;
   steps: string[];
-  image: string;
+  images: string[];
   stepCount: 3 | 5 | 7;
 }
 

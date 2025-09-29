@@ -38,12 +38,23 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
       {/* Product Image Area */}
       <div className="aspect-[4/3] relative overflow-hidden">
-        <Image
-          src={product.image}
-          alt={product.name}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-110"
-        />
+        {product.images && product.images.length > 0 ? (
+          <Image
+            src={product.images[0]}
+            alt={product.name}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-110"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-[#EF7E71]/20 to-[#D4654F]/20 flex items-center justify-center">
+            <div className="text-center space-y-2">
+              <div className="w-16 h-16 bg-gradient-to-br from-[#EF7E71] to-[#D4654F] rounded-full flex items-center justify-center mx-auto">
+                <Sparkles className="h-8 w-8 text-white" />
+              </div>
+              <span className="text-neutral-600 font-medium text-sm">No Image Available</span>
+            </div>
+          </div>
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
 
         {/* Overlay Content */}

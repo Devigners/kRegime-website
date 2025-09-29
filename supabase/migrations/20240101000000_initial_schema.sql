@@ -60,12 +60,15 @@ END;
 $$ language 'plpgsql';
 
 -- Create triggers to automatically update updated_at timestamp
+DROP TRIGGER IF EXISTS update_regimes_updated_at ON regimes;
 CREATE TRIGGER update_regimes_updated_at BEFORE UPDATE ON regimes
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_orders_updated_at ON orders;
 CREATE TRIGGER update_orders_updated_at BEFORE UPDATE ON orders
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_reviews_updated_at ON reviews;
 CREATE TRIGGER update_reviews_updated_at BEFORE UPDATE ON reviews
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
@@ -75,20 +78,25 @@ ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for public read access
+DROP POLICY IF EXISTS "Allow public read access to active regimes" ON regimes;
 CREATE POLICY "Allow public read access to active regimes" ON regimes
     FOR SELECT USING (is_active = true);
 
+DROP POLICY IF EXISTS "Allow public read access to approved reviews" ON reviews;
 CREATE POLICY "Allow public read access to approved reviews" ON reviews
     FOR SELECT USING (is_approved = true);
 
 -- Create policies for orders (you can modify these based on your auth requirements)
+DROP POLICY IF EXISTS "Allow all access to orders" ON orders;
 CREATE POLICY "Allow all access to orders" ON orders
     FOR ALL USING (true);
 
 -- Create policies for admin operations (you can modify these based on your auth requirements)
+DROP POLICY IF EXISTS "Allow all access to regimes" ON regimes;
 CREATE POLICY "Allow all access to regimes" ON regimes
     FOR ALL USING (true);
 
+DROP POLICY IF EXISTS "Allow all access to reviews" ON reviews;
 CREATE POLICY "Allow all access to reviews" ON reviews
     FOR ALL USING (true);
 

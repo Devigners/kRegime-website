@@ -8,7 +8,7 @@ export interface Database {
           description: string;
           price: number;
           steps: string[];
-          image: string;
+          image: string[];
           step_count: 3 | 5 | 7;
           is_active: boolean;
           created_at: string;
@@ -20,7 +20,7 @@ export interface Database {
           description: string;
           price: number;
           steps: string[];
-          image: string;
+          image: string[];
           step_count: 3 | 5 | 7;
           is_active?: boolean;
           created_at?: string;
@@ -32,7 +32,7 @@ export interface Database {
           description?: string;
           price?: number;
           steps?: string[];
-          image?: string;
+          image?: string[];
           step_count?: 3 | 5 | 7;
           is_active?: boolean;
           created_at?: string;

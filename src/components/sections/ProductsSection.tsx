@@ -103,7 +103,7 @@ export default function ProductsSection() {
                   description: regime.description,
                   price: regime.price,
                   steps: regime.steps,
-                  image: regime.image,
+                  images: regime.images,
                   stepCount: regime.stepCount,
                 }}
               />

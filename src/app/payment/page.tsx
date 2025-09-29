@@ -17,7 +17,7 @@ interface CartData {
     name: string;
     description: string;
     price: number;
-    image: string;
+    images: string[];
   };
   formData: Record<string, string | string[]>;
   quantity: number;
@@ -351,13 +351,19 @@ export default function Payment() {
                 <div className="space-y-4 mb-6">
                   <div className="flex items-start space-x-4 pb-4 border-b border-gray-100">
                     <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
-                      <Image
-                        src={cartData.regime.image}
-                        alt={cartData.regime.name}
-                        width={64}
-                        height={64}
-                        className="w-full h-full object-cover rounded-lg"
-                      />
+                      {cartData.regime.images && cartData.regime.images.length > 0 ? (
+                        <Image
+                          src={cartData.regime.images[0]}
+                          alt={cartData.regime.name}
+                          width={64}
+                          height={64}
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-[#EF7E71]/20 to-[#D4654F]/20 rounded-lg flex items-center justify-center">
+                          <span className="text-xs text-neutral-500">No Image</span>
+                        </div>
+                      )}
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold text-black">
