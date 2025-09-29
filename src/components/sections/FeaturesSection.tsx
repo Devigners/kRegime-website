@@ -11,10 +11,10 @@ export default function FeaturesSection() {
       {/* Background decorative images */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-20 left-10 w-32 h-32 rounded-full overflow-hidden">
-          <Image src="/static/8.jpg" alt="" fill className="object-cover" />
+          <Image src="/static/8.webp" alt="" fill className="object-cover" />
         </div>
         <div className="absolute bottom-20 right-10 w-40 h-40 rounded-full overflow-hidden">
-          <Image src="/static/9.jpg" alt="" fill className="object-cover" />
+          <Image src="/static/9.webp" alt="" fill className="object-cover" />
         </div>
       </div>
 

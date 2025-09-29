@@ -108,7 +108,7 @@ export default function TransformationsSection() {
                   >
                     <div className="aspect-[4/3] sm:aspect-[3/2] md:aspect-[4/3] relative rounded-lg overflow-hidden shadow-lg">
                       <Image
-                        src={`/static/${milestone.imageNum}.jpg`}
+                        src={`/static/${milestone.imageNum}.webp`}
                         alt={`${milestone.title} transformation`}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-500"

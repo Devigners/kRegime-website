@@ -13,7 +13,7 @@ INSERT INTO regimes (id, name, description, price, steps, image, step_count, is_
   'Start with the essentials. This 3 steps Korean skincare routine is designed to cleanse, hydrate and protect, or switch it up based on your needs. Just tell us your skin type and we''ll curate the perfect set.',
   229,
   ARRAY['Cleanser', 'Moisturiser', 'Sunscreen'],
-  ARRAY['/static/1.jpg', '/static/4.jpg'],
+  ARRAY['/static/1.webp', '/static/4.webp'],
   3,
   true
 ),
@@ -23,7 +23,7 @@ INSERT INTO regimes (id, name, description, price, steps, image, step_count, is_
   'Go deeper with a well-rounded 5 steps routine tailored just for you. Whether you''re focused on glow, hydration, or texture, we''ll customize every product in your box.',
   379,
   ARRAY['Cleanser', 'Toner', 'Serum', 'Moisturiser', 'Sunscreen'],
-  ARRAY['/static/2.jpg', '/static/5.jpg', '/static/6.jpg'],
+  ARRAY['/static/2.webp', '/static/5.webp', '/static/6.webp'],
   5,
   true
 ),
@@ -33,7 +33,7 @@ INSERT INTO regimes (id, name, description, price, steps, image, step_count, is_
   'Our full skincare journey in one luxurious box. The 7 steps Korean skincare ritual is designed to deep-cleanse, treat, and protect, giving you radiant, long-term results. Perfect for skincare lovers and advanced users.',
   529,
   ARRAY['Cleansing oil', 'Cleanser', 'Mask', 'Toner', 'Serum', 'Moisturiser', 'Sunscreen'],
-  ARRAY['/static/3.jpg', '/static/7.jpg', '/static/8.jpg', '/static/9.jpg'],
+  ARRAY['/static/3.webp', '/static/7.webp', '/static/8.webp', '/static/9.webp'],
   7,
   true
 );
