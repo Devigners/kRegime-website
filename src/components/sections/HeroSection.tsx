@@ -19,7 +19,7 @@ export default function HeroSection() {
       {/* Hero Background Image */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="/static/16.jpg"
+          src="/static/16.webp"
           alt="Korean Skincare Hero"
           fill
           className="object-cover opacity-10"
