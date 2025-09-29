@@ -20,7 +20,7 @@ export interface Regime {
   description: string;
   price: number;
   steps: string[];
-  image: string;
+  images: string[];
   stepCount: 3 | 5 | 7;
   isActive: boolean;
   createdAt: Date;
@@ -87,7 +87,7 @@ export function convertRegimeRowToRegime(row: RegimeRow): Regime {
     description: row.description,
     price: row.price,
     steps: row.steps,
-    image: row.image,
+    images: Array.isArray(row.image) ? row.image : (row.image ? [row.image] : []),
     stepCount: row.step_count,
     isActive: row.is_active,
     createdAt: new Date(row.created_at),
@@ -104,7 +104,7 @@ export function convertRegimeToRegimeInsert(
     description: regime.description,
     price: regime.price,
     steps: regime.steps,
-    image: regime.image,
+    image: regime.images,
     step_count: regime.stepCount,
     is_active: regime.isActive,
   };
