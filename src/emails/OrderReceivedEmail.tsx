@@ -11,17 +11,17 @@ import * as React from 'react';
 import { BaseEmailLayout } from './components/BaseEmailLayout';
 import { Order, Regime } from '@/models/database';
 
-interface OrderCompleteEmailProps {
+interface OrderReceivedEmailProps {
   order: Order;
   regime?: Regime;
   customerName: string;
 }
 
-export function OrderCompleteEmail({
+export function OrderReceivedEmail({
   order,
   regime,
   customerName,
-}: OrderCompleteEmailProps) {
+}: OrderReceivedEmailProps) {
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
       year: 'numeric',
@@ -127,7 +127,6 @@ export function OrderCompleteEmail({
                     {regime.steps.map((step, index) => (
                       <div 
                         key={index} 
-                        className="flex items-center mb-1"
                         style={{ 
                           display: 'flex', 
                           alignItems: 'center', 
@@ -135,7 +134,6 @@ export function OrderCompleteEmail({
                         }}
                       >
                         <div 
-                          className="w-6 h-6 bg-primary rounded-full flex items-center justify-center mr-3"
                           style={{
                             width: '24px',
                             height: '24px',
@@ -177,12 +175,6 @@ export function OrderCompleteEmail({
                   </div>
                 </Column>
                 <Column className="w-1/3 text-right mobile-full-width mobile-center">
-                  <Text 
-                    className="text-sm text-neutral-600 mb-1 mobile-text-sm"
-                    style={{ marginBottom: '8px' }}
-                  >
-                    Quantity: {order.quantity}
-                  </Text>
                   <Text 
                     className="text-2xl font-bold text-primary mb-0 mobile-text-xl"
                     style={{ 
@@ -260,7 +252,6 @@ export function OrderCompleteEmail({
         </Heading>
         <div>
           <div 
-            className="flex items-start mb-4"
             style={{ 
               display: 'flex', 
               alignItems: 'flex-start', 
@@ -268,7 +259,6 @@ export function OrderCompleteEmail({
             }}
           >
             <div 
-              className="w-8 h-8 bg-primary rounded-full flex items-center justify-center mr-4 mt-1"
               style={{
                 width: '32px',
                 height: '32px',
@@ -300,7 +290,7 @@ export function OrderCompleteEmail({
               1
               </Text>
             </div>
-            <div className="flex-1" style={{ flex: '1' }}>
+            <div style={{ flex: '1' }}>
               <Text 
                 className="text-neutral-900 font-semibold text-sm mb-1 mobile-text-sm"
                 style={{ marginBottom: '4px' }}
@@ -317,7 +307,6 @@ export function OrderCompleteEmail({
             </div>
           </div>
           <div 
-            className="flex items-start mb-4"
             style={{ 
               display: 'flex', 
               alignItems: 'flex-start', 
@@ -325,7 +314,6 @@ export function OrderCompleteEmail({
             }}
           >
             <div 
-              className="w-8 h-8 bg-primary rounded-full flex items-center justify-center mr-4 mt-1"
               style={{
                 width: '32px',
                 height: '32px',
@@ -357,7 +345,7 @@ export function OrderCompleteEmail({
                 2
               </Text>
             </div>
-            <div className="flex-1" style={{ flex: '1' }}>
+            <div style={{ flex: '1' }}>
               <Text 
                 className="text-neutral-900 font-semibold text-sm mb-1 mobile-text-sm"
                 style={{ marginBottom: '4px' }}
@@ -373,14 +361,12 @@ export function OrderCompleteEmail({
             </div>
           </div>
           <div 
-            className="flex items-start"
             style={{ 
               display: 'flex', 
               alignItems: 'flex-start' 
             }}
           >
             <div 
-              className="w-8 h-8 bg-primary rounded-full flex items-center justify-center mr-4 mt-1"
               style={{
                 width: '32px',
                 height: '32px',
@@ -412,7 +398,7 @@ export function OrderCompleteEmail({
                 3
               </Text>
             </div>
-            <div className="flex-1" style={{ flex: '1' }}>
+            <div style={{ flex: '1' }}>
               <Text 
                 className="text-neutral-900 font-semibold text-sm mb-1 mobile-text-sm"
                 style={{ marginBottom: '4px' }}

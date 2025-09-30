@@ -13,12 +13,14 @@ export type ReviewRow = Database['public']['Tables']['reviews']['Row'];
 export type ReviewInsert = Database['public']['Tables']['reviews']['Insert'];
 export type ReviewUpdate = Database['public']['Tables']['reviews']['Update'];
 
-// Frontend compatible interfaces (maintaining existing structure for backward compatibility)
+// Frontend compatible interfaces
 export interface Regime {
   id: string;
   name: string;
   description: string;
-  price: number;
+  priceOneTime: number;
+  price3Months: number;
+  price6Months: number;
   steps: string[];
   images: string[];
   stepCount: 3 | 5 | 7;
@@ -63,7 +65,8 @@ export interface Order {
   quantity: number;
   totalAmount: number;
   finalAmount: number;
-  status: 'pending' | 'processing' | 'completed' | 'cancelled';
+  subscriptionType: 'one-time' | '3-months' | '6-months';
+  status: 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -85,7 +88,9 @@ export function convertRegimeRowToRegime(row: RegimeRow): Regime {
     id: row.id,
     name: row.name,
     description: row.description,
-    price: row.price,
+    priceOneTime: row.price_one_time,
+    price3Months: row.price_3_months,
+    price6Months: row.price_6_months,
     steps: row.steps,
     images: Array.isArray(row.image) ? row.image : (row.image ? [row.image] : []),
     stepCount: row.step_count,
@@ -102,7 +107,10 @@ export function convertRegimeToRegimeInsert(
     id: regime.id,
     name: regime.name,
     description: regime.description,
-    price: regime.price,
+    price: regime.priceOneTime, // Use one-time price for legacy compatibility
+    price_one_time: regime.priceOneTime,
+    price_3_months: regime.price3Months,
+    price_6_months: regime.price6Months,
     steps: regime.steps,
     image: regime.images,
     step_count: regime.stepCount,
@@ -147,6 +155,7 @@ export function convertOrderRowToOrder(row: OrderRow): Order {
     quantity: row.quantity,
     totalAmount: row.total_amount,
     finalAmount: row.final_amount,
+    subscriptionType: row.subscription_type || 'one-time',
     status: row.status,
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
@@ -192,6 +201,7 @@ export function convertOrderToOrderInsert(
     quantity: order.quantity,
     total_amount: order.totalAmount,
     final_amount: order.finalAmount,
+    subscription_type: order.subscriptionType,
     status: order.status,
   };
 }

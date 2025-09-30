@@ -19,7 +19,9 @@ import ImageUploader from '@/components/ImageUploader';
 interface RegimeFormData {
   name: string;
   description: string;
-  price: number;
+  priceOneTime: number;
+  price3Months: number;
+  price6Months: number;
   steps: string[];
   images: string[];
   stepCount: 3 | 5 | 7;
@@ -36,7 +38,9 @@ export default function RegimesAdmin() {
   const [formData, setFormData] = useState<RegimeFormData>({
     name: '',
     description: '',
-    price: 0,
+    priceOneTime: 0,
+    price3Months: 0,
+    price6Months: 0,
     steps: [''],
     images: [''],
     stepCount: 3,
@@ -74,7 +78,9 @@ export default function RegimesAdmin() {
     setFormData({
       name: '',
       description: '',
-      price: 0,
+      priceOneTime: 0,
+      price3Months: 0,
+      price6Months: 0,
       steps: [''],
       images: [''],
       stepCount: 3,
@@ -88,7 +94,9 @@ export default function RegimesAdmin() {
     setFormData({
       name: regime.name,
       description: regime.description,
-      price: regime.price,
+      priceOneTime: regime.priceOneTime,
+      price3Months: regime.price3Months,
+      price6Months: regime.price6Months,
       steps: regime.steps,
       images: regime.images,
       stepCount: regime.stepCount,
@@ -121,6 +129,9 @@ export default function RegimesAdmin() {
       const regimeData: Regime = {
         id: selectedRegime?.id || `regime_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         ...formData,
+        priceOneTime: formData.priceOneTime,
+        price3Months: formData.price3Months,
+        price6Months: formData.price6Months,
         createdAt: selectedRegime?.createdAt || new Date(),
         updatedAt: new Date(),
       };
@@ -390,10 +401,18 @@ export default function RegimesAdmin() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-xs text-neutral-500 font-bold uppercase tracking-wider">Price</p>
-                        <p className="text-lg font-black bg-gradient-to-r from-[#EF7E71] to-[#D4654F] bg-clip-text text-transparent">
-                          AED {regime.price}
-                        </p>
+                        <p className="text-xs text-neutral-500 font-bold uppercase tracking-wider">Pricing</p>
+                        <div className="space-y-1">
+                          <p className="text-sm font-black text-[#EF7E71]">
+                            One-time: AED {regime.priceOneTime}
+                          </p>
+                          <p className="text-xs text-neutral-600">
+                            3mo: AED {regime.price3Months}/mo
+                          </p>
+                          <p className="text-xs text-neutral-600">
+                            6mo: AED {regime.price6Months}/mo
+                          </p>
+                        </div>
                       </div>
                     </div>
 
@@ -455,7 +474,7 @@ export default function RegimesAdmin() {
             <div className="max-h-[calc(90vh-160px)] overflow-y-auto">
               <form onSubmit={handleSubmit} className="p-8 space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div>
+                  <div className="col-span-full">
                     <label className="block text-lg font-black text-neutral-900 mb-4">Regime Name</label>
                     <input
                       type="text"
@@ -466,16 +485,47 @@ export default function RegimesAdmin() {
                       required
                     />
                   </div>
-                  <div>
-                    <label className="block text-lg font-black text-neutral-900 mb-4">Price (AED)</label>
-                    <input
-                      type="number"
-                      value={formData.price}
-                      onChange={(e) => setFormData({...formData, price: parseFloat(e.target.value)})}
-                      className="w-full border-2 border-neutral-300 rounded-2xl px-6 py-4 focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white/70 backdrop-blur-sm text-lg font-medium"
-                      placeholder="0.00"
-                      required
-                    />
+                </div>
+
+                {/* Subscription Pricing Section */}
+                <div>
+                  <h3 className="text-xl font-black text-neutral-900 mb-6">Subscription Pricing</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                      <label className="block text-lg font-black text-neutral-900 mb-4">One-time Purchase (AED)</label>
+                      <input
+                        type="number"
+                        value={formData.priceOneTime}
+                        onChange={(e) => setFormData({...formData, priceOneTime: parseFloat(e.target.value) || 0})}
+                        className="w-full border-2 border-neutral-300 rounded-2xl px-6 py-4 focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white/70 backdrop-blur-sm text-lg font-medium"
+                        placeholder="0.00"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-lg font-black text-neutral-900 mb-4">3-Month Subscription (AED)</label>
+                      <input
+                        type="number"
+                        value={formData.price3Months}
+                        onChange={(e) => setFormData({...formData, price3Months: parseFloat(e.target.value) || 0})}
+                        className="w-full border-2 border-neutral-300 rounded-2xl px-6 py-4 focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white/70 backdrop-blur-sm text-lg font-medium"
+                        placeholder="0.00"
+                        required
+                      />
+                      <p className="text-sm text-neutral-600 mt-2">Monthly payment for 3 months</p>
+                    </div>
+                    <div>
+                      <label className="block text-lg font-black text-neutral-900 mb-4">6-Month Subscription (AED)</label>
+                      <input
+                        type="number"
+                        value={formData.price6Months}
+                        onChange={(e) => setFormData({...formData, price6Months: parseFloat(e.target.value) || 0})}
+                        className="w-full border-2 border-neutral-300 rounded-2xl px-6 py-4 focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white/70 backdrop-blur-sm text-lg font-medium"
+                        placeholder="0.00"
+                        required
+                      />
+                      <p className="text-sm text-neutral-600 mt-2">Monthly payment for 6 months</p>
+                    </div>
                   </div>
                 </div>
 
@@ -491,7 +541,7 @@ export default function RegimesAdmin() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 gap-8">
                   <div>
                     <label className="block text-lg font-black text-neutral-900 mb-4">Step Count</label>
                     <select

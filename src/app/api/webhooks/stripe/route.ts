@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseClient } from '@/lib/supabase';
 import { convertOrderRowToOrder, convertRegimeRowToRegime } from '@/models/database';
-import { sendOrderCompleteEmail } from '@/lib/email';
+import { sendOrderReceivedEmail } from '@/lib/email';
 import { stripe } from '@/lib/stripe';
 
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
             }
 
             // Send completion email
-            const emailResult = await sendOrderCompleteEmail({
+            const emailResult = await sendOrderReceivedEmail({
               order: convertedOrder,
               regime,
             });

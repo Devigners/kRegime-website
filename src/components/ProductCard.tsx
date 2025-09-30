@@ -3,15 +3,45 @@ import { CheckCircle, Sparkles } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
-import { Product } from '../types';
+import { Product, SubscriptionType } from '../types';
 import DirhamIcon from './icons/DirhamIcon';
 
 interface ProductCardProps {
   product: Product;
+  selectedSubscription?: SubscriptionType;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ 
+  product, 
+  selectedSubscription = 'one-time' 
+}) => {
   const isPopular = product.id === 'pentabox';
+
+  // Get price based on subscription type
+  const getPrice = () => {
+    switch (selectedSubscription) {
+      case '3-months':
+        return product.price3Months || 0;
+      case '6-months':
+        return product.price6Months || 0;
+      default:
+        return product.priceOneTime || 0;
+    }
+  };
+
+  const getPriceDescription = () => {
+    switch (selectedSubscription) {
+      case '3-months':
+        return 'Monthly for 3 months';
+      case '6-months':
+        return 'Monthly for 6 months';
+      default:
+        return 'One-time purchase';
+    }
+  };
+
+  const getCurrentPrice = getPrice();
+  const priceDescription = getPriceDescription();
 
   return (
     <motion.div
@@ -114,21 +144,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             <div className="space-y-1">
               <div className="text-3xl font-bold text-neutral-900 flex items-center gap-2">
                 <DirhamIcon size={20} className="text-neutral-900" />
-                {product.price}
+                {getCurrentPrice}
               </div>
-              <div className="text-sm text-black">One-time purchase</div>
+              <div className="text-sm text-black">{priceDescription}</div>
             </div>
             <div className="text-right">
               <div className="text-sm text-black mb-1">Starting from</div>
               <div className="text-lg font-semibold text-primary flex items-center gap-1 justify-end">
                 <DirhamIcon size={14} className="text-primary" />
-                {Math.round(product.price / product.stepCount)}/step
+                {Math.round(getCurrentPrice / product.stepCount)}/step
               </div>
             </div>
           </div>
 
           <Link
-            href={`/regime-form?product=${product.id}`}
+            href={`/regime-form?product=${product.id}&subscription=${selectedSubscription}`}
             className="btn-primary w-full text-center group flex items-center justify-center"
           >
             Select This Regime

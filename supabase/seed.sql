@@ -6,12 +6,15 @@
 -- DELETE FROM regimes WHERE id IS NOT NULL;
 
 -- Insert regimes
-INSERT INTO regimes (id, name, description, price, steps, image, step_count, is_active) VALUES
+INSERT INTO regimes (id, name, description, price, price_one_time, price_3_months, price_6_months, steps, image, step_count, is_active) VALUES
 (
   'tribox',
   'TRIBOX',
   'Start with the essentials. This 3 steps Korean skincare routine is designed to cleanse, hydrate and protect, or switch it up based on your needs. Just tell us your skin type and we''ll curate the perfect set.',
-  229,
+  299,
+  299,
+  269,
+  249,
   ARRAY['Cleanser', 'Moisturiser', 'Sunscreen'],
   ARRAY['/static/1.webp', '/static/4.webp'],
   3,
@@ -21,7 +24,10 @@ INSERT INTO regimes (id, name, description, price, steps, image, step_count, is_
   'pentabox',
   'PENTABOX',
   'Go deeper with a well-rounded 5 steps routine tailored just for you. Whether you''re focused on glow, hydration, or texture, we''ll customize every product in your box.',
-  379,
+  479,
+  479,
+  449,
+  419,
   ARRAY['Cleanser', 'Toner', 'Serum', 'Moisturiser', 'Sunscreen'],
   ARRAY['/static/2.webp', '/static/5.webp', '/static/6.webp'],
   5,
@@ -31,7 +37,10 @@ INSERT INTO regimes (id, name, description, price, steps, image, step_count, is_
   'septabox',
   'SEPTABOX',
   'Our full skincare journey in one luxurious box. The 7 steps Korean skincare ritual is designed to deep-cleanse, treat, and protect, giving you radiant, long-term results. Perfect for skincare lovers and advanced users.',
-  529,
+  649,
+  649,
+  619,
+  599,
   ARRAY['Cleansing oil', 'Cleanser', 'Mask', 'Toner', 'Serum', 'Moisturiser', 'Sunscreen'],
   ARRAY['/static/3.webp', '/static/7.webp', '/static/8.webp', '/static/9.webp'],
   7,
@@ -48,6 +57,7 @@ INSERT INTO orders (
   quantity,
   total_amount,
   final_amount,
+  subscription_type,
   status
 ) VALUES (
   'test-order-1',
@@ -83,8 +93,9 @@ INSERT INTO orders (
     "postal_code": "12345"
   }',
   1,
-  229,
-  229,
+  269,
+  269,
+  '3-months',
   'pending'
 );
 
