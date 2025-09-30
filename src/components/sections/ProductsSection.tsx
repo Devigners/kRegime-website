@@ -75,7 +75,7 @@ export default function ProductsSection() {
     >
       <div className="container section-padding">
         <motion.div
-          className="text-center mb-20"
+          className="text-center mb-16"
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -93,18 +93,16 @@ export default function ProductsSection() {
           <PricingSwitcher
             selectedType={selectedSubscription}
             onTypeChange={setSelectedSubscription}
-            className="mb-8"
           />
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {regimes.map((regime, index) => (
             <motion.div
-              key={regime.id}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.2 }}
-              viewport={{ once: true }}
+              key={`${regime.id}-${selectedSubscription}`}
+              initial={{ opacity: 0, y: 50, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
             >
               <ProductCard
                 product={{

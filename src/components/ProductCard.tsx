@@ -40,8 +40,46 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
   };
 
+  // Get the next better subscription option and calculate savings
+  const getNextSubscriptionComparison = () => {
+    const currentPrice = getPrice();
+    
+    switch (selectedSubscription) {
+      case 'one-time':
+        if (product.price3Months) {
+          const savings = currentPrice - product.price3Months;
+          const savingsPercentage = Math.round((savings / currentPrice) * 100);
+          return {
+            nextType: '3-month subscription',
+            nextPrice: product.price3Months,
+            savings,
+            savingsPercentage,
+            message: `Save ${savings} AED (${savingsPercentage}%) with 3-month plan`
+          };
+        }
+        break;
+      case '3-months':
+        if (product.price6Months) {
+          const savings = currentPrice - product.price6Months;
+          const savingsPercentage = Math.round((savings / currentPrice) * 100);
+          return {
+            nextType: '6-month subscription',
+            nextPrice: product.price6Months,
+            savings,
+            savingsPercentage,
+            message: `Save ${savings} AED (${savingsPercentage}%) with 6-month plan`
+          };
+        }
+        break;
+      default:
+        return null;
+    }
+    return null;
+  };
+
   const getCurrentPrice = getPrice();
   const priceDescription = getPriceDescription();
+  const nextSubscriptionInfo = getNextSubscriptionComparison();
 
   return (
     <motion.div
@@ -56,8 +94,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <div className="absolute -top-1 -right-1 z-10">
           <motion.div
             className="bg-gradient-to-r from-primary to-secondary text-white px-4 py-2 rounded-lg shadow-lg flex items-center space-x-1"
-            initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: 1, rotate: 0 }}
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <Sparkles className="w-4 h-4" />
@@ -147,13 +185,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 {getCurrentPrice}
               </div>
               <div className="text-sm text-black">{priceDescription}</div>
-            </div>
-            <div className="text-right">
-              <div className="text-sm text-black mb-1">Starting from</div>
-              <div className="text-lg font-semibold text-primary flex items-center gap-1 justify-end">
-                <DirhamIcon size={14} className="text-primary" />
-                {Math.round(getCurrentPrice / product.stepCount)}/step
-              </div>
+              
+              {/* Show comparison with next subscription type */}
+              {nextSubscriptionInfo && (
+                <div className="flex items-center gap-1 text-xs text-green-600 font-medium">
+                  <Sparkles className="w-3 h-3" />
+                  <span>Save {nextSubscriptionInfo.savings} AED with {nextSubscriptionInfo.nextType.replace(' subscription', '')} subscription</span>
+                </div>
+              )}
             </div>
           </div>
 

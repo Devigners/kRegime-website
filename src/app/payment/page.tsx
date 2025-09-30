@@ -418,7 +418,7 @@ export default function Payment() {
                 <button
                   onClick={handleSubmit}
                   disabled={isProcessing || !isFormValid()}
-                  className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="cursor-pointer w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isProcessing ? (
                     <div className="flex items-center justify-center">
