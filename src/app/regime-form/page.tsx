@@ -234,12 +234,12 @@ function RegimeFormContent() {
         return true;
       case 7: // Skincare steps - exactly product.stepCount required
         return formData.skincareSteps.length === product.stepCount;
-      case 8: // Korean skincare experience - required
-        return formData.koreanSkincareExperience !== '';
-      case 9: // Korean skincare attraction - at least 1 required
-        return formData.koreanSkincareAttraction.length > 0;
-      case 10: // Skincare goals - at least 1 required
+      case 8: // Skincare goals - at least 1 required
         return formData.skincareGoal.length > 0;
+      case 9: // Korean skincare experience - required
+        return formData.koreanSkincareExperience !== '';
+      case 10: // Korean skincare attraction - at least 1 required
+        return formData.koreanSkincareAttraction.length > 0;
       case 11: // Daily product count - required
         return formData.dailyProductCount !== '';
       case 12: // Routine regularity - required
@@ -473,68 +473,6 @@ function RegimeFormContent() {
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-black">
-              Are you familiar with korean skincare routines?
-            </h2>
-            <div className="space-y-4">
-              {[
-                'Yes, I already follow one',
-                'Somewhat, but i want to learn more',
-                "No, but I'm curious",
-              ].map((experience) => (
-                <button
-                  key={experience}
-                  onClick={() =>
-                    handleInputChange('koreanSkincareExperience', experience)
-                  }
-                  className={`w-full p-4 rounded-lg border-2 text-left transition-all cursor-pointer ${
-                    formData.koreanSkincareExperience === experience
-                      ? 'border-primary bg-primary/5 text-primary'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <span className="font-semibold">{experience}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        );
-
-      case 9:
-        return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-black">
-              What attracts you to korean skincare?
-            </h2>
-            <p className="text-black">Select all that apply</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {[
-                'Natural ingredients',
-                'Gentle formulas',
-                'K-pop/K-drama influence',
-                'Effective results',
-              ].map((attraction) => (
-                <button
-                  key={attraction}
-                  onClick={() =>
-                    handleMultiSelect('koreanSkincareAttraction', attraction)
-                  }
-                  className={`p-4 rounded-lg border-2 text-left transition-all cursor-pointer ${
-                    formData.koreanSkincareAttraction.includes(attraction)
-                      ? 'border-primary bg-primary/5 text-primary'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <span className="font-semibold">{attraction}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        );
-
-      case 10:
-        return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-black">
               What&apos;s your skincare goal from using korean products?
             </h2>
             <p className="text-black">
@@ -565,6 +503,68 @@ function RegimeFormContent() {
                   }`}
                 >
                   <span className="font-semibold">{goal}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+
+      case 9:
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-black">
+              Are you familiar with korean skincare routines?
+            </h2>
+            <div className="space-y-4">
+              {[
+                'Yes, I already follow one',
+                'Somewhat, but i want to learn more',
+                "No, but I'm curious",
+              ].map((experience) => (
+                <button
+                  key={experience}
+                  onClick={() =>
+                    handleInputChange('koreanSkincareExperience', experience)
+                  }
+                  className={`w-full p-4 rounded-lg border-2 text-left transition-all cursor-pointer ${
+                    formData.koreanSkincareExperience === experience
+                      ? 'border-primary bg-primary/5 text-primary'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <span className="font-semibold">{experience}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+
+      case 10:
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-black">
+              What attracts you to korean skincare?
+            </h2>
+            <p className="text-black">Select all that apply</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {[
+                'Natural ingredients',
+                'Gentle formulas',
+                'K-pop/K-drama influence',
+                'Effective results',
+              ].map((attraction) => (
+                <button
+                  key={attraction}
+                  onClick={() =>
+                    handleMultiSelect('koreanSkincareAttraction', attraction)
+                  }
+                  className={`p-4 rounded-lg border-2 text-left transition-all cursor-pointer ${
+                    formData.koreanSkincareAttraction.includes(attraction)
+                      ? 'border-primary bg-primary/5 text-primary'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <span className="font-semibold">{attraction}</span>
                 </button>
               ))}
             </div>
