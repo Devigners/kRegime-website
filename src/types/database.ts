@@ -7,6 +7,9 @@ export interface Database {
           name: string;
           description: string;
           price: number;
+          price_one_time: number;
+          price_3_months: number;
+          price_6_months: number;
           steps: string[];
           image: string[];
           step_count: 3 | 5 | 7;
@@ -19,6 +22,9 @@ export interface Database {
           name: string;
           description: string;
           price: number;
+          price_one_time: number;
+          price_3_months: number;
+          price_6_months: number;
           steps: string[];
           image: string[];
           step_count: 3 | 5 | 7;
@@ -31,6 +37,9 @@ export interface Database {
           name?: string;
           description?: string;
           price?: number;
+          price_one_time?: number;
+          price_3_months?: number;
+          price_6_months?: number;
           steps?: string[];
           image?: string[];
           step_count?: 3 | 5 | 7;
@@ -76,7 +85,8 @@ export interface Database {
           quantity: number;
           total_amount: number;
           final_amount: number;
-          status: 'pending' | 'processing' | 'completed' | 'cancelled';
+          subscription_type: 'one-time' | '3-months' | '6-months';
+          status: 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled';
           created_at: string;
           updated_at: string;
         };
@@ -116,7 +126,8 @@ export interface Database {
           quantity: number;
           total_amount: number;
           final_amount: number;
-          status?: 'pending' | 'processing' | 'completed' | 'cancelled';
+          subscription_type?: 'one-time' | '3-months' | '6-months';
+          status?: 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled';
           created_at?: string;
           updated_at?: string;
         };
@@ -156,7 +167,8 @@ export interface Database {
           quantity?: number;
           total_amount?: number;
           final_amount?: number;
-          status?: 'pending' | 'processing' | 'completed' | 'cancelled';
+          subscription_type?: 'one-time' | '3-months' | '6-months';
+          status?: 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled';
           created_at?: string;
           updated_at?: string;
         };

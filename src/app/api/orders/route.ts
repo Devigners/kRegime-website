@@ -5,7 +5,7 @@ import {
   convertRegimeRowToRegime,
   type Order,
 } from '@/models/database';
-import { sendOrderCompleteEmail } from '@/lib/email';
+import { sendOrderReceivedEmail } from '@/lib/email';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET() {
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Send the completion email
-      const emailResult = await sendOrderCompleteEmail({
+      const emailResult = await sendOrderReceivedEmail({
         order: convertedOrder,
         regime,
       });

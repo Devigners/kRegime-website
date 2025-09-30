@@ -1,6 +1,6 @@
 'use client';
 
-import { FormData } from '@/types';
+import { FormData, SubscriptionType } from '@/types';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -14,6 +14,7 @@ function RegimeFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const productId = searchParams.get('product');
+  const subscriptionParam = searchParams.get('subscription') as SubscriptionType || 'one-time';
   const [currentStep, setCurrentStep] = useState(1);
   const [product, setProduct] = useState<Regime | null>(null);
   const [loading, setLoading] = useState(true);
@@ -174,14 +175,29 @@ function RegimeFormContent() {
     if (!product || !productId) return;
 
     try {
+      // Calculate price based on subscription type
+      const getPrice = () => {
+        switch (subscriptionParam) {
+          case '3-months':
+            return product.price3Months;
+          case '6-months':
+            return product.price6Months;
+          default:
+            return product.priceOneTime;
+        }
+      };
+
+      const selectedPrice = getPrice();
+
       // Save cart data to localStorage
       const cartData = {
         regimeId: productId,
         regime: product,
         formData: formData,
         quantity: 1,
-        totalAmount: product.price,
-        finalAmount: product.price,
+        subscriptionType: subscriptionParam,
+        totalAmount: selectedPrice,
+        finalAmount: selectedPrice,
       };
 
       localStorageUtils.saveCartData(cartData);
@@ -821,7 +837,16 @@ function RegimeFormContent() {
                 className="btn-primary cursor-pointer flex items-center gap-2 justify-center"
               >
                 Add to Cart - <DirhamIcon size={16} className="!text-white" />{' '}
-                {product.price}
+                {(() => {
+                  switch (subscriptionParam) {
+                    case '3-months':
+                      return product.price3Months;
+                    case '6-months':
+                      return product.price6Months;
+                    default:
+                      return product.priceOneTime;
+                  }
+                })()}
               </button>
             )}
           </div>

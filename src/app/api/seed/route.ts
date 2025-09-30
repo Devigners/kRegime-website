@@ -13,7 +13,9 @@ const initialRegimes: Omit<Regime, 'createdAt' | 'updatedAt'>[] = [
     name: 'TRIBOX',
     description:
       "Start with the essentials. This 3 steps Korean skincare routine is designed to cleanse, hydrate and protect, or switch it up based on your needs. Just tell us your skin type and we'll curate the perfect set.",
-    price: 229,
+    priceOneTime: 229,
+    price3Months: 199,
+    price6Months: 179,
     steps: ['Cleanser', 'Moisturiser', 'Sunscreen'],
     images: ['/static/1.webp'],
     stepCount: 3,
@@ -24,7 +26,9 @@ const initialRegimes: Omit<Regime, 'createdAt' | 'updatedAt'>[] = [
     name: 'PENTABOX',
     description:
       "Go deeper with a well-rounded 5 steps routine tailored just for you. Whether you're focused on glow, hydration, or texture, we'll customize every product in your box.",
-    price: 379,
+    priceOneTime: 379,
+    price3Months: 329,
+    price6Months: 299,
     steps: ['Cleanser', 'Toner', 'Serum', 'Moisturiser', 'Sunscreen'],
     images: ['/static/2.webp'],
     stepCount: 5,
@@ -35,7 +39,9 @@ const initialRegimes: Omit<Regime, 'createdAt' | 'updatedAt'>[] = [
     name: 'SEPTABOX',
     description:
       'Our full skincare journey in one luxurious box. The 7 steps Korean skincare ritual is designed to deep-cleanse, treat, and protect, giving you radiant, long-term results. Perfect for skincare lovers and advanced users.',
-    price: 529,
+    priceOneTime: 529,
+    price3Months: 459,
+    price6Months: 419,
     steps: [
       'Cleansing oil',
       'Cleanser',

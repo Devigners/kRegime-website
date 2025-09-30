@@ -1,12 +1,21 @@
 import { render } from '@react-email/render';
 import { resend } from './resend';
-import { OrderCompleteEmail } from '@/emails/OrderCompleteEmail';
+import { OrderReceivedEmail } from '@/emails/OrderReceivedEmail';
+import { OrderStatusUpdateEmail } from '@/emails/OrderStatusUpdateEmail';
 import { Order, Regime } from '@/models/database';
 
-export interface SendOrderCompleteEmailProps {
+export interface SendOrderReceivedEmailProps {
   order: Order;
   regime?: Regime;
   customerName?: string;
+}
+
+export interface SendOrderStatusUpdateEmailProps {
+  order: Order;
+  regime?: Regime;
+  customerName?: string;
+  previousStatus?: Order['status'];
+  trackingNumber?: string;
 }
 
 export interface EmailResponse {
@@ -16,13 +25,13 @@ export interface EmailResponse {
 }
 
 /**
- * Send order completion email to customer
+ * Send order receipt confirmation email to customer
  */
-export async function sendOrderCompleteEmail({
+export async function sendOrderReceivedEmail({
   order,
   regime,
   customerName,
-}: SendOrderCompleteEmailProps): Promise<EmailResponse> {
+}: SendOrderReceivedEmailProps): Promise<EmailResponse> {
   try {
     // Generate customer name from order data if not provided
     const displayName = 
@@ -32,7 +41,7 @@ export async function sendOrderCompleteEmail({
 
     // Render the email template
     const emailHtml = await render(
-      OrderCompleteEmail({
+      OrderReceivedEmail({
         order,
         regime,
         customerName: displayName,
@@ -48,20 +57,20 @@ export async function sendOrderCompleteEmail({
     });
 
     if (error) {
-      console.error('Failed to send order complete email:', error);
+      console.error('Failed to send order received email:', error);
       return {
         success: false,
         error: error.message || 'Failed to send email',
       };
     }
 
-    console.log('Order complete email sent successfully:', data?.id);
+    console.log('Order received email sent successfully:', data?.id);
     return {
       success: true,
       id: data?.id,
     };
   } catch (error) {
-    console.error('Error in sendOrderCompleteEmail:', error);
+    console.error('Error in sendOrderReceivedEmail:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error occurred',
@@ -70,25 +79,75 @@ export async function sendOrderCompleteEmail({
 }
 
 /**
- * Send order status update email (for future use)
+ * Send order status update email to customer
  */
 export async function sendOrderStatusUpdateEmail({
   order,
-  status,
+  regime,
+  customerName,
   trackingNumber,
-}: {
-  order: Order;
-  status: Order['status'];
-  trackingNumber?: string;
-}): Promise<EmailResponse> {
-  // This can be implemented later for order status updates
-  // For now, we'll just return a placeholder
-  console.log('Order status update email functionality - to be implemented', {
-    orderId: order.id,
-    status,
-    trackingNumber,
-  });
-  return { success: true };
+}: SendOrderStatusUpdateEmailProps): Promise<EmailResponse> {
+  try {
+    // Generate customer name from order data if not provided
+    const displayName = 
+      customerName || 
+      order.shippingAddress.firstName || 
+      order.contactInfo.email.split('@')[0];
+
+    // Generate subject line based on status
+    const getSubjectLine = (status: Order['status']) => {
+      switch (status) {
+        case 'processing':
+          return `Order #${order.id} is being processed! ⚡`;
+        case 'shipped':
+          return `Order #${order.id} has shipped! 🚚`;
+        case 'completed':
+          return `Order #${order.id} delivered! Your skincare journey begins ✨`;
+        case 'cancelled':
+          return `Order #${order.id} has been cancelled`;
+        default:
+          return `Order #${order.id} status update`;
+      }
+    };
+
+    // Render the email template
+    const emailHtml = await render(
+      OrderStatusUpdateEmail({
+        order,
+        regime,
+        customerName: displayName,
+        trackingNumber,
+      })
+    );
+
+    // Send email using Resend
+    const { data, error } = await resend.emails.send({
+      from: 'kRegime <noreply@kregime.com>',
+      to: [order.contactInfo.email],
+      subject: getSubjectLine(order.status),
+      html: emailHtml,
+    });
+
+    if (error) {
+      console.error('Failed to send order status update email:', error);
+      return {
+        success: false,
+        error: error.message || 'Failed to send email',
+      };
+    }
+
+    console.log(`Order status update email sent successfully for status "${order.status}":`, data?.id);
+    return {
+      success: true,
+      id: data?.id,
+    };
+  } catch (error) {
+    console.error('Error in sendOrderStatusUpdateEmail:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    };
+  }
 }
 
 /**

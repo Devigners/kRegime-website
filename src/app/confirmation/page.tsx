@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { CheckCircle, Mail, Package, Truck } from 'lucide-react';
+import { CheckCircle, Mail, Package, Truck, Clock, ShoppingBag, X, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useState, useEffect, Suspense } from 'react';
@@ -17,6 +17,90 @@ function ConfirmationContent() {
   const [regime, setRegime] = useState<Regime | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const getSubscriptionTypeDisplay = (subscriptionType: 'one-time' | '3-months' | '6-months') => {
+    switch (subscriptionType) {
+      case 'one-time':
+        return 'One-time Purchase';
+      case '3-months':
+        return '3-Month Subscription Paid Monthly';
+      case '6-months':
+        return '6-Month Subscription Paid Monthly';
+      default:
+        return 'One-time Purchase';
+    }
+  };
+
+  const getOrderStatusConfig = (status: Order['status']) => {
+    switch (status) {
+      case 'pending':
+        return {
+          icon: Clock,
+          color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+          bgGradient: 'from-yellow-50 to-yellow-100',
+          iconBg: 'bg-yellow-100',
+          iconColor: 'text-yellow-600',
+          label: 'Order Received',
+          description: 'Your order has been received and is awaiting confirmation.',
+          nextSteps: 'We will confirm your order and begin processing within 24 hours.'
+        };
+      case 'processing':
+        return {
+          icon: Package,
+          color: 'bg-blue-100 text-blue-800 border-blue-200',
+          bgGradient: 'from-blue-50 to-blue-100',
+          iconBg: 'bg-blue-100',
+          iconColor: 'text-blue-600',
+          label: 'Order Processing',
+          description: 'Your personalized skincare regime is being curated by our experts.',
+          nextSteps: 'Your order will be packed and shipped within 1-2 business days.'
+        };
+      case 'shipped':
+        return {
+          icon: Truck,
+          color: 'bg-purple-100 text-purple-800 border-purple-200',
+          bgGradient: 'from-purple-50 to-purple-100',
+          iconBg: 'bg-purple-100',
+          iconColor: 'text-purple-600',
+          label: 'Order Shipped',
+          description: 'Your Korean skincare regime is on its way to you!',
+          nextSteps: 'Your order will be delivered within 2-3 business days.'
+        };
+      case 'completed':
+        return {
+          icon: CheckCircle2,
+          color: 'bg-green-100 text-green-800 border-green-200',
+          bgGradient: 'from-green-50 to-green-100',
+          iconBg: 'bg-green-100',
+          iconColor: 'text-green-600',
+          label: 'Order Delivered',
+          description: 'Your Korean skincare regime has been successfully delivered!',
+          nextSteps: 'Enjoy your personalized skincare journey. Don\'t forget to leave a review!'
+        };
+      case 'cancelled':
+        return {
+          icon: X,
+          color: 'bg-red-100 text-red-800 border-red-200',
+          bgGradient: 'from-red-50 to-red-100',
+          iconBg: 'bg-red-100',
+          iconColor: 'text-red-600',
+          label: 'Order Cancelled',
+          description: 'This order has been cancelled.',
+          nextSteps: 'If you have any questions, please contact our support team.'
+        };
+      default:
+        return {
+          icon: ShoppingBag,
+          color: 'bg-gray-100 text-gray-800 border-gray-200',
+          bgGradient: 'from-gray-50 to-gray-100',
+          iconBg: 'bg-gray-100',
+          iconColor: 'text-gray-600',
+          label: 'Order Status Unknown',
+          description: 'Unable to determine order status.',
+          nextSteps: 'Please contact support for assistance.'
+        };
+    }
+  };
 
   useEffect(() => {
     const fetchOrderAndRegime = async () => {
@@ -102,20 +186,100 @@ function ConfirmationContent() {
             transition={{ duration: 0.5 }}
             className="text-center mb-12"
           >
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle size={40} className="text-green-500" />
+            <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 ${
+              order?.status === 'cancelled' 
+                ? 'bg-red-100' 
+                : order?.status === 'completed' 
+                ? 'bg-green-100' 
+                : order?.status === 'shipped'
+                ? 'bg-purple-100'
+                : order?.status === 'processing'
+                ? 'bg-blue-100'
+                : order?.status === 'pending'
+                ? 'bg-yellow-100'
+                : 'bg-green-100'
+            }`}>
+              {order?.status === 'cancelled' ? (
+                <X size={40} className="text-red-500" />
+              ) : order?.status === 'completed' ? (
+                <CheckCircle2 size={40} className="text-green-500" />
+              ) : order?.status === 'shipped' ? (
+                <Truck size={40} className="text-purple-500" />
+              ) : order?.status === 'processing' ? (
+                <Package size={40} className="text-blue-500" />
+              ) : order?.status === 'pending' ? (
+                <Clock size={40} className="text-yellow-500" />
+              ) : (
+                <CheckCircle size={40} className="text-green-500" />
+              )}
             </div>
             <h1 className="text-3xl md:text-4xl font-bold text-black mb-4">
-              Order Confirmed!
+              {order?.status === 'cancelled' 
+                ? 'Order Cancelled' 
+                : order?.status === 'completed' 
+                ? 'Order Delivered!' 
+                : 'Order Received!'}
             </h1>
             <p className="text-lg text-black mb-2">
-              Thank you for your purchase. Your Korean skincare journey begins
-              now!
+              {order?.status === 'cancelled' 
+                ? 'This order has been cancelled. If you have any questions, please contact support.'
+                : order?.status === 'completed' 
+                ? 'Your Korean skincare regime has been delivered. Enjoy your skincare journey!'
+                : 'Thank you for your purchase. Your Korean skincare journey begins now!'}
             </p>
             <p className="text-primary font-semibold">
               Order #{order?.id || 'Processing...'}
             </p>
           </motion.div>
+
+          {/* Order Status Display */}
+          {order && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="mb-8"
+            >
+              {(() => {
+                const statusConfig = getOrderStatusConfig(order.status);
+                const StatusIcon = statusConfig.icon;
+                
+                return (
+                  <div className={`relative overflow-hidden rounded-xl border-2 ${statusConfig.color} bg-gradient-to-r ${statusConfig.bgGradient} p-6`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <div className={`w-12 h-12 ${statusConfig.iconBg} rounded-full flex items-center justify-center`}>
+                          <StatusIcon size={24} className={statusConfig.iconColor} />
+                        </div>
+                        <div>
+                          <h2 className="text-xl font-bold text-gray-800">
+                            {statusConfig.label}
+                          </h2>
+                          <p className="text-gray-700 mt-1">
+                            {statusConfig.description}
+                          </p>
+                          <p className="text-sm text-gray-600 mt-2 font-medium">
+                            {statusConfig.nextSteps}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-gray-600">Last updated</p>
+                        <p className="text-sm font-semibold text-gray-800">
+                          {new Date(order.updatedAt).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+            </motion.div>
+          )}
 
           {/* Order Details */}
           <motion.div
@@ -147,21 +311,11 @@ function ConfirmationContent() {
                     )}
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-black">{regime.name}</h3>
+                    <h3 className="font-semibold text-black">{regime.name} - {regime.stepCount} steps routine</h3>
                     <p className="text-sm text-black">{regime.description}</p>
-                    <p className="text-sm text-black mt-1">
-                      {regime.stepCount} steps routine • Customized for{' '}
-                      {order.userDetails.skinType} skin
-                      {order.userDetails.skinConcerns.length > 0 && (
-                        <span>
-                          {' '}
-                          - {order.userDetails.skinConcerns.join(', ')}
-                        </span>
-                      )}
-                    </p>
                     <div className="flex justify-between items-center mt-2">
                       <span className="text-sm text-black">
-                        Quantity: {order.quantity}
+                        {getSubscriptionTypeDisplay(order.subscriptionType || 'one-time')}
                       </span>
                       <span className="font-semibold text-black flex items-center gap-1">
                         <DirhamIcon size={12} className="text-black" />
@@ -171,36 +325,20 @@ function ConfirmationContent() {
                   </div>
                 </div>
 
-                {/* Customer Details */}
+                {/* Personalized Regime Steps */}
                 <div className="mt-6 pt-6 border-t border-gray-100">
                   <h3 className="font-semibold text-black mb-3">
-                    Customer Information
+                    Your Personalized Regime Steps
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-black">Age:</span>
-                      <span className="ml-2 text-black">
-                        {order.userDetails.age}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-black">Gender:</span>
-                      <span className="ml-2 text-black">
-                        {order.userDetails.gender}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-black">Complexion:</span>
-                      <span className="ml-2 text-black">
-                        {order.userDetails.complexion}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-black">Experience:</span>
-                      <span className="ml-2 text-black">
-                        {order.userDetails.koreanSkincareExperience}
-                      </span>
-                    </div>
+                  <div className="grid grid-cols-1 gap-3">
+                    {order.userDetails.skincareSteps.map((step, index) => (
+                      <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                        <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white text-sm font-bold">
+                          {index + 1}
+                        </div>
+                        <span className="text-black font-medium capitalize">{step}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -222,7 +360,7 @@ function ConfirmationContent() {
                     </p>
                     <div className="flex justify-between items-center mt-2">
                       <span className="text-sm text-black">
-                        Quantity: {order.quantity}
+                        {getSubscriptionTypeDisplay(order.subscriptionType || 'one-time')}
                       </span>
                       <span className="font-semibold text-black flex items-center gap-1">
                         <DirhamIcon size={12} className="text-black" />
@@ -286,48 +424,213 @@ function ConfirmationContent() {
             </h2>
 
             <div className="space-y-6">
-              <div className="flex items-start space-x-4">
-                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                  <Mail size={20} className="text-primary" />
+              {/* Order Progress Timeline - Always show all statuses */}
+              <div className="space-y-4">
+                {/* Pending Status */}
+                <div className="flex items-start space-x-4">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                    order?.status === 'pending' 
+                      ? 'bg-primary/10' 
+                      : ['processing', 'shipped', 'completed'].includes(order?.status || '')
+                      ? 'bg-green-100'
+                      : 'bg-gray-100'
+                  }`}>
+                    {order?.status === 'pending' ? (
+                      <Clock size={20} className="text-primary" />
+                    ) : ['processing', 'shipped', 'completed'].includes(order?.status || '') ? (
+                      <CheckCircle size={20} className="text-green-500" />
+                    ) : (
+                      <Clock size={20} className="text-gray-400" />
+                    )}
+                  </div>
+                  <div>
+                    <h3 className={`font-semibold ${
+                      order?.status === 'pending' 
+                        ? 'text-black' 
+                        : ['processing', 'shipped', 'completed'].includes(order?.status || '')
+                        ? 'text-black'
+                        : 'text-gray-400'
+                    }`}>
+                      {order?.status === 'pending' ? 'Order Confirmation' : 'Order Confirmed'}
+                      {['processing', 'shipped', 'completed'].includes(order?.status || '') ? ' ✓' : ''}
+                    </h3>
+                    <p className={`text-sm ${
+                      order?.status === 'pending' 
+                        ? 'text-black' 
+                        : ['processing', 'shipped', 'completed'].includes(order?.status || '')
+                        ? 'text-black'
+                        : 'text-gray-400'
+                    }`}>
+                      {order?.status === 'pending' 
+                        ? "We'll review and confirm your order within 24 hours."
+                        : "Your order has been confirmed and verified."}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-black">
-                    Confirmation Email
-                  </h3>
-                  <p className="text-black text-sm">
-                    We&apos;ll send you an order confirmation email with all the
-                    details.
-                  </p>
+
+                {/* Processing Status */}
+                <div className="flex items-start space-x-4">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                    order?.status === 'processing' 
+                      ? 'bg-primary/10' 
+                      : ['shipped', 'completed'].includes(order?.status || '')
+                      ? 'bg-green-100'
+                      : 'bg-gray-100'
+                  }`}>
+                    {order?.status === 'processing' ? (
+                      <Package size={20} className="text-primary" />
+                    ) : ['shipped', 'completed'].includes(order?.status || '') ? (
+                      <CheckCircle size={20} className="text-green-500" />
+                    ) : (
+                      <Package size={20} className="text-gray-400" />
+                    )}
+                  </div>
+                  <div>
+                    <h3 className={`font-semibold ${
+                      order?.status === 'processing' 
+                        ? 'text-black' 
+                        : ['shipped', 'completed'].includes(order?.status || '')
+                        ? 'text-black'
+                        : 'text-gray-400'
+                    }`}>
+                      {order?.status === 'processing' ? 'Order Processing' : 'Order Processed'}
+                      {['shipped', 'completed'].includes(order?.status || '') ? ' ✓' : ''}
+                    </h3>
+                    <p className={`text-sm ${
+                      order?.status === 'processing' 
+                        ? 'text-black' 
+                        : ['shipped', 'completed'].includes(order?.status || '')
+                        ? 'text-black'
+                        : 'text-gray-400'
+                    }`}>
+                      {order?.status === 'processing' 
+                        ? "Our skincare experts are curating your personalized regime right now."
+                        : "Your personalized regime has been curated and packed."}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Shipped Status */}
+                <div className="flex items-start space-x-4">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                    order?.status === 'shipped' 
+                      ? 'bg-primary/10' 
+                      : order?.status === 'completed'
+                      ? 'bg-green-100'
+                      : 'bg-gray-100'
+                  }`}>
+                    {order?.status === 'shipped' ? (
+                      <Truck size={20} className="text-primary" />
+                    ) : order?.status === 'completed' ? (
+                      <CheckCircle size={20} className="text-green-500" />
+                    ) : (
+                      <Truck size={20} className="text-gray-400" />
+                    )}
+                  </div>
+                  <div>
+                    <h3 className={`font-semibold ${
+                      order?.status === 'shipped' 
+                        ? 'text-black' 
+                        : order?.status === 'completed'
+                        ? 'text-black'
+                        : 'text-gray-400'
+                    }`}>
+                      {order?.status === 'shipped' ? 'Order Shipped' : 'Shipping & Delivery'}
+                      {order?.status === 'completed' ? ' ✓' : ''}
+                    </h3>
+                    <p className={`text-sm ${
+                      order?.status === 'shipped' 
+                        ? 'text-black' 
+                        : order?.status === 'completed'
+                        ? 'text-black'
+                        : 'text-gray-400'
+                    }`}>
+                      {order?.status === 'shipped' 
+                        ? "Your Korean skincare regime is on its way to you!"
+                        : order?.status === 'completed'
+                        ? "Your order was successfully delivered."
+                        : "Your order will be shipped within 1-2 business days."}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Completed Status */}
+                <div className="flex items-start space-x-4">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                    order?.status === 'completed' 
+                      ? 'bg-primary/10' 
+                      : 'bg-gray-100'
+                  }`}>
+                    {order?.status === 'completed' ? (
+                      <CheckCircle size={20} className="text-primary" />
+                    ) : (
+                      <CheckCircle size={20} className="text-gray-400" />
+                    )}
+                  </div>
+                  <div>
+                    <h3 className={`font-semibold ${
+                      order?.status === 'completed' 
+                        ? 'text-black' 
+                        : 'text-gray-400'
+                    }`}>
+                      Order Delivered
+                      {order?.status === 'completed' ? ' ✓' : ''}
+                    </h3>
+                    <p className={`text-sm ${
+                      order?.status === 'completed' 
+                        ? 'text-black' 
+                        : 'text-gray-400'
+                    }`}>
+                      {order?.status === 'completed' 
+                        ? "Your Korean skincare regime has been successfully delivered! Enjoy your skincare journey."
+                        : "Your Korean skincare regime will be delivered within 2-3 business days."}
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex items-start space-x-4">
-                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                  <Package size={20} className="text-primary" />
+              {/* Cancelled Status - Only show if order is cancelled */}
+              {order?.status === 'cancelled' && (
+                <div className="border-t border-gray-200 pt-6">
+                  <div className="flex items-start space-x-4">
+                    <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                      <X size={20} className="text-red-500" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-black">Order Cancelled</h3>
+                      <p className="text-black text-sm mb-3">
+                        This order has been cancelled.
+                      </p>
+                      
+                      <div className="space-y-3">
+                        <div className="flex items-start space-x-3">
+                          <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center mt-1">
+                            <Mail size={12} className="text-primary" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-black text-sm">Refund Processing</h4>
+                            <p className="text-black text-xs">
+                              If you were charged, your refund will be processed within 5-7 business days.
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-start space-x-3">
+                          <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center mt-1">
+                            <Package size={12} className="text-primary" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-black text-sm">Need Help?</h4>
+                            <p className="text-black text-xs">
+                              Contact our support team if you have any questions about the cancellation.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-black">Order Processing</h3>
-                  <p className="text-black text-sm">
-                    Our skincare experts will curate your personalized regime
-                    within 1 business day.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-4">
-                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                  <Truck size={20} className="text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-black">
-                    Shipping & Delivery
-                  </h3>
-                  <p className="text-black text-sm">
-                    Your Korean skincare regime box will be delivered within 2-3
-                    business days.
-                  </p>
-                </div>
-              </div>
+              )}
             </div>
           </motion.div>
 

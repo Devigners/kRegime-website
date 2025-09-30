@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 import { localStorage as localStorageUtils } from '@/lib/localStorage';
 import { orderApi } from '@/lib/api';
+import { SubscriptionType } from '@/types';
 import DirhamIcon from '@/components/icons/DirhamIcon';
 
 interface CartData {
@@ -17,10 +18,14 @@ interface CartData {
     name: string;
     description: string;
     price: number;
+    priceOneTime?: number;
+    price3Months?: number;
+    price6Months?: number;
     images: string[];
   };
   formData: Record<string, string | string[]>;
   quantity: number;
+  subscriptionType: SubscriptionType;
   totalAmount: number;
   finalAmount: number;
 }
@@ -126,6 +131,7 @@ export default function Payment() {
         quantity: cartData.quantity,
         totalAmount: cartData.totalAmount,
         finalAmount: cartData.finalAmount,
+        subscriptionType: cartData.subscriptionType,
         status: 'pending' as const,
       };
 
@@ -372,9 +378,13 @@ export default function Payment() {
                       <p className="text-sm text-black">
                         {cartData.regime.description}
                       </p>
-                      <p className="text-sm font-semibold text-black mt-1 flex items-center gap-1">
-                        <DirhamIcon size={12} className="text-black" />
-                        {cartData.regime.price} x {cartData.quantity}
+                      <p className="text-xs text-neutral-600 mt-1">
+                        {cartData.subscriptionType === 'one-time' 
+                          ? 'One-time purchase' 
+                          : cartData.subscriptionType === '3-months'
+                          ? '3-month subscription (monthly payment)'
+                          : '6-month subscription (monthly payment)'
+                        }
                       </p>
                     </div>
                   </div>

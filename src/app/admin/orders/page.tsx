@@ -16,6 +16,7 @@ import {
   Phone,
   ShoppingCart,
   Trash2,
+  Truck,
   XCircle
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -102,23 +103,36 @@ export default function OrdersAdmin() {
     }
   };
 
-  const handleStatusUpdate = async (orderId: string, newStatus: 'pending' | 'processing' | 'completed' | 'cancelled') => {
+  const handleStatusUpdate = async (orderId: string, newStatus: 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled') => {
     try {
-      const { error } = await supabaseClient
-        .from('orders')
-        .update({ 
+      // Use API route instead of direct Supabase update to trigger emails
+      const response = await fetch(`/api/orders/${orderId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
           status: newStatus,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', orderId);
+        }),
+      });
 
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error('Failed to update order status');
+      }
+
+      const result = await response.json();
       
-      setOrders(orders.map(o => 
-        o.id === orderId 
-          ? { ...o, status: newStatus, updatedAt: new Date() } 
-          : o
-      ));
+      if (result.success) {
+        // Update local state with the updated order
+        setOrders(orders.map(o => 
+          o.id === orderId 
+            ? { ...o, status: newStatus, updatedAt: new Date() } 
+            : o
+        ));
+        console.log(`Order ${orderId} status updated to ${newStatus}. Email notification sent.`);
+      } else {
+        throw new Error(result.error || 'Failed to update order status');
+      }
     } catch (error) {
       console.error('Error updating order status:', error);
     }
@@ -130,6 +144,8 @@ export default function OrdersAdmin() {
         return <Clock className="h-5 w-5" />;
       case 'processing':
         return <Package className="h-5 w-5" />;
+      case 'shipped':
+        return <Truck className="h-5 w-5" />;
       case 'completed':
         return <CheckCircle className="h-5 w-5" />;
       case 'cancelled':
@@ -143,10 +159,37 @@ export default function OrdersAdmin() {
     const statusMap = {
       pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
       processing: 'bg-blue-100 text-blue-800 border-blue-200',
+      shipped: 'bg-purple-100 text-purple-800 border-purple-200',
       completed: 'bg-green-100 text-green-800 border-green-200',
       cancelled: 'bg-red-100 text-red-800 border-red-200',
     };
     return statusMap[status as keyof typeof statusMap] || 'bg-gray-100 text-gray-800 border-gray-200';
+  };
+
+  const getSubscriptionTypeDisplay = (subscriptionType: 'one-time' | '3-months' | '6-months') => {
+    switch (subscriptionType) {
+      case 'one-time':
+        return 'One-time Purchase';
+      case '3-months':
+        return '3-Month Subscription';
+      case '6-months':
+        return '6-Month Subscription';
+      default:
+        return 'One-time Purchase';
+    }
+  };
+
+  const getSubscriptionTypeBadge = (subscriptionType: 'one-time' | '3-months' | '6-months') => {
+    switch (subscriptionType) {
+      case 'one-time':
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+      case '3-months':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case '6-months':
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
   };
 
   const toggleOrderExpansion = (orderId: string) => {
@@ -256,6 +299,7 @@ export default function OrdersAdmin() {
                 <option value="all">All Status</option>
                 <option value="pending">Pending</option>
                 <option value="processing">Processing</option>
+                <option value="shipped">Shipped</option>
                 <option value="completed">Completed</option>
                 <option value="cancelled">Cancelled</option>
               </select>
@@ -336,6 +380,11 @@ export default function OrdersAdmin() {
                         <span className="capitalize text-sm">{order.status}</span>
                       </span>
 
+                      {/* Subscription Type Badge */}
+                      <span className={`inline-flex items-center px-3 py-1.5 rounded-lg font-bold border ${getSubscriptionTypeBadge(order.subscriptionType || 'one-time')}`}>
+                        <span className="text-sm">{getSubscriptionTypeDisplay(order.subscriptionType || 'one-time')}</span>
+                      </span>
+
                       {/* Actions */}
                       <div className="flex items-center space-x-2">
                         <button
@@ -387,10 +436,11 @@ export default function OrdersAdmin() {
                     </span>
                     <select
                       value={order.status}
-                      onChange={(e) => handleStatusUpdate(order.id, e.target.value as 'pending' | 'processing' | 'completed' | 'cancelled')}
+                      onChange={(e) => handleStatusUpdate(order.id, e.target.value as 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled')}
                       className="font-bold border border-[#EF7E71]/20 rounded-lg px-3 py-1.5 focus:ring-1 focus:ring-[#EF7E71] focus:border-[#EF7E71] bg-white/70 backdrop-blur-sm min-w-[120px] text-sm"
                     >
                       <option value="pending">Pending</option>
+                      <option value="processing">Processing</option>
                       <option value="shipped">Shipped</option>
                       <option value="completed">Completed</option>
                       <option value="cancelled">Cancelled</option>
@@ -408,26 +458,16 @@ export default function OrdersAdmin() {
                               <Package className="h-4 w-4 text-[#EF7E71]" />
                               <span>Purchased Regime</span>
                             </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div>
                                 <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Regime Name:</span>
-                                <div className="font-black text-sm text-[#EF7E71]">{order.regime?.name || 'Regime Not Found'}</div>
+                                <div className="font-black text-sm text-neutral-900">{order.regime?.name || 'Regime Not Found'}</div>
                               </div>
                               <div>
-                                <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Step Count:</span>
-                                <div className="font-black text-sm text-neutral-900">{order.regime?.step_count || 'N/A'}-Step Routine</div>
-                              </div>
-                              <div>
-                                <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Regime Price:</span>
-                                <div className="font-black text-sm text-neutral-900">AED {order.regime?.price || 'N/A'}</div>
+                                <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Subscription Type:</span>
+                                <div className="font-black text-sm text-neutral-900">{getSubscriptionTypeDisplay(order.subscriptionType || 'one-time')}</div>
                               </div>
                             </div>
-                            {order.regime?.description && (
-                              <div className="mt-3 pt-3 border-t border-[#EF7E71]/20">
-                                <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Description:</span>
-                                <div className="font-medium text-sm text-neutral-700 leading-relaxed mt-1">{order.regime.description}</div>
-                              </div>
-                            )}
                           </div>
                           {/* Customer Details */}
                           <div className="mb-4 bg-white rounded-xl p-4 border border-gray-200">
@@ -464,17 +504,11 @@ export default function OrdersAdmin() {
                             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
                               <div className="space-y-2">
                                 <div className="flex items-center space-x-3">
-                                  <span className="text-neutral-600 font-bold text-sm">Quantity:</span>
-                                  <span className="font-black text-lg">{order.quantity}</span>
-                                </div>
-                                <div className="flex items-center space-x-3">
-                                  <span className="text-neutral-600 font-bold text-sm">Subtotal:</span>
-                                  <span className="font-black text-lg">AED {order.totalAmount}</span>
+                                  <span className="text-neutral-600 font-bold text-sm">Final Amount:</span>
                                 </div>
                               </div>
-                              <div className="text-right space-y-1">
-                                <p className="text-neutral-600 font-black uppercase tracking-wider text-xs">Final Amount</p>
-                                <p className="text-2xl font-black bg-gradient-to-r from-[#EF7E71] to-[#D4654F] bg-clip-text text-transparent">
+                              <div className="text-right">
+                                <p className="text-xl font-black bg-gradient-to-r from-[#EF7E71] to-[#D4654F] bg-clip-text text-transparent">
                                   AED {order.finalAmount}
                                 </p>
                               </div>
