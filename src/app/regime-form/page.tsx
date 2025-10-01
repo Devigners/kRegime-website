@@ -229,31 +229,38 @@ function RegimeFormContent() {
         return formData.skinConcerns.length > 0;
       case 5: // Complexion - required
         return formData.complexion !== '';
-      case 6: // Allergies - optional
+      case 6: // Allergies - optional but part of first 8
         return true;
       case 7: // Skincare steps - exactly product.stepCount required
         return formData.skincareSteps.length === product.stepCount;
       case 8: // Skincare goals - at least 1 required
         return formData.skincareGoal.length > 0;
-      case 9: // Korean skincare experience - required
-        return formData.koreanSkincareExperience !== '';
-      case 10: // Korean skincare attraction - at least 1 required
-        return formData.koreanSkincareAttraction.length > 0;
-      case 11: // Daily product count - required
-        return formData.dailyProductCount !== '';
-      case 12: // Routine regularity - required
-        return formData.routineRegularity !== '';
-      case 13: // Purchase location - required
-        return formData.purchaseLocation !== '';
-      case 14: // Budget - required
-        return formData.budget !== '';
-      case 15: // Brands used - optional
-        return true;
-      case 16: // Additional comments - optional
+      // All remaining steps are optional
+      case 9:
+      case 10:
+      case 11:
+      case 12:
+      case 13:
+      case 14:
+      case 15:
+      case 16:
         return true;
       default:
         return true;
     }
+  };
+
+  // Check if the mandatory questions (1-8) are completed
+  const isMandatoryCompleted = () => {
+    return (
+      formData.age !== '' &&
+      formData.gender !== '' &&
+      formData.skinType !== '' &&
+      formData.skinConcerns.length > 0 &&
+      formData.complexion !== '' &&
+      formData.skincareSteps.length === product.stepCount &&
+      formData.skincareGoal.length > 0
+    );
   };
 
   const renderStep = () => {
@@ -509,6 +516,11 @@ function RegimeFormContent() {
       case 9:
         return (
           <div className="space-y-6">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="px-2 py-1 bg-primary/10 text-primary text-xs font-medium rounded">
+                Optional
+              </span>
+            </div>
             <h2 className="text-2xl font-bold text-black">
               Are you familiar with korean skincare routines?
             </h2>
@@ -539,6 +551,11 @@ function RegimeFormContent() {
       case 10:
         return (
           <div className="space-y-6">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="px-2 py-1 bg-primary/10 text-primary text-xs font-medium rounded">
+                Optional
+              </span>
+            </div>
             <h2 className="text-2xl font-bold text-black">
               What attracts you to korean skincare?
             </h2>
@@ -571,6 +588,11 @@ function RegimeFormContent() {
       case 11:
         return (
           <div className="space-y-6">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="px-2 py-1 bg-primary/10 text-primary text-xs font-medium rounded">
+                Optional
+              </span>
+            </div>
             <h2 className="text-2xl font-bold text-black">
               How many skincare products do you use daily?
             </h2>
@@ -595,6 +617,11 @@ function RegimeFormContent() {
       case 12:
         return (
           <div className="space-y-6">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="px-2 py-1 bg-primary/10 text-primary text-xs font-medium rounded">
+                Optional
+              </span>
+            </div>
             <h2 className="text-2xl font-bold text-black">
               Do you follow a regular skincare routine?
             </h2>
@@ -621,6 +648,11 @@ function RegimeFormContent() {
       case 13:
         return (
           <div className="space-y-6">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="px-2 py-1 bg-primary/10 text-primary text-xs font-medium rounded">
+                Optional
+              </span>
+            </div>
             <h2 className="text-2xl font-bold text-black">
               Where do you usually buy your skincare products?
             </h2>
@@ -652,6 +684,11 @@ function RegimeFormContent() {
       case 14:
         return (
           <div className="space-y-6">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="px-2 py-1 bg-primary/10 text-primary text-xs font-medium rounded">
+                Optional
+              </span>
+            </div>
             <h2 className="text-2xl font-bold text-black">
               What is your monthly skincare budget?
             </h2>
@@ -688,6 +725,11 @@ function RegimeFormContent() {
       case 15:
         return (
           <div className="space-y-6">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="px-2 py-1 bg-primary/10 text-primary text-xs font-medium rounded">
+                Optional
+              </span>
+            </div>
             <h2 className="text-2xl font-bold text-black">
               What brands have you tried or are currently using?
             </h2>
@@ -704,6 +746,11 @@ function RegimeFormContent() {
       case 16:
         return (
           <div className="space-y-6">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="px-2 py-1 bg-primary/10 text-primary text-xs font-medium rounded">
+                Optional
+              </span>
+            </div>
             <h2 className="text-2xl font-bold text-black">
               Any additional comments or requests?
             </h2>
@@ -740,21 +787,46 @@ function RegimeFormContent() {
 
           {/* Progress Bar */}
           <div className="mb-12">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-end justify-between mb-4">
               <span className="text-sm font-medium text-primary">
-                Step {currentStep} of 16
+                Step {currentStep} of 8
               </span>
-              <span className="text-sm text-black">
-                {Math.round((currentStep / 16) * 100)}% Complete
-              </span>
+              <div className="text-right">
+                {currentStep <= 8 ? (
+                  <span className="text-sm text-black/70">
+                    Required: {Math.round((currentStep / 8) * 100)}% Complete
+                  </span>
+                ) : (
+                  <div className="space-y-1">
+                    <span className="text-sm text-primary font-medium block">
+                      ✓ Required Complete
+                    </span>
+                    <span className="text-sm text-black/70">
+                      Optional: {currentStep - 8}/8
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <motion.div
-                className="bg-primary h-2 rounded-full"
-                initial={{ width: 0 }}
-                animate={{ width: `${(currentStep / 16) * 100}%` }}
-                transition={{ duration: 0.5 }}
-              />
+              {currentStep <= 8 ? (
+                <motion.div
+                  className="bg-primary h-2 rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${(currentStep / 8) * 100}%` }}
+                  transition={{ duration: 0.5 }}
+                />
+              ) : (
+                <div className="relative w-full h-2 rounded-full overflow-hidden">
+                  <div className="absolute inset-0 bg-primary w-full h-full" />
+                  <motion.div
+                    className="absolute inset-0 bg-primary/60 h-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${((currentStep - 8) / 8) * 100}%` }}
+                    transition={{ duration: 0.5 }}
+                  />
+                </div>
+              )}
             </div>
           </div>
 
@@ -771,52 +843,115 @@ function RegimeFormContent() {
           </motion.div>
 
           {/* Navigation */}
-          <div className="flex justify-between">
-            <button
-              onClick={prevStep}
-              disabled={currentStep === 1}
-              className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-semibold transition-all ${
-                currentStep === 1
-                  ? 'bg-gray-100 text-black cursor-not-allowed'
-                  : 'bg-gray-200 text-black hover:bg-gray-300 cursor-pointer'
-              }`}
-            >
-              <ArrowLeft size={20} />
-              <span>Previous</span>
-            </button>
-
-            {currentStep < 16 ? (
+          {currentStep === 8 && isMandatoryCompleted() ? (
+            // Special navigation for step 8 - show Add to Cart and optional questions option
+            <div className="space-y-6">
+              {/* Encourage optional questions */}
+              <div className="border border-primary/20 rounded-lg p-6 text-center bg-primary/5">
+                <h3 className="text-lg font-semibold text-black mb-2">
+                  Essential questions completed!
+                </h3>
+                <p className="text-black/70 text-sm mb-4">
+                  Continue with optional questions for better personalization or add to Cart now.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <button
+                    onClick={nextStep}
+                    className="flex bg-white items-center justify-center space-x-2 px-6 py-3 border border-primary text-primary rounded-lg font-medium hover:bg-primary hover:text-white transition-all cursor-pointer"
+                  >
+                    <span>Continue</span>
+                  </button>
+                  <button
+                    onClick={handleSubmit}
+                    className="btn-primary cursor-pointer flex items-center gap-2 justify-center"
+                  >
+                    Add to Cart - <DirhamIcon size={16} className="!text-white" />{' '}
+                    {(() => {
+                      switch (subscriptionParam) {
+                        case '3-months':
+                          return product.price3Months;
+                        case '6-months':
+                          return product.price6Months;
+                        default:
+                          return product.priceOneTime;
+                      }
+                    })()}
+                  </button>
+                </div>
+              </div>
+              
+              {/* Previous button */}
+              <div className="flex justify-start">
+                <button
+                  onClick={prevStep}
+                  className="flex items-center space-x-2 px-6 py-3 bg-gray-200 text-black hover:bg-gray-300 rounded-lg font-semibold transition-all cursor-pointer"
+                >
+                  <ArrowLeft size={20} />
+                  <span>Previous</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            // Regular navigation for other steps
+            <div className="flex justify-between">
               <button
-                onClick={nextStep}
-                disabled={!isStepValid()}
+                onClick={prevStep}
+                disabled={currentStep === 1}
                 className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-semibold transition-all ${
-                  !isStepValid()
+                  currentStep === 1
                     ? 'bg-gray-100 text-black cursor-not-allowed'
-                    : 'btn-primary cursor-pointer'
+                    : 'bg-gray-200 text-black hover:bg-gray-300 cursor-pointer'
                 }`}
               >
-                <span>Next</span>
-                <ArrowRight size={20} />
+                <ArrowLeft size={20} />
+                <span>Previous</span>
               </button>
-            ) : (
-              <button
-                onClick={handleSubmit}
-                className="btn-primary cursor-pointer flex items-center gap-2 justify-center"
-              >
-                Add to Cart - <DirhamIcon size={16} className="!text-white" />{' '}
-                {(() => {
-                  switch (subscriptionParam) {
-                    case '3-months':
-                      return product.price3Months;
-                    case '6-months':
-                      return product.price6Months;
-                    default:
-                      return product.priceOneTime;
-                  }
-                })()}
-              </button>
-            )}
-          </div>
+
+              <div className="flex gap-3">
+                {/* Show "Skip to Cart" for optional questions (steps 9-16) */}
+                {currentStep >= 9 && currentStep < 16 && (
+                  <button
+                    onClick={handleSubmit}
+                    className="flex items-center space-x-2 px-6 py-3 border border-gray-300 text-gray-600 hover:border-primary hover:text-primary rounded-lg font-medium transition-all cursor-pointer"
+                  >
+                    <span>Skip to Cart</span>
+                  </button>
+                )}
+
+                {currentStep < 16 ? (
+                  <button
+                    onClick={nextStep}
+                    disabled={!isStepValid()}
+                    className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-semibold transition-all ${
+                      !isStepValid()
+                        ? 'bg-gray-100 text-black cursor-not-allowed'
+                        : 'btn-primary cursor-pointer'
+                    }`}
+                  >
+                    <span>Next</span>
+                    <ArrowRight size={20} />
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleSubmit}
+                    className="btn-primary cursor-pointer flex items-center gap-2 justify-center"
+                  >
+                    Add to Cart - <DirhamIcon size={16} className="!text-white" />{' '}
+                    {(() => {
+                      switch (subscriptionParam) {
+                        case '3-months':
+                          return product.price3Months;
+                        case '6-months':
+                          return product.price6Months;
+                        default:
+                          return product.priceOneTime;
+                      }
+                    })()}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
