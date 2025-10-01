@@ -33,7 +33,6 @@ function RegimeFormContent() {
     routineRegularity: '',
     purchaseLocation: '',
     budget: '',
-    customizedRecommendations: '',
     brandsUsed: '',
     additionalComments: '',
   });
@@ -162,7 +161,7 @@ function RegimeFormContent() {
   };
 
   const nextStep = () => {
-    if (currentStep < 17 && isStepValid()) {
+    if (currentStep < 16 && isStepValid()) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -248,11 +247,9 @@ function RegimeFormContent() {
         return formData.purchaseLocation !== '';
       case 14: // Budget - required
         return formData.budget !== '';
-      case 15: // Customized recommendations - required
-        return formData.customizedRecommendations !== '';
-      case 16: // Brands used - optional
+      case 15: // Brands used - optional
         return true;
-      case 17: // Additional comments - optional
+      case 16: // Additional comments - optional
         return true;
       default:
         return true;
@@ -692,36 +689,6 @@ function RegimeFormContent() {
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-black">
-              Would you be interested in customized skincare recommendations
-              based on your answers?
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {['Yes', 'No'].map((recommendation) => (
-                <button
-                  key={recommendation}
-                  onClick={() =>
-                    handleInputChange(
-                      'customizedRecommendations',
-                      recommendation
-                    )
-                  }
-                  className={`p-4 rounded-lg border-2 text-left transition-all cursor-pointer ${
-                    formData.customizedRecommendations === recommendation
-                      ? 'border-primary bg-primary/5 text-primary'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <span className="font-semibold">{recommendation}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        );
-
-      case 16:
-        return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-black">
               What brands have you tried or are currently using?
             </h2>
             <textarea
@@ -734,7 +701,7 @@ function RegimeFormContent() {
           </div>
         );
 
-      case 17:
+      case 16:
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-black">
@@ -775,17 +742,17 @@ function RegimeFormContent() {
           <div className="mb-12">
             <div className="flex items-center justify-between mb-4">
               <span className="text-sm font-medium text-primary">
-                Step {currentStep} of 17
+                Step {currentStep} of 16
               </span>
               <span className="text-sm text-black">
-                {Math.round((currentStep / 17) * 100)}% Complete
+                {Math.round((currentStep / 16) * 100)}% Complete
               </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <motion.div
                 className="bg-primary h-2 rounded-full"
                 initial={{ width: 0 }}
-                animate={{ width: `${(currentStep / 17) * 100}%` }}
+                animate={{ width: `${(currentStep / 16) * 100}%` }}
                 transition={{ duration: 0.5 }}
               />
             </div>
@@ -818,7 +785,7 @@ function RegimeFormContent() {
               <span>Previous</span>
             </button>
 
-            {currentStep < 17 ? (
+            {currentStep < 16 ? (
               <button
                 onClick={nextStep}
                 disabled={!isStepValid()}
