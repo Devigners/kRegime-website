@@ -8,6 +8,7 @@ import {
   TransformationsSection,
 } from '@/components/sections';
 import ComingSoon from '@/components/ComingSoon';
+import BackToTop from '@/components/BackToTop';
 
 export default function Home() {
   // Check if coming soon mode is enabled
@@ -28,6 +29,7 @@ export default function Home() {
       <ProductsSection />
       <HowItWorksSection />
       <ReviewsSection />
+      <BackToTop />
     </>
   );
 }

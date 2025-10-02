@@ -238,16 +238,6 @@ const Footer: React.FC = () => {
                     Terms of Service
                   </Link>
                 </div>
-
-                <motion.button
-                  onClick={scrollToTop}
-                  className="flex items-center space-x-2 text-white hover:text-primary transition-colors duration-300 group"
-                  whileHover={{ y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <ArrowUp className="w-4 h-4 transition-transform group-hover:-translate-y-1" />
-                  <span>Back to top</span>
-                </motion.button>
               </div>
             </div>
           </div>
