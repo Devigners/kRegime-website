@@ -1,7 +1,6 @@
 'use client';
 import { motion } from 'framer-motion';
 import {
-  ArrowUp,
   Facebook,
   Heart,
   Instagram,
@@ -16,10 +15,6 @@ import { toast } from 'sonner';
 const Footer: React.FC = () => {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
