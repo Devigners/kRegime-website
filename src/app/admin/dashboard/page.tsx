@@ -43,17 +43,9 @@ export default function AdminDashboard() {
     recentOrders: [],
   });
   const [isLoading, setIsLoading] = useState(true);
-  const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
     fetchDashboardData();
-    
-    // Update time every second
-    const timeInterval = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-    
-    return () => clearInterval(timeInterval);
   }, []);
 
   const fetchDashboardData = async () => {

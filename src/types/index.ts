@@ -52,7 +52,6 @@ export interface FormData {
   routineRegularity: string;
   purchaseLocation: string;
   budget: string;
-  customizedRecommendations: string;
   brandsUsed: string;
   additionalComments: string;
 }

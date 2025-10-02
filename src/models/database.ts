@@ -13,6 +13,10 @@ export type ReviewRow = Database['public']['Tables']['reviews']['Row'];
 export type ReviewInsert = Database['public']['Tables']['reviews']['Insert'];
 export type ReviewUpdate = Database['public']['Tables']['reviews']['Update'];
 
+export type SubscriberRow = Database['public']['Tables']['subscribers']['Row'];
+export type SubscriberInsert = Database['public']['Tables']['subscribers']['Insert'];
+export type SubscriberUpdate = Database['public']['Tables']['subscribers']['Update'];
+
 // Frontend compatible interfaces
 export interface Regime {
   id: string;
@@ -82,6 +86,15 @@ export interface Review {
   updatedAt: Date;
 }
 
+export interface Subscriber {
+  id: string;
+  email: string;
+  source: 'footer' | 'coming_soon' | 'checkout' | 'manual';
+  isActive: boolean;
+  subscribedAt: Date;
+  updatedAt: Date;
+}
+
 // Helper functions to convert between Supabase row format and frontend format
 export function convertRegimeRowToRegime(row: RegimeRow): Regime {
   return {
@@ -93,7 +106,7 @@ export function convertRegimeRowToRegime(row: RegimeRow): Regime {
     price6Months: row.price_6_months,
     steps: row.steps,
     images: Array.isArray(row.image) ? row.image : (row.image ? [row.image] : []),
-    stepCount: row.step_count,
+    stepCount: row.step_count as 3 | 5 | 7,
     isActive: row.is_active,
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
@@ -119,44 +132,51 @@ export function convertRegimeToRegimeInsert(
 }
 
 export function convertOrderRowToOrder(row: OrderRow): Order {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const userDetails = row.user_details as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const contactInfo = row.contact_info as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const shippingAddress = row.shipping_address as any;
+  
   return {
     id: row.id,
     regimeId: row.regime_id,
     userDetails: {
-      age: row.user_details.age,
-      gender: row.user_details.gender,
-      skinType: row.user_details.skin_type,
-      skinConcerns: row.user_details.skin_concerns,
-      complexion: row.user_details.complexion,
-      allergies: row.user_details.allergies,
-      skincareSteps: row.user_details.skincare_steps,
-      koreanSkincareExperience: row.user_details.korean_skincare_experience,
-      koreanSkincareAttraction: row.user_details.korean_skincare_attraction,
-      skincareGoal: row.user_details.skincare_goal,
-      dailyProductCount: row.user_details.daily_product_count,
-      routineRegularity: row.user_details.routine_regularity,
-      purchaseLocation: row.user_details.purchase_location,
-      budget: row.user_details.budget,
-      customizedRecommendations: row.user_details.customized_recommendations,
-      brandsUsed: row.user_details.brands_used,
-      additionalComments: row.user_details.additional_comments,
+      age: userDetails?.age || '',
+      gender: userDetails?.gender || '',
+      skinType: userDetails?.skin_type || '',
+      skinConcerns: userDetails?.skin_concerns || [],
+      complexion: userDetails?.complexion || '',
+      allergies: userDetails?.allergies || '',
+      skincareSteps: userDetails?.skincare_steps || [],
+      koreanSkincareExperience: userDetails?.korean_skincare_experience || '',
+      koreanSkincareAttraction: userDetails?.korean_skincare_attraction || [],
+      skincareGoal: userDetails?.skincare_goal || [],
+      dailyProductCount: userDetails?.daily_product_count || '',
+      routineRegularity: userDetails?.routine_regularity || '',
+      purchaseLocation: userDetails?.purchase_location || '',
+      budget: userDetails?.budget || '',
+      customizedRecommendations: userDetails?.customized_recommendations || '',
+      brandsUsed: userDetails?.brands_used || '',
+      additionalComments: userDetails?.additional_comments || '',
     },
     contactInfo: {
-      email: row.contact_info.email,
-      phoneNumber: row.contact_info.phone_number,
+      email: contactInfo?.email || '',
+      phoneNumber: contactInfo?.phone_number,
     },
     shippingAddress: {
-      firstName: row.shipping_address.first_name,
-      lastName: row.shipping_address.last_name,
-      address: row.shipping_address.address,
-      city: row.shipping_address.city,
-      postalCode: row.shipping_address.postal_code,
+      firstName: shippingAddress?.first_name || '',
+      lastName: shippingAddress?.last_name,
+      address: shippingAddress?.address || '',
+      city: shippingAddress?.city || '',
+      postalCode: shippingAddress?.postal_code || '',
     },
     quantity: row.quantity,
     totalAmount: row.total_amount,
     finalAmount: row.final_amount,
-    subscriptionType: row.subscription_type || 'one-time',
-    status: row.status,
+    subscriptionType: (row.subscription_type || 'one-time') as 'one-time' | '3-months' | '6-months',
+    status: row.status as 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled',
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
   };
@@ -212,7 +232,7 @@ export function convertReviewRowToReview(row: ReviewRow): Review {
     name: row.name,
     rating: row.rating,
     comment: row.comment,
-    avatar: row.avatar,
+    avatar: row.avatar || undefined,
     isApproved: row.is_approved,
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
@@ -229,5 +249,27 @@ export function convertReviewToReviewInsert(
     comment: review.comment,
     avatar: review.avatar,
     is_approved: review.isApproved,
+  };
+}
+
+export function convertSubscriberRowToSubscriber(row: SubscriberRow): Subscriber {
+  return {
+    id: row.id,
+    email: row.email,
+    source: row.source as 'footer' | 'coming_soon' | 'checkout' | 'manual',
+    isActive: row.is_active,
+    subscribedAt: new Date(row.subscribed_at),
+    updatedAt: new Date(row.updated_at),
+  };
+}
+
+export function convertSubscriberToSubscriberInsert(
+  subscriber: Omit<Subscriber, 'subscribedAt' | 'updatedAt'>
+): SubscriberInsert {
+  return {
+    id: subscriber.id,
+    email: subscriber.email,
+    source: subscriber.source,
+    is_active: subscriber.isActive,
   };
 }

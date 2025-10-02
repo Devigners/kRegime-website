@@ -119,12 +119,12 @@ export default function Cart() {
                 </p>
 
                 {/* Subscription Type Switcher */}
-                <div className="mt-6 flex flex-col -space-y-1">
+                <div className="mt-6 flex flex-col gap-1">
                   <h4 className="text-sm font-semibold text-black">Purchase Option:</h4>
                   <PricingSwitcher
                     selectedType={cartData.subscriptionType}
                     onTypeChange={updateSubscriptionType}
-                    className="!w-fit scale-75 transform origin-left"
+                    className="!w-fit !mx-0 scale-85 shadow-none border !border-gray-200 transform origin-left"
                   />
                 </div>
               </div>

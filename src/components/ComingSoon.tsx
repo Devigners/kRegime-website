@@ -1,9 +1,50 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import React from 'react';
+import React, { useState } from 'react';
+import { toast } from 'sonner';
 
 const ComingSoon: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleNotifySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email) {
+      toast.error('Please enter your email address');
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      const response = await fetch('/api/subscribers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          source: 'coming_soon'
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success(data.message || 'Successfully subscribed! We\'ll notify you when we launch.');
+        setEmail('');
+      } else {
+        toast.error(data.error || 'Failed to subscribe. Please try again.');
+      }
+    } catch (error) {
+      console.error('Coming soon subscription error:', error);
+      toast.error('Failed to subscribe. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   return (
     <div className="min-h-screen pt-24 md:pt-0 flex items-center justify-center bg-gradient-to-br from-neutral-50 to-neutral-100 relative overflow-hidden">
       {/* Background decoration - responsive positioning and sizes */}
@@ -102,17 +143,24 @@ const ComingSoon: React.FC = () => {
               Be the first to know when we launch
             </p>
 
-            {/* Email signup placeholder - Enhanced responsive form */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full max-w-none md:max-w-lg">
+            {/* Email signup form - Enhanced responsive form */}
+            <form onSubmit={handleNotifySubmit} className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full max-w-none md:max-w-lg">
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="flex-1 px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base rounded-lg border border-neutral-300 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all duration-300"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={isSubmitting}
+                className="flex-1 px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base rounded-lg border border-neutral-300 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all duration-300 disabled:opacity-50"
               />
-              <button className="cursor-pointer px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base bg-gradient-to-r from-primary to-secondary text-white rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105 whitespace-nowrap">
-                Notify Me
+              <button 
+                type="submit"
+                disabled={isSubmitting}
+                className="cursor-pointer px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base bg-gradient-to-r from-primary to-secondary text-white rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              >
+                {isSubmitting ? 'Subscribing...' : 'Notify Me'}
               </button>
-            </div>
+            </form>
 
             <p className="text-xs sm:text-sm text-neutral-500 max-w-md mx-auto leading-relaxed px-2">
               We&apos;ll notify you as soon as we&apos;re ready to transform
