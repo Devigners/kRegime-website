@@ -4,10 +4,10 @@ import { supabase } from '@/lib/supabase';
 // PATCH: Update subscriber (e.g., unsubscribe)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await context.params;
     const body = await request.json();
     const { is_active } = body;
 
@@ -59,10 +59,10 @@ export async function PATCH(
 // DELETE: Remove subscriber completely
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await context.params;
 
     const { error } = await supabase
       .from('subscribers')
