@@ -25,24 +25,24 @@ export default function KoreanBrandsSection() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
           {brands.map((brand, index) => (
             <motion.div
               key={brand.name}
-              className="group cursor-pointer"
+              className="group"
               initial={{ opacity: 0, scale: 0.8 }}
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: index * 0.03 }}
               viewport={{ once: true }}
               whileHover={{ y: -3 }}
             >
-              <div className="bg-white rounded-lg p-3 shadow-soft hover:shadow-medium transition-all duration-300 border border-primary/20 hover:border-primary">
-                <div className="aspect-square relative rounded-lg overflow-hidden bg-white">
+              <div className="bg-white rounded-lg shadow-soft hover:shadow-medium transition-all duration-300 border border-primary/20 hover:border-primary">
+                <div className="h-24 relative rounded-lg overflow-hidden bg-white">
                   <Image
                     src={`/brands/${brand.file}`}
                     alt={`${brand.name} Korean Beauty Brand`}
                     fill
-                    className="object-contain p-2 !bg-white group-hover:brightness-100 transition-all duration-300"
+                    className="object-contain !bg-white group-hover:brightness-100 transition-all duration-300"
                   />
                 </div>
               </div>
