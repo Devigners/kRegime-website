@@ -28,7 +28,7 @@ export default function TransformationsSection() {
   ];
 
   return (
-    <section className="py-32 bg-white">
+    <section className="py-32 bg-gradient-to-b from-white to-neutral-50">
       <div className="container section-padding">
         <motion.div
           className="text-center mb-20"

@@ -35,7 +35,7 @@ export default function ProductsSection() {
     return (
       <section
         id="regimes"
-        className="py-32 bg-gradient-to-b from-neutral-50 to-white"
+        className="py-32 bg-gradient-to-b from-secondary/5 to-accent/5"
       >
         <div className="container section-padding">
           <div className="text-center">
@@ -51,7 +51,7 @@ export default function ProductsSection() {
     return (
       <section
         id="regimes"
-        className="py-32 bg-gradient-to-b from-neutral-50 to-white"
+        className="py-32 bg-gradient-to-b from-secondary/5 to-accent/5"
       >
         <div className="container section-padding">
           <div className="text-center">
@@ -71,7 +71,7 @@ export default function ProductsSection() {
   return (
     <section
       id="regimes"
-      className="py-32 bg-gradient-to-b from-neutral-50 to-white"
+      className="py-32 bg-gradient-to-b from-secondary/5 to-accent/5"
     >
       <div className="container section-padding">
         <motion.div
