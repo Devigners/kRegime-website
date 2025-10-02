@@ -13,6 +13,10 @@ export type ReviewRow = Database['public']['Tables']['reviews']['Row'];
 export type ReviewInsert = Database['public']['Tables']['reviews']['Insert'];
 export type ReviewUpdate = Database['public']['Tables']['reviews']['Update'];
 
+export type SubscriberRow = Database['public']['Tables']['subscribers']['Row'];
+export type SubscriberInsert = Database['public']['Tables']['subscribers']['Insert'];
+export type SubscriberUpdate = Database['public']['Tables']['subscribers']['Update'];
+
 // Frontend compatible interfaces
 export interface Regime {
   id: string;
@@ -79,6 +83,15 @@ export interface Review {
   avatar?: string;
   isApproved: boolean;
   createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Subscriber {
+  id: string;
+  email: string;
+  source: 'footer' | 'coming_soon' | 'checkout' | 'manual';
+  isActive: boolean;
+  subscribedAt: Date;
   updatedAt: Date;
 }
 
@@ -229,5 +242,27 @@ export function convertReviewToReviewInsert(
     comment: review.comment,
     avatar: review.avatar,
     is_approved: review.isApproved,
+  };
+}
+
+export function convertSubscriberRowToSubscriber(row: SubscriberRow): Subscriber {
+  return {
+    id: row.id,
+    email: row.email,
+    source: row.source,
+    isActive: row.is_active,
+    subscribedAt: new Date(row.subscribed_at),
+    updatedAt: new Date(row.updated_at),
+  };
+}
+
+export function convertSubscriberToSubscriberInsert(
+  subscriber: Omit<Subscriber, 'subscribedAt' | 'updatedAt'>
+): SubscriberInsert {
+  return {
+    id: subscriber.id,
+    email: subscriber.email,
+    source: subscriber.source,
+    is_active: subscriber.isActive,
   };
 }

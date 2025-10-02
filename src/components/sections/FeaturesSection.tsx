@@ -39,7 +39,7 @@ export default function FeaturesSection() {
           {features.map((feature, index) => (
             <motion.div
               key={feature.title}
-              className="p-6 text-center group"
+              className="p-5 text-center group"
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.2 }}

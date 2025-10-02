@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { DM_Sans, Playfair_Display } from 'next/font/google';
 import '../styles/globals.css';
 import ConditionalLayout from '@/components/ConditionalLayout';
+import { Toaster } from 'sonner';
 
 const dmSans = DM_Sans({
   variable: '--font-dm-sans',
@@ -100,6 +101,12 @@ export default function RootLayout({
         className={`${dmSans.variable} ${playfairDisplay.variable} font-sans antialiased`}
       >
         <ConditionalLayout>{children}</ConditionalLayout>
+        <Toaster 
+          position="bottom-right" 
+          richColors 
+          theme="light"
+          closeButton
+        />
       </body>
     </html>
   );

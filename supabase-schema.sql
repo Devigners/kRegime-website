@@ -42,6 +42,16 @@ CREATE TABLE IF NOT EXISTS reviews (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Create subscribers table
+CREATE TABLE IF NOT EXISTS subscribers (
+  id TEXT PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  source TEXT NOT NULL CHECK (source IN ('footer', 'coming_soon', 'checkout', 'manual')),
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  subscribed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_regimes_is_active ON regimes(is_active);
 CREATE INDEX IF NOT EXISTS idx_regimes_step_count ON regimes(step_count);
@@ -49,6 +59,9 @@ CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
 CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at);
 CREATE INDEX IF NOT EXISTS idx_reviews_is_approved ON reviews(is_approved);
 CREATE INDEX IF NOT EXISTS idx_reviews_rating ON reviews(rating);
+CREATE INDEX IF NOT EXISTS idx_subscribers_email ON subscribers(email);
+CREATE INDEX IF NOT EXISTS idx_subscribers_source ON subscribers(source);
+CREATE INDEX IF NOT EXISTS idx_subscribers_is_active ON subscribers(is_active);
 
 -- Create function to automatically update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -69,10 +82,14 @@ CREATE TRIGGER update_orders_updated_at BEFORE UPDATE ON orders
 CREATE TRIGGER update_reviews_updated_at BEFORE UPDATE ON reviews
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+CREATE TRIGGER update_subscribers_updated_at BEFORE UPDATE ON subscribers
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
 -- Enable Row Level Security (RLS)
 ALTER TABLE regimes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
+ALTER TABLE subscribers ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for public read access
 CREATE POLICY "Allow public read access to active regimes" ON regimes
@@ -90,6 +107,9 @@ CREATE POLICY "Allow all access to regimes" ON regimes
     FOR ALL USING (true);
 
 CREATE POLICY "Allow all access to reviews" ON reviews
+    FOR ALL USING (true);
+
+CREATE POLICY "Allow all access to subscribers" ON subscribers
     FOR ALL USING (true);
 
 -- Note: In production, you should implement proper authentication and authorization

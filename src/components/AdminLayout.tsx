@@ -8,6 +8,7 @@ import {
   Package, 
   MessageSquare, 
   ShoppingCart,
+  Mail,
   LogOut,
   Clock,
   Menu,
@@ -68,6 +69,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { href: '/admin/regimes', icon: Package, label: 'Regimes' },
     { href: '/admin/reviews', icon: MessageSquare, label: 'Reviews' },
     { href: '/admin/orders', icon: ShoppingCart, label: 'Orders' },
+    { href: '/admin/subscribers', icon: Mail, label: 'Subscribers' },
   ];
 
   // Show loading screen
