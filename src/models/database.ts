@@ -70,6 +70,7 @@ export interface Order {
   totalAmount: number;
   finalAmount: number;
   subscriptionType: 'one-time' | '3-months' | '6-months';
+  stripeSessionId?: string | null;
   status: 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled';
   createdAt: Date;
   updatedAt: Date;
@@ -176,6 +177,7 @@ export function convertOrderRowToOrder(row: OrderRow): Order {
     totalAmount: row.total_amount,
     finalAmount: row.final_amount,
     subscriptionType: (row.subscription_type || 'one-time') as 'one-time' | '3-months' | '6-months',
+    stripeSessionId: row.stripe_session_id,
     status: row.status as 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled',
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
@@ -222,6 +224,7 @@ export function convertOrderToOrderInsert(
     total_amount: order.totalAmount,
     final_amount: order.finalAmount,
     subscription_type: order.subscriptionType,
+    stripe_session_id: order.stripeSessionId,
     status: order.status,
   };
 }

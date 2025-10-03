@@ -44,6 +44,7 @@ export type Database = {
           regime_id: string
           shipping_address: Json
           status: string
+          stripe_session_id: string | null
           subscription_type: string | null
           total_amount: number
           updated_at: string
@@ -58,6 +59,7 @@ export type Database = {
           regime_id: string
           shipping_address: Json
           status?: string
+          stripe_session_id?: string | null
           subscription_type?: string | null
           total_amount: number
           updated_at?: string
@@ -72,6 +74,7 @@ export type Database = {
           regime_id?: string
           shipping_address?: Json
           status?: string
+          stripe_session_id?: string | null
           subscription_type?: string | null
           total_amount?: number
           updated_at?: string
