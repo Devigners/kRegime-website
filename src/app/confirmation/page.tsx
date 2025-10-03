@@ -322,7 +322,7 @@ function ConfirmationContent() {
               </button>
 
               {/* Manage Subscription - Only show for subscription orders */}
-              {order && order.subscriptionType !== 'one-time' && order.status !== 'cancelled' && (
+              {order && order.subscriptionType !== 'one-time' && order.status !== 'cancelled' && order.status !== "pending" && (
                 <button
                   onClick={openStripeCustomerPortal}
                   className="flex items-center justify-center w-12 h-12 bg-primary hover:bg-primary-dark text-white rounded-full transition-colors shadow-sm hover:shadow-md"
