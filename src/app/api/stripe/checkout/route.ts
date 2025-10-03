@@ -76,8 +76,9 @@ export async function POST(request: NextRequest) {
     // Determine if this is a subscription or one-time payment
     const isSubscription = subscriptionType !== 'one-time';
 
-    // Create Stripe Checkout Session
-    const session = await stripe.checkout.sessions.create({
+    // Base session configuration
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sessionConfig: any = {
       mode: isSubscription ? 'subscription' : 'payment',
       line_items: [
         {
@@ -107,7 +108,11 @@ export async function POST(request: NextRequest) {
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment?cancelled=true`,
       allow_promotion_codes: true,
-      shipping_options: [
+    };
+
+    // Only add shipping_options for one-time payments (payment mode)
+    if (!isSubscription) {
+      sessionConfig.shipping_options = [
         {
           shipping_rate_data: {
             type: 'fixed_amount',
@@ -128,8 +133,11 @@ export async function POST(request: NextRequest) {
             },
           },
         },
-      ],
-    });
+      ];
+    }
+
+    // Create Stripe Checkout Session
+    const session = await stripe.checkout.sessions.create(sessionConfig);
 
     return NextResponse.json({ 
       sessionId: session.id,
