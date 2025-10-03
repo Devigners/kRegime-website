@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { CheckCircle, Mail, Package, Truck, Clock, ShoppingBag, X, CheckCircle2 } from 'lucide-react';
+import { CheckCircle, Mail, Package, Truck, Clock, ShoppingBag, X, CheckCircle2, Copy, Share2, XCircle, Edit } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useState, useEffect, Suspense } from 'react';
@@ -9,6 +9,7 @@ import { orderApi, regimeApi } from '@/lib/api';
 import { Order, Regime } from '@/models/database';
 import Image from 'next/image';
 import DirhamIcon from '@/components/icons/DirhamIcon';
+import { toast } from 'sonner';
 
 function ConfirmationContent() {
   const searchParams = useSearchParams();
@@ -17,6 +18,7 @@ function ConfirmationContent() {
   const [regime, setRegime] = useState<Regime | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const getSubscriptionTypeDisplay = (subscriptionType: 'one-time' | '3-months' | '6-months') => {
     switch (subscriptionType) {
@@ -29,6 +31,89 @@ function ConfirmationContent() {
       default:
         return 'One-time Purchase';
     }
+  };
+
+  const copyConfirmationLink = async () => {
+    const url = `${window.location.origin}/confirmation?orderId=${orderId}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      toast.success('Confirmation link copied to clipboard!');
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      toast.error('Failed to copy link');
+    }
+  };
+
+  const shareOnWhatsApp = () => {
+    const url = `${window.location.origin}/confirmation?orderId=${orderId}`;
+    const text = `Check out my kRegime order! Order #${orderId}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
+  };
+
+  const shareOnMessenger = () => {
+    const url = `${window.location.origin}/confirmation?orderId=${orderId}`;
+    window.open(`fb-messenger://share/?link=${encodeURIComponent(url)}`, '_blank');
+  };
+
+  const shareOnTelegram = () => {
+    const url = `${window.location.origin}/confirmation?orderId=${orderId}`;
+    const text = `Check out my kRegime order! Order #${orderId}`;
+    window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+  };
+
+  const openStripeCustomerPortal = async () => {
+    if (!order) {
+      toast.error('Order information not available');
+      return;
+    }
+
+    if (!orderId) {
+      toast.error('Order ID not available');
+      return;
+    }
+
+    toast.info('Redirecting to Stripe Customer Portal...');
+
+    try {
+      const response = await fetch('/api/stripe/create-portal-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderId: orderId,
+          returnUrl: `${window.location.origin}/confirmation?orderId=${orderId}`,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create portal session');
+      }
+
+      const data = await response.json();
+      
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No portal URL returned');
+      }
+    } catch (error) {
+      console.error('Error opening customer portal:', error);
+      toast.error('Unable to access customer portal. Please contact support at care@kregime.com');
+    }
+  };
+
+  const cancelOrder = () => {
+    if (order?.status === 'pending') {
+      toast.error('Cannot cancel pending orders. Please wait for confirmation.');
+      return;
+    }
+    
+    // Redirect to Stripe Customer Portal for cancellation
+    openStripeCustomerPortal();
   };
 
   const getOrderStatusConfig = (status: Order['status']) => {
@@ -634,11 +719,136 @@ function ConfirmationContent() {
             </div>
           </motion.div>
 
-          {/* Action Buttons */}
+          {/* Action Buttons Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
+            className="bg-white rounded-lg shadow-md p-6 mb-8"
+          >
+            <h2 className="text-xl font-semibold text-black mb-6">
+              Quick Actions
+            </h2>
+
+            {/* Share and Copy Section */}
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold text-gray-600 mb-3">Share Your Order</h3>
+              <div className="flex flex-wrap gap-3">
+                {/* Copy Link */}
+                <button
+                  onClick={copyConfirmationLink}
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition-colors"
+                  title="Copy confirmation link"
+                >
+                  {copied ? (
+                    <>
+                      <CheckCircle size={18} className="text-green-600" />
+                      <span className="text-sm font-medium">Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={18} />
+                      <span className="text-sm font-medium">Copy Link</span>
+                    </>
+                  )}
+                </button>
+
+                {/* WhatsApp */}
+                <button
+                  onClick={shareOnWhatsApp}
+                  className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
+                  title="Share on WhatsApp"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                  </svg>
+                  <span className="text-sm font-medium">WhatsApp</span>
+                </button>
+
+                {/* Telegram */}
+                <button
+                  onClick={shareOnTelegram}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                  title="Share on Telegram"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                  </svg>
+                  <span className="text-sm font-medium">Telegram</span>
+                </button>
+
+                {/* Messenger */}
+                <button
+                  onClick={shareOnMessenger}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                  title="Share on Messenger"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.301 2.246.464 3.443.464 6.627 0 12-4.974 12-11.111C24 4.974 18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26L10.732 8l3.131 3.259L19.752 8l-6.561 6.963z"/>
+                  </svg>
+                  <span className="text-sm font-medium">Messenger</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Order Management Section */}
+            {order && (
+              <div className="border-t border-gray-200 pt-6">
+                <h3 className="text-sm font-semibold text-gray-600 mb-3">Manage Your Order</h3>
+                <div className="flex flex-wrap gap-3">
+                  {/* Cancel Order Button - Only show if NOT pending and NOT cancelled */}
+                  {order.status !== 'pending' && order.status !== 'cancelled' && (
+                    <button
+                      onClick={cancelOrder}
+                      className="flex items-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-lg transition-colors"
+                      title="Cancel order"
+                    >
+                      <XCircle size={18} />
+                      <span className="text-sm font-medium">Cancel Order</span>
+                    </button>
+                  )}
+
+                  {/* Change Subscription - Only show for subscription orders that aren't cancelled */}
+                  {order.subscriptionType !== 'one-time' && order.status !== 'cancelled' && (
+                    <button
+                      onClick={openStripeCustomerPortal}
+                      className="flex items-center gap-2 px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 rounded-lg transition-colors"
+                      title="Manage subscription"
+                    >
+                      <Edit size={18} />
+                      <span className="text-sm font-medium">Manage Subscription</span>
+                    </button>
+                  )}
+
+                  {/* General Stripe Portal Access */}
+                  <button
+                    onClick={openStripeCustomerPortal}
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition-colors"
+                    title="View billing details"
+                  >
+                    <Share2 size={18} />
+                    <span className="text-sm font-medium">Billing Portal</span>
+                  </button>
+                </div>
+
+                {/* Cancellation Notice for Pending Orders */}
+                {order.status === 'pending' && (
+                  <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <p className="text-sm text-yellow-800">
+                      <strong>Note:</strong> Order cancellation will be available after confirmation. 
+                      To cancel now, please contact our support team.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </motion.div>
+
+          {/* Continue Shopping Button */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
             className="text-center space-y-4"
           >
             <Link href="/" className="btn-primary inline-block">
