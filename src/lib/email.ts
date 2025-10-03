@@ -50,7 +50,7 @@ export async function sendOrderReceivedEmail({
 
     // Send email using Resend
     const { data, error } = await resend.emails.send({
-      from: 'kRegime <noreply@kregime.com>',
+      from: 'kRegime <care@kregime.com>',
       to: [order.contactInfo.email],
       subject: `Order Confirmed #${order.id} - Your kRegime journey begins! 🌟`,
       html: emailHtml,
@@ -122,7 +122,7 @@ export async function sendOrderStatusUpdateEmail({
 
     // Send email using Resend
     const { data, error } = await resend.emails.send({
-      from: 'kRegime <noreply@kregime.com>',
+      from: 'kRegime <care@kregime.com>',
       to: [order.contactInfo.email],
       subject: getSubjectLine(order.status),
       html: emailHtml,
@@ -154,6 +154,6 @@ export async function sendOrderStatusUpdateEmail({
  * Email service configuration
  */
 export const emailConfig = {
-  from: 'kRegime <noreply@kregime.com>',
+  from: 'kRegime <care@kregime.com>',
   replyTo: 'care@kregime.com',
 };
