@@ -7,7 +7,7 @@ import { brands } from '@/data';
 
 export default function KoreanBrandsSection() {
   return (
-    <section id="brands" className="py-32 bg-neutral-50">
+    <section id="brands" className="py-32 bg-gradient-to-b from-secondary/5 to-accent/5">
       <div className="container section-padding text-center">
         <motion.div
           className="space-y-8 mb-20"
