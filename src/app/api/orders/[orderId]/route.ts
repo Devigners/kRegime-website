@@ -1,6 +1,6 @@
 import { supabase, supabaseClient } from '@/lib/supabase';
 import { convertOrderRowToOrder, convertRegimeRowToRegime } from '@/models/database';
-import { sendOrderCompleteEmail } from '@/lib/email';
+import { sendOrderStatusUpdateEmail } from '@/lib/email';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
@@ -51,8 +51,23 @@ export async function PUT(
     const { orderId } = await params;
     const updateData = await request.json();
 
-    // Check if status is being updated to 'completed'
-    const isOrderCompleted = updateData.status === 'completed';
+    // Get the current order to compare status changes
+    const { data: currentOrderData, error: fetchError } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('id', orderId)
+      .single();
+
+    if (fetchError) {
+      console.error('Error fetching current order:', fetchError);
+      return NextResponse.json(
+        { success: false, error: 'Failed to fetch current order' },
+        { status: 500 }
+      );
+    }
+
+    const currentOrder = convertOrderRowToOrder(currentOrderData);
+    const isStatusChanging = updateData.status && updateData.status !== currentOrder.status;
 
     // Add updated_at timestamp
     const finalUpdateData = {
@@ -85,8 +100,8 @@ export async function PUT(
 
     const convertedOrder = convertOrderRowToOrder(data);
 
-    // Send order completion email if order status was updated to 'completed'
-    if (isOrderCompleted) {
+    // Send status update email if order status was changed
+    if (isStatusChanging) {
       try {
         // Fetch regime details for the email
         let regime = undefined;
@@ -102,20 +117,21 @@ export async function PUT(
           }
         }
 
-        // Send the completion email
-        const emailResult = await sendOrderCompleteEmail({
+        // Send the status update email
+        const emailResult = await sendOrderStatusUpdateEmail({
           order: convertedOrder,
           regime,
+          trackingNumber: updateData.trackingNumber, // Pass tracking number if provided
         });
 
         if (!emailResult.success) {
-          console.error('Failed to send order completion email:', emailResult.error);
+          console.error('Failed to send order status update email:', emailResult.error);
           // Don't fail the order update if email fails, just log it
         } else {
-          console.log('Order completion email sent successfully:', emailResult.id);
+          console.log(`Order status update email sent successfully for status "${convertedOrder.status}":`, emailResult.id);
         }
       } catch (emailError) {
-        console.error('Error sending order completion email:', emailError);
+        console.error('Error sending order status update email:', emailError);
         // Don't fail the order update if email fails, just log it
       }
     }

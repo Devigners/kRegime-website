@@ -1,13 +1,13 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ArrowLeft, CreditCard, Lock } from 'lucide-react';
+import { ArrowLeft, Lock } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 import { localStorage as localStorageUtils } from '@/lib/localStorage';
-import { orderApi } from '@/lib/api';
+import { SubscriptionType } from '@/types';
 import DirhamIcon from '@/components/icons/DirhamIcon';
 
 interface CartData {
@@ -17,10 +17,14 @@ interface CartData {
     name: string;
     description: string;
     price: number;
-    image: string;
+    priceOneTime?: number;
+    price3Months?: number;
+    price6Months?: number;
+    images: string[];
   };
   formData: Record<string, string | string[]>;
   quantity: number;
+  subscriptionType: SubscriptionType;
   totalAmount: number;
   finalAmount: number;
 }
@@ -36,10 +40,6 @@ export default function Payment() {
     address: '',
     city: '',
     postalCode: '',
-    cardNumber: '',
-    expiryDate: '',
-    cvv: '',
-    nameOnCard: '',
   });
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -51,10 +51,6 @@ export default function Payment() {
       'address',
       'city',
       'postalCode',
-      'cardNumber',
-      'expiryDate',
-      'cvv',
-      'nameOnCard',
     ];
 
     return mandatoryFields.every(
@@ -90,58 +86,66 @@ export default function Payment() {
     setIsProcessing(true);
 
     try {
-      // Create order in database
-      const orderData = {
-        regimeId: cartData.regimeId,
-        userDetails: cartData.formData as {
-          age: string;
-          gender: string;
-          skinType: string;
-          skinConcerns: string[];
-          complexion: string;
-          allergies: string;
-          skincareSteps: string[];
-          koreanSkincareExperience: string;
-          koreanSkincareAttraction: string[];
-          skincareGoal: string[];
-          dailyProductCount: string;
-          routineRegularity: string;
-          purchaseLocation: string;
-          budget: string;
-          customizedRecommendations: string;
-          brandsUsed: string;
-          additionalComments: string;
+      // Generate a unique session key for this checkout
+      const checkoutSessionKey = `checkout_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Save complete order data to localStorage before redirecting
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(checkoutSessionKey, JSON.stringify({
+          regimeId: cartData.regimeId,
+          subscriptionType: cartData.subscriptionType,
+          quantity: cartData.quantity,
+          userDetails: cartData.formData,
+          contactInfo: {
+            email: formData.email,
+            phoneNumber: formData.phoneNumber || undefined,
+          },
+          shippingAddress: {
+            firstName: formData.firstName,
+            lastName: formData.lastName || undefined,
+            address: formData.address,
+            city: formData.city,
+            postalCode: formData.postalCode,
+          },
+          totalAmount: cartData.totalAmount,
+          finalAmount: cartData.finalAmount,
+        }));
+      }
+      
+      // Create Stripe Checkout session
+      const response = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        contactInfo: {
-          email: formData.email,
-          phoneNumber: formData.phoneNumber || undefined,
-        },
-        shippingAddress: {
-          firstName: formData.firstName,
-          lastName: formData.lastName || undefined,
-          address: formData.address,
-          city: formData.city,
-          postalCode: formData.postalCode,
-        },
-        quantity: cartData.quantity,
-        totalAmount: cartData.totalAmount,
-        finalAmount: cartData.finalAmount,
-        status: 'pending' as const,
-      };
+        body: JSON.stringify({
+          regimeId: cartData.regimeId,
+          subscriptionType: cartData.subscriptionType,
+          quantity: cartData.quantity,
+          customerEmail: formData.email,
+          customerName: `${formData.firstName} ${formData.lastName}`.trim(),
+          shippingAddress: {
+            firstName: formData.firstName,
+            lastName: formData.lastName || undefined,
+            address: formData.address,
+            city: formData.city,
+            postalCode: formData.postalCode,
+          },
+          checkoutSessionKey, // Pass the key so we can retrieve data later
+        }),
+      });
 
-      const createdOrder = await orderApi.create(orderData);
+      if (!response.ok) {
+        throw new Error('Failed to create checkout session');
+      }
 
-      // Clear cart data
-      localStorageUtils.clearCartData();
-      localStorageUtils.clearFormData(cartData.regimeId);
+      const { url } = await response.json();
 
-      // Navigate to confirmation with order ID
-      router.push(`/confirmation?orderId=${createdOrder.id}`);
+      // Redirect to Stripe Checkout
+      window.location.href = url;
     } catch (error) {
-      console.error('Error creating order:', error);
-      // For now, just proceed to confirmation without order ID
-      router.push('/confirmation');
-    } finally {
+      console.error('Error creating checkout session:', error);
+      alert('Failed to initiate payment. Please try again.');
       setIsProcessing(false);
     }
   };
@@ -277,62 +281,29 @@ export default function Payment() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="bg-white rounded-lg shadow-md p-6"
+                className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg shadow-md p-6 border-2 border-primary/20"
               >
-                <div className="flex items-center mb-4">
-                  <CreditCard size={24} className="text-primary mr-2" />
+                <div className="flex items-center justify-center mb-4">
+                  <Lock size={24} className="text-primary mr-2" />
                   <h2 className="text-xl font-semibold text-black">
-                    Payment Information
+                    Secure Payment with Stripe
                   </h2>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <input
-                    type="text"
-                    placeholder="Name on card *"
-                    value={formData.nameOnCard}
-                    onChange={(e) =>
-                      handleInputChange('nameOnCard', e.target.value)
-                    }
-                    className="focus:outline-none w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    required
-                  />
-                  <input
-                    type="text"
-                    placeholder="Card number *"
-                    value={formData.cardNumber}
-                    onChange={(e) =>
-                      handleInputChange('cardNumber', e.target.value)
-                    }
-                    className="focus:outline-none w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    required
-                  />
-                  <div className="grid grid-cols-2 gap-4">
-                    <input
-                      type="text"
-                      placeholder="MM/YY *"
-                      value={formData.expiryDate}
-                      onChange={(e) =>
-                        handleInputChange('expiryDate', e.target.value)
-                      }
-                      className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                      required
-                    />
-                    <input
-                      type="text"
-                      placeholder="CVV *"
-                      value={formData.cvv}
-                      onChange={(e) => handleInputChange('cvv', e.target.value)}
-                      className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                      required
-                    />
+                <div className="text-center space-y-3">
+                  <p className="text-black">
+                    You&apos;ll be redirected to Stripe&apos;s secure checkout page to complete your payment.
+                  </p>
+                  <div className="flex items-center justify-center gap-2 text-sm text-neutral-600">
+                    <Lock size={14} />
+                    <span>256-bit SSL encrypted</span>
                   </div>
-
-                  <div className="flex items-center text-sm text-black mt-4">
-                    <Lock size={16} className="mr-2" />
-                    Your payment information is secure and encrypted
+                  <div className="flex items-center justify-center gap-4 mt-4">
+                    <Image src="https://js.stripe.com/v3/fingerprinted/img/visa-729c05c240c4bdb47b03ac81d9945bfe.svg" alt="Visa" width={40} height={25} />
+                    <Image src="https://js.stripe.com/v3/fingerprinted/img/mastercard-4d8844094130711885b5e41b28c9848f.svg" alt="Mastercard" width={40} height={25} />
+                    <Image src="https://js.stripe.com/v3/fingerprinted/img/amex-a49b82f46c5cd6a96a6e418a6ca1717c.svg" alt="Amex" width={40} height={25} />
                   </div>
-                </form>
+                </div>
               </motion.div>
             </div>
 
@@ -351,13 +322,19 @@ export default function Payment() {
                 <div className="space-y-4 mb-6">
                   <div className="flex items-start space-x-4 pb-4 border-b border-gray-100">
                     <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
-                      <Image
-                        src={cartData.regime.image}
-                        alt={cartData.regime.name}
-                        width={64}
-                        height={64}
-                        className="w-full h-full object-cover rounded-lg"
-                      />
+                      {cartData.regime.images && cartData.regime.images.length > 0 ? (
+                        <Image
+                          src={cartData.regime.images[0]}
+                          alt={cartData.regime.name}
+                          width={64}
+                          height={64}
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-[#EF7E71]/20 to-[#D4654F]/20 rounded-lg flex items-center justify-center">
+                          <span className="text-xs text-neutral-500">No Image</span>
+                        </div>
+                      )}
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold text-black">
@@ -366,9 +343,13 @@ export default function Payment() {
                       <p className="text-sm text-black">
                         {cartData.regime.description}
                       </p>
-                      <p className="text-sm font-semibold text-black mt-1 flex items-center gap-1">
-                        <DirhamIcon size={12} className="text-black" />
-                        {cartData.regime.price} x {cartData.quantity}
+                      <p className="text-xs text-neutral-600 mt-1">
+                        {cartData.subscriptionType === 'one-time' 
+                          ? 'One-time purchase' 
+                          : cartData.subscriptionType === '3-months'
+                          ? '3-month subscription (monthly payment)'
+                          : '6-month subscription (monthly payment)'
+                        }
                       </p>
                     </div>
                   </div>
@@ -402,7 +383,7 @@ export default function Payment() {
                 <button
                   onClick={handleSubmit}
                   disabled={isProcessing || !isFormValid()}
-                  className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="cursor-pointer w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isProcessing ? (
                     <div className="flex items-center justify-center">

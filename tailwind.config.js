@@ -54,12 +54,22 @@ module.exports = {
         hard: '0 20px 60px rgba(0, 0, 0, 0.2)',
         glow: '0 0 40px rgba(239, 126, 113, 0.4)',
         'glow-secondary': '0 0 40px rgba(212, 101, 79, 0.4)',
+        '3xl': '0 25px 65px rgba(0, 0, 0, 0.15)',
+      },
+      perspective: {
+        '1000': '1000px',
+        '1500': '1500px',
+        '2000': '2000px',
       },
       animation: {
         float: 'float 6s ease-in-out infinite',
         glow: 'glow 2s ease-in-out infinite alternate',
         'fade-in': 'fadeIn 0.8s ease-out',
         'slide-up': 'slideUp 0.6s ease-out',
+        pulse: 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'gradient-x': 'gradient-x 15s ease infinite',
+        'gradient-y': 'gradient-y 15s ease infinite',
+        'gradient-xy': 'gradient-xy 15s ease infinite',
       },
       keyframes: {
         float: {
@@ -81,9 +91,43 @@ module.exports = {
           from: { opacity: '0', transform: 'translateY(30px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
         },
+        'gradient-x': {
+          '0%, 100%': {
+            'background-size': '200% 200%',
+            'background-position': 'left center'
+          },
+          '50%': {
+            'background-size': '200% 200%',
+            'background-position': 'right center'
+          },
+        },
+        'gradient-y': {
+          '0%, 100%': {
+            'background-size': '200% 200%',
+            'background-position': 'center top'
+          },
+          '50%': {
+            'background-size': '200% 200%',
+            'background-position': 'center bottom'
+          },
+        },
+        'gradient-xy': {
+          '0%, 100%': {
+            'background-size': '400% 400%',
+            'background-position': 'left center'
+          },
+          '50%': {
+            'background-size': '400% 400%',
+            'background-position': 'right center'
+          },
+        },
       },
       backdropBlur: {
         xs: '2px',
+        '3xl': '64px',
+      },
+      borderWidth: {
+        '3': '3px',
       },
     },
   },

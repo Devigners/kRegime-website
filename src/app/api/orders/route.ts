@@ -5,7 +5,7 @@ import {
   convertRegimeRowToRegime,
   type Order,
 } from '@/models/database';
-import { sendOrderCompleteEmail } from '@/lib/email';
+import { sendOrderReceivedEmail } from '@/lib/email';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET() {
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Send the completion email
-      const emailResult = await sendOrderCompleteEmail({
+      const emailResult = await sendOrderReceivedEmail({
         order: convertedOrder,
         regime,
       });
@@ -121,6 +121,42 @@ export async function POST(request: NextRequest) {
     } catch (emailError) {
       console.error('Error sending order completion email:', emailError);
       // Don't fail the order creation if email fails, just log it
+    }
+
+    // Add customer email to subscribers (non-blocking)
+    // Use direct database call instead of HTTP fetch to avoid blocking
+    try {
+      const customerEmail = convertedOrder.contactInfo.email;
+      if (customerEmail) {
+        // Generate a unique ID for the subscriber (using timestamp + random string)
+        const subscriberId = `sub_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+        
+        // Direct database insert (will ignore if email already exists due to unique constraint)
+        const { error: subscriberError } = await supabaseClient
+          .from('subscribers')
+          .insert([{
+            id: subscriberId,
+            email: customerEmail,
+            source: 'checkout',
+            is_active: true
+          }])
+          .select()
+          .single();
+
+        if (subscriberError) {
+          // Check if it's a duplicate email error (unique constraint violation)
+          if (subscriberError.code === '23505') {
+            console.log('Customer email already exists in subscribers');
+          } else {
+            console.error('Error adding customer to subscribers:', subscriberError);
+          }
+        } else {
+          console.log('Customer email added to subscribers successfully');
+        }
+      }
+    } catch (subscriberError) {
+      console.error('Error adding customer to subscribers:', subscriberError);
+      // Don't fail the order creation if subscriber addition fails
     }
 
     return NextResponse.json({

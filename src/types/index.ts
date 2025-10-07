@@ -2,20 +2,31 @@ export interface Product {
   id: string;
   name: string;
   description: string;
-  price: number;
+  priceOneTime: number;
+  price3Months: number;
+  price6Months: number;
   steps: string[];
-  image: string;
+  images: string[];
   stepCount: 3 | 5 | 7;
 }
 
 export interface CartItem {
   product: Product;
   quantity: number;
+  subscriptionType?: 'one-time' | '3-months' | '6-months';
   customization?: {
     skinType: string;
     skinConcerns: string[];
     preferences: Record<string, string | number | boolean>;
   };
+}
+
+export type SubscriptionType = 'one-time' | '3-months' | '6-months';
+
+export interface SubscriptionPricing {
+  oneTime: number;
+  threeMonths: number;
+  sixMonths: number;
 }
 
 export interface Review {
@@ -41,7 +52,6 @@ export interface FormData {
   routineRegularity: string;
   purchaseLocation: string;
   budget: string;
-  customizedRecommendations: string;
   brandsUsed: string;
   additionalComments: string;
 }

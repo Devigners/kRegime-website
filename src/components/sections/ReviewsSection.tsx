@@ -33,7 +33,7 @@ export default function ReviewsSection() {
     return (
       <section
         id="reviews"
-        className="py-32 bg-gradient-to-b from-neutral-50 to-white"
+        className="py-32 bg-white"
       >
         <div className="container section-padding">
           <div className="text-center">
@@ -49,7 +49,7 @@ export default function ReviewsSection() {
     return (
       <section
         id="reviews"
-        className="py-32 bg-gradient-to-b from-neutral-50 to-white"
+        className="py-32 bg-white"
       >
         <div className="container section-padding">
           <div className="text-center">
@@ -69,7 +69,7 @@ export default function ReviewsSection() {
   return (
     <section
       id="reviews"
-      className="py-32 bg-gradient-to-b from-neutral-50 to-white"
+      className="py-32 bg-white"
     >
       <div className="container section-padding">
         <motion.div

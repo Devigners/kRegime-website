@@ -11,10 +11,10 @@ export default function FeaturesSection() {
       {/* Background decorative images */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-20 left-10 w-32 h-32 rounded-full overflow-hidden">
-          <Image src="/static/8.jpg" alt="" fill className="object-cover" />
+          <Image src="/static/8.webp" alt="" fill className="object-cover" />
         </div>
         <div className="absolute bottom-20 right-10 w-40 h-40 rounded-full overflow-hidden">
-          <Image src="/static/9.jpg" alt="" fill className="object-cover" />
+          <Image src="/static/9.webp" alt="" fill className="object-cover" />
         </div>
       </div>
 
@@ -39,7 +39,7 @@ export default function FeaturesSection() {
           {features.map((feature, index) => (
             <motion.div
               key={feature.title}
-              className="p-6 text-center group"
+              className="p-5 text-center group"
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.2 }}

@@ -15,13 +15,26 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
 export const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
 
 // For server-side operations that need service role access
-export const supabaseAdmin = createClient<Database>(
-  supabaseUrl,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
+// Function to create admin client only when needed on server-side
+export function createSupabaseAdmin() {
+  // Check if we're on the server side
+  if (typeof window !== 'undefined') {
+    throw new Error('Admin client can only be created on server-side');
   }
-);
+  
+  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseServiceRoleKey) {
+    throw new Error('Missing Supabase service role key');
+  }
+
+  return createClient<Database>(
+    supabaseUrl,
+    supabaseServiceRoleKey,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    }
+  );
+}

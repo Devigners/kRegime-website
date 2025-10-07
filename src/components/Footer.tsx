@@ -1,7 +1,6 @@
 'use client';
 import { motion } from 'framer-motion';
 import {
-  ArrowUp,
   Facebook,
   Heart,
   Instagram,
@@ -10,11 +9,49 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import React from 'react';
+import React, { useState } from 'react';
+import { toast } from 'sonner';
 
 const Footer: React.FC = () => {
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email) {
+      toast.error('Please enter your email address');
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      const response = await fetch('/api/subscribers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          source: 'footer'
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success(data.message || 'Successfully subscribed!');
+        setEmail('');
+      } else {
+        toast.error(data.error || 'Failed to subscribe. Please try again.');
+      }
+    } catch (error) {
+      console.error('Newsletter subscription error:', error);
+      toast.error('Failed to subscribe. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -149,14 +186,23 @@ const Footer: React.FC = () => {
                 special offers delivered to your inbox.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="flex-1 px-6 py-4 bg-black/10 backdrop-blur-sm border border-black/10 rounded-lg text-white placeholder-white/90 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all duration-300"
-                />
-                <button className="btn-secondary !bg-white hover:!text-primary px-8 py-4 whitespace-nowrap">
-                  Subscribe
-                </button>
+                <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-4 w-full">
+                  <input
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={isSubmitting}
+                    className="flex-1 px-6 py-4 bg-black/10 backdrop-blur-sm border border-black/10 rounded-lg text-white placeholder-white/90 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all duration-300 disabled:opacity-50"
+                  />
+                  <button 
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="btn-secondary !bg-white hover:!text-primary px-8 py-4 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? 'Subscribing...' : 'Subscribe'}
+                  </button>
+                </form>
               </div>
             </div>
           </div>
@@ -187,16 +233,6 @@ const Footer: React.FC = () => {
                     Terms of Service
                   </Link>
                 </div>
-
-                <motion.button
-                  onClick={scrollToTop}
-                  className="flex items-center space-x-2 text-white hover:text-primary transition-colors duration-300 group"
-                  whileHover={{ y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <ArrowUp className="w-4 h-4 transition-transform group-hover:-translate-y-1" />
-                  <span>Back to top</span>
-                </motion.button>
               </div>
             </div>
           </div>

@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { DM_Sans, Playfair_Display } from 'next/font/google';
 import '../styles/globals.css';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import ConditionalLayout from '@/components/ConditionalLayout';
+import { Toaster } from 'sonner';
 
 const dmSans = DM_Sans({
   variable: '--font-dm-sans',
@@ -86,9 +86,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Check if coming soon mode is enabled
-  const isComingSoon = process.env.NEXT_PUBLIC_COMING_SOON === 'true';
-
   return (
     <html lang="en" className="scroll-smooth">
       <head>
@@ -103,11 +100,13 @@ export default function RootLayout({
       <body
         className={`${dmSans.variable} ${playfairDisplay.variable} font-sans antialiased`}
       >
-        <div className="min-h-screen flex flex-col overflow-hidden">
-          <Header />
-          <main className="flex-1">{children}</main>
-          {!isComingSoon && <Footer />}
-        </div>
+        <ConditionalLayout>{children}</ConditionalLayout>
+        <Toaster 
+          position="bottom-right" 
+          richColors 
+          theme="light"
+          closeButton
+        />
       </body>
     </html>
   );

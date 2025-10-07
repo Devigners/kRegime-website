@@ -3,15 +3,83 @@ import { CheckCircle, Sparkles } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
-import { Product } from '../types';
+import { Product, SubscriptionType } from '../types';
 import DirhamIcon from './icons/DirhamIcon';
 
 interface ProductCardProps {
   product: Product;
+  selectedSubscription?: SubscriptionType;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ 
+  product, 
+  selectedSubscription = 'one-time' 
+}) => {
   const isPopular = product.id === 'pentabox';
+
+  // Get price based on subscription type
+  const getPrice = () => {
+    switch (selectedSubscription) {
+      case '3-months':
+        return product.price3Months || 0;
+      case '6-months':
+        return product.price6Months || 0;
+      default:
+        return product.priceOneTime || 0;
+    }
+  };
+
+  const getPriceDescription = () => {
+    switch (selectedSubscription) {
+      case '3-months':
+        return 'Monthly for 3 months';
+      case '6-months':
+        return 'Monthly for 6 months';
+      default:
+        return 'One-time purchase';
+    }
+  };
+
+  // Get the next better subscription option and calculate savings
+  const getNextSubscriptionComparison = () => {
+    const currentPrice = getPrice();
+    
+    switch (selectedSubscription) {
+      case 'one-time':
+        if (product.price3Months) {
+          const savings = currentPrice - product.price3Months;
+          const savingsPercentage = Math.round((savings / currentPrice) * 100);
+          return {
+            nextType: '3-month subscription',
+            nextPrice: product.price3Months,
+            savings,
+            savingsPercentage,
+            message: `Save ${savings} AED (${savingsPercentage}%) with 3-month plan`
+          };
+        }
+        break;
+      case '3-months':
+        if (product.price6Months) {
+          const savings = currentPrice - product.price6Months;
+          const savingsPercentage = Math.round((savings / currentPrice) * 100);
+          return {
+            nextType: '6-month subscription',
+            nextPrice: product.price6Months,
+            savings,
+            savingsPercentage,
+            message: `Save ${savings} AED (${savingsPercentage}%) with 6-month plan`
+          };
+        }
+        break;
+      default:
+        return null;
+    }
+    return null;
+  };
+
+  const getCurrentPrice = getPrice();
+  const priceDescription = getPriceDescription();
+  const nextSubscriptionInfo = getNextSubscriptionComparison();
 
   return (
     <motion.div
@@ -26,8 +94,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <div className="absolute -top-1 -right-1 z-10">
           <motion.div
             className="bg-gradient-to-r from-primary to-secondary text-white px-4 py-2 rounded-lg shadow-lg flex items-center space-x-1"
-            initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: 1, rotate: 0 }}
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <Sparkles className="w-4 h-4" />
@@ -38,12 +106,23 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
       {/* Product Image Area */}
       <div className="aspect-[4/3] relative overflow-hidden">
-        <Image
-          src={product.image}
-          alt={product.name}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-110"
-        />
+        {product.images && product.images.length > 0 ? (
+          <Image
+            src={product.images[0]}
+            alt={product.name}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-110"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-[#EF7E71]/20 to-[#D4654F]/20 flex items-center justify-center">
+            <div className="text-center space-y-2">
+              <div className="w-16 h-16 bg-gradient-to-br from-[#EF7E71] to-[#D4654F] rounded-full flex items-center justify-center mx-auto">
+                <Sparkles className="h-8 w-8 text-white" />
+              </div>
+              <span className="text-neutral-600 font-medium text-sm">No Image Available</span>
+            </div>
+          </div>
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
 
         {/* Overlay Content */}
@@ -103,21 +182,22 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             <div className="space-y-1">
               <div className="text-3xl font-bold text-neutral-900 flex items-center gap-2">
                 <DirhamIcon size={20} className="text-neutral-900" />
-                {product.price}
+                {getCurrentPrice}
               </div>
-              <div className="text-sm text-black">One-time purchase</div>
-            </div>
-            <div className="text-right">
-              <div className="text-sm text-black mb-1">Starting from</div>
-              <div className="text-lg font-semibold text-primary flex items-center gap-1 justify-end">
-                <DirhamIcon size={14} className="text-primary" />
-                {Math.round(product.price / product.stepCount)}/step
-              </div>
+              <div className="text-sm text-black">{priceDescription}</div>
+              
+              {/* Show comparison with next subscription type */}
+              {nextSubscriptionInfo && (
+                <div className="flex items-center gap-1 text-xs text-green-600 font-medium">
+                  <Sparkles className="w-3 h-3" />
+                  <span>Save {nextSubscriptionInfo.savings} AED with {nextSubscriptionInfo.nextType.replace(' subscription', '')} subscription</span>
+                </div>
+              )}
             </div>
           </div>
 
           <Link
-            href={`/regime-form?product=${product.id}`}
+            href={`/regime-form?product=${product.id}&subscription=${selectedSubscription}`}
             className="btn-primary w-full text-center group flex items-center justify-center"
           >
             Select This Regime

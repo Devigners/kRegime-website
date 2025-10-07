@@ -38,6 +38,17 @@ export function BaseEmailLayout({
             .mobile-center { text-align: center !important; }
             .mobile-mb-4 { margin-bottom: 16px !important; }
           }
+          
+          /* Email-safe utility classes */
+          .space-y-4 > * + * { margin-top: 16px !important; }
+          .space-y-2 > * + * { margin-top: 8px !important; }
+          .gap-4 { gap: 16px !important; }
+          .gap-2 { gap: 8px !important; }
+          .flex { display: flex !important; }
+          .items-center { align-items: center !important; }
+          .items-start { align-items: flex-start !important; }
+          .justify-center { justify-content: center !important; }
+          .flex-1 { flex: 1 !important; }
         `}</style>
       </Head>
       <Preview>{preview}</Preview>

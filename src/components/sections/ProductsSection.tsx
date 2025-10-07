@@ -3,13 +3,16 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import ProductCard from '@/components/ProductCard';
+import PricingSwitcher from '@/components/PricingSwitcher';
 import { regimeApi } from '@/lib/api';
 import { Regime } from '@/models/database';
+import { SubscriptionType } from '@/types';
 
 export default function ProductsSection() {
   const [regimes, setRegimes] = useState<Regime[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedSubscription, setSelectedSubscription] = useState<SubscriptionType>('one-time');
 
   useEffect(() => {
     const fetchRegimes = async () => {
@@ -32,7 +35,7 @@ export default function ProductsSection() {
     return (
       <section
         id="regimes"
-        className="py-32 bg-gradient-to-b from-neutral-50 to-white"
+        className="py-32 bg-gradient-to-b from-secondary/5 to-accent/5"
       >
         <div className="container section-padding">
           <div className="text-center">
@@ -48,7 +51,7 @@ export default function ProductsSection() {
     return (
       <section
         id="regimes"
-        className="py-32 bg-gradient-to-b from-neutral-50 to-white"
+        className="py-32 bg-gradient-to-b from-secondary/5 to-accent/5"
       >
         <div className="container section-padding">
           <div className="text-center">
@@ -68,11 +71,11 @@ export default function ProductsSection() {
   return (
     <section
       id="regimes"
-      className="py-32 bg-gradient-to-b from-neutral-50 to-white"
+      className="py-32 bg-gradient-to-b from-secondary/5 to-accent/5"
     >
       <div className="container section-padding">
         <motion.div
-          className="text-center mb-20"
+          className="text-center mb-16"
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -81,31 +84,39 @@ export default function ProductsSection() {
           <h2 className="heading-lg text-neutral-900 mb-6">
             Choose Your <span className="gradient-text">Regime</span>
           </h2>
-          <p className="text-xl text-black max-w-4xl mx-auto leading-relaxed">
+          <p className="text-xl text-black max-w-4xl mx-auto leading-relaxed mb-12">
             Pick your preferred 3, 5 & 7 steps and we&apos;ll fill them with
             expertly matched Korean beauty products made for your unique skin
           </p>
+          
+          {/* Pricing Switcher */}
+          <PricingSwitcher
+            selectedType={selectedSubscription}
+            onTypeChange={setSelectedSubscription}
+          />
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {regimes.map((regime, index) => (
             <motion.div
-              key={regime.id}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.2 }}
-              viewport={{ once: true }}
+              key={`${regime.id}-${selectedSubscription}`}
+              initial={{ opacity: 0, y: 50, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
             >
               <ProductCard
                 product={{
                   id: regime.id,
                   name: regime.name,
                   description: regime.description,
-                  price: regime.price,
+                  priceOneTime: regime.priceOneTime,
+                  price3Months: regime.price3Months,
+                  price6Months: regime.price6Months,
                   steps: regime.steps,
-                  image: regime.image,
+                  images: regime.images,
                   stepCount: regime.stepCount,
                 }}
+                selectedSubscription={selectedSubscription}
               />
             </motion.div>
           ))}
