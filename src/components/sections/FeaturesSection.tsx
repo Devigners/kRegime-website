@@ -31,7 +31,7 @@ export default function FeaturesSection() {
           </h2>
           <p className="text-xl text-black max-w-3xl mx-auto">
             We curate handpicked Korean skincare regimens, with products
-            carefully selected by our experts based on individual skin needs.
+            carefully selected by our experts based on individual skin needs
           </p>
         </motion.div>
 

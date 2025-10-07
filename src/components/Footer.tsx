@@ -86,9 +86,7 @@ const Footer: React.FC = () => {
                 </div>
               </div>
               <p className="text-white leading-relaxed max-w-md">
-                Personalized Korean Skincare Regimes Simplified. Discover your
-                perfect skincare routine with our expertly curated regime boxes
-                featuring premium Korean products.
+                Discover your perfect skincare routine with our expertly curated regime boxes featuring premium Korean products
               </p>
               <div className="flex space-x-4">
                 {[
@@ -181,9 +179,9 @@ const Footer: React.FC = () => {
               <h3 className="text-2xl font-semibold">
                 Join the Glow Community
               </h3>
-              <p className="text-white max-w-2xl mx-auto">
+              <p className="text-white max-w-lg mx-auto">
                 Get exclusive skincare tips, early access to new products, and
-                special offers delivered to your inbox.
+                special offers delivered to your inbox
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
                 <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-4 w-full">
