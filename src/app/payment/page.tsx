@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ArrowLeft, Lock } from 'lucide-react';
+import { ArrowLeft, Lock, Tag } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -9,6 +9,7 @@ import React, { useState, useEffect } from 'react';
 import { localStorage as localStorageUtils } from '@/lib/localStorage';
 import { SubscriptionType } from '@/types';
 import DirhamIcon from '@/components/icons/DirhamIcon';
+import { calculatePrice } from '@/lib/pricing';
 
 interface CartData {
   regimeId: string;
@@ -20,7 +21,15 @@ interface CartData {
     priceOneTime?: number;
     price3Months?: number;
     price6Months?: number;
+    discountOneTime?: number;
+    discount3Months?: number;
+    discount6Months?: number;
+    discountReasonOneTime?: string | null;
+    discountReason3Months?: string | null;
+    discountReason6Months?: string | null;
     images: string[];
+    steps?: string[];
+    stepCount?: 3 | 5 | 7;
   };
   formData: Record<string, string | string[]>;
   quantity: number;
@@ -34,28 +43,33 @@ export default function Payment() {
   const [cartData, setCartData] = useState<CartData | null>(null);
   const [formData, setFormData] = useState({
     email: '',
-    phoneNumber: '',
+    phoneNumber: '+971',
     firstName: '',
     lastName: '',
+    apartmentNumber: '',
     address: '',
     city: '',
-    postalCode: '',
   });
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Calculate current price info with discounts
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const currentPriceInfo = cartData ? calculatePrice(cartData.regime as any, cartData.subscriptionType) : null;
 
   // Validation function to check if all mandatory fields are filled
   const isFormValid = () => {
     const mandatoryFields = [
       'email',
+      'phoneNumber',
       'firstName',
+      'apartmentNumber',
       'address',
       'city',
-      'postalCode',
     ];
 
     return mandatoryFields.every(
       (field) => formData[field as keyof typeof formData].trim() !== ''
-    );
+    ) && formData.phoneNumber.length > 4; // Ensure phone number has more than just +971
   };
 
   useEffect(() => {
@@ -103,9 +117,9 @@ export default function Payment() {
           shippingAddress: {
             firstName: formData.firstName,
             lastName: formData.lastName || undefined,
+            apartmentNumber: formData.apartmentNumber,
             address: formData.address,
             city: formData.city,
-            postalCode: formData.postalCode,
           },
           totalAmount: cartData.totalAmount,
           finalAmount: cartData.finalAmount,
@@ -127,9 +141,9 @@ export default function Payment() {
           shippingAddress: {
             firstName: formData.firstName,
             lastName: formData.lastName || undefined,
+            apartmentNumber: formData.apartmentNumber,
             address: formData.address,
             city: formData.city,
-            postalCode: formData.postalCode,
           },
           checkoutSessionKey, // Pass the key so we can retrieve data later
         }),
@@ -205,12 +219,19 @@ export default function Payment() {
                   />
                   <input
                     type="tel"
-                    placeholder="Phone number (optional)"
+                    placeholder="Phone number *"
                     value={formData.phoneNumber}
-                    onChange={(e) =>
-                      handleInputChange('phoneNumber', e.target.value)
-                    }
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Ensure +971 prefix is always present
+                      if (!value.startsWith('+971')) {
+                        handleInputChange('phoneNumber', '+971');
+                      } else {
+                        handleInputChange('phoneNumber', value);
+                      }
+                    }}
                     className="w-full p-3 focus:outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    required
                   />
                 </div>
               </motion.div>
@@ -247,32 +268,40 @@ export default function Payment() {
                   />
                   <input
                     type="text"
-                    placeholder="Address *"
+                    placeholder="Apartment/Villa/House *"
+                    value={formData.apartmentNumber}
+                    onChange={(e) =>
+                      handleInputChange('apartmentNumber', e.target.value)
+                    }
+                    className="focus:outline-none md:col-span-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Street Address *"
                     value={formData.address}
                     onChange={(e) =>
                       handleInputChange('address', e.target.value)
                     }
-                    className="focus:outline-none md:col-span-2 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="focus:outline-none md:col-span-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     required
                   />
-                  <input
-                    type="text"
-                    placeholder="City *"
+                  <select
                     value={formData.city}
                     onChange={(e) => handleInputChange('city', e.target.value)}
-                    className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="focus:outline-none md:col-span-2 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
                     required
-                  />
-                  <input
-                    type="text"
-                    placeholder="Postal code *"
-                    value={formData.postalCode}
-                    onChange={(e) =>
-                      handleInputChange('postalCode', e.target.value)
-                    }
-                    className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    required
-                  />
+                  >
+                    <option value="">Select City *</option>
+                    <option value="Dubai">Dubai</option>
+                    <option value="Abu Dhabi">Abu Dhabi</option>
+                    <option value="Sharjah">Sharjah</option>
+                    <option value="Ajman">Ajman</option>
+                    <option value="Ras Al Khaimah">Ras Al Khaimah</option>
+                    <option value="Fujairah">Fujairah</option>
+                    <option value="Umm Al Quwain">Umm Al Quwain</option>
+                    <option value="Al Ain">Al Ain</option>
+                  </select>
                 </div>
               </motion.div>
 
@@ -351,10 +380,49 @@ export default function Payment() {
                           : '6-month subscription (monthly payment)'
                         }
                       </p>
+                      
+                      {/* Discount Badge */}
+                      {currentPriceInfo && currentPriceInfo.hasDiscount && (
+                        <div className="mt-2 bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-lg p-2">
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-2 py-0.5 rounded-full text-xs font-bold flex items-center gap-1">
+                              <Tag className="w-3 h-3" />
+                              {currentPriceInfo.discount}% OFF
+                            </div>
+                            {currentPriceInfo.discountReason && (
+                              <span className="text-xs font-semibold text-neutral-700 bg-yellow-100 px-2 py-0.5 rounded-full">
+                                {currentPriceInfo.discountReason}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-green-700 font-semibold">
+                            Save {currentPriceInfo.savingsAmount} AED!
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   <div className="space-y-2">
+                    {currentPriceInfo && currentPriceInfo.hasDiscount && (
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-2 mb-3">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-bold text-green-800">Original Price</span>
+                          <span className="text-xs text-green-700 line-through flex items-center gap-1">
+                            <DirhamIcon size={10} className="text-green-700" />
+                            {currentPriceInfo.originalPrice}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-green-800">Discount ({currentPriceInfo.discount}%)</span>
+                          <span className="text-xs font-bold text-green-700 flex items-center gap-1">
+                            - <DirhamIcon size={10} className="text-green-700" />
+                            {currentPriceInfo.savingsAmount}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    
                     <div className="flex justify-between">
                       <span className="text-black">Subtotal</span>
                       <span className="text-black flex items-center gap-1">

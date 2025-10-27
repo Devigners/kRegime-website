@@ -10,19 +10,19 @@ export default function HowItWorksSection() {
       icon: ShoppingBag,
       title: 'Choose Your Regime',
       description:
-        'Select from our 3, 5, or 7 steps Korean skincare regime boxes based on your preferences and unique skin goals.',
+        'Select from our 3, 5, or 7 steps Korean skincare regime boxes based on your preferences and unique skin goals',
     },
     {
       icon: ClipboardList,
       title: 'Complete Our Quiz',
       description:
-        'Tell us about your skin type, concerns, and preferences so our skincare experts can personalize your box perfectly.',
+        'Tell us about your skin type, concerns, and preferences so our skincare experts can personalize your box perfectly',
     },
     {
       icon: Sparkles,
       title: 'Receive & Glow',
       description:
-        'Get your curated skincare routine delivered and start seeing visible results within 7-14 days of consistent use.',
+        'Get your curated skincare routine delivered and start seeing visible results within 7-14 days of consistent use',
     },
   ];
 

@@ -1,4 +1,4 @@
-# kRegime Website
+# KREGIME Website
 
 A modern Next.js website built with TypeScript, Tailwind CSS, Framer Motion, and Stripe integration.
 

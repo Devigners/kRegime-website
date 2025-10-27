@@ -19,6 +19,25 @@ export default function ProductsSection() {
       try {
         setLoading(true);
         const data = await regimeApi.getAll();
+        
+        // Sort regimes in specific order: Tribox, Pentabox, Septabox
+        const sortOrder = ['tribox', 'pentabox', 'septabox'];
+        data.sort((a, b) => {
+          const aIndex = sortOrder.indexOf(a.name.toLowerCase());
+          const bIndex = sortOrder.indexOf(b.name.toLowerCase());
+          
+          // If both are in the sort order, sort by their position
+          if (aIndex !== -1 && bIndex !== -1) {
+            return aIndex - bIndex;
+          }
+          // If only a is in the sort order, it comes first
+          if (aIndex !== -1) return -1;
+          // If only b is in the sort order, it comes first
+          if (bIndex !== -1) return 1;
+          // If neither are in the sort order, maintain original order
+          return 0;
+        });
+        
         setRegimes(data);
       } catch (err) {
         console.error('Error fetching regimes:', err);
@@ -112,6 +131,12 @@ export default function ProductsSection() {
                   priceOneTime: regime.priceOneTime,
                   price3Months: regime.price3Months,
                   price6Months: regime.price6Months,
+                  discountOneTime: regime.discountOneTime,
+                  discount3Months: regime.discount3Months,
+                  discount6Months: regime.discount6Months,
+                  discountReasonOneTime: regime.discountReasonOneTime,
+                  discountReason3Months: regime.discountReason3Months,
+                  discountReason6Months: regime.discountReason6Months,
                   steps: regime.steps,
                   images: regime.images,
                   stepCount: regime.stepCount,

@@ -74,7 +74,7 @@ export default function AdminLogin() {
           <Link href="/">
             <Image
               src="/logo.svg"
-              alt="kRegime"
+              alt="KREGIME"
               width={120}
               height={40}
               className="mx-auto mb-4 cursor-pointer"
@@ -83,7 +83,7 @@ export default function AdminLogin() {
           <h1 className="text-2xl font-playfair font-bold text-gray-900 mb-2">
             Admin Panel
           </h1>
-          <p className="text-gray-600">Sign in to manage kRegime</p>
+          <p className="text-gray-600">Sign in to manage KREGIME</p>
         </div>
 
         {/* Login Form */}
@@ -160,7 +160,7 @@ export default function AdminLogin() {
         {/* Footer */}
         <div className="mt-8 text-center">
           <p className="text-xs text-gray-500">
-            © 2025 kRegime. All rights reserved.
+            © 2025 KREGIME. All rights reserved.
           </p>
         </div>
       </motion.div>

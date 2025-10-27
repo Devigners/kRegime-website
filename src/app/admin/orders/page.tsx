@@ -41,6 +41,10 @@ export default function OrdersAdmin() {
 
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
+  const [statusUpdateConfirm, setStatusUpdateConfirm] = useState<{
+    orderId: string;
+    newStatus: 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled';
+  } | null>(null);
 
   useEffect(() => {
     fetchOrders();
@@ -103,7 +107,16 @@ export default function OrdersAdmin() {
     }
   };
 
-  const handleStatusUpdate = async (orderId: string, newStatus: 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled') => {
+  const handleStatusChange = (orderId: string, newStatus: 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled') => {
+    // Show confirmation dialog
+    setStatusUpdateConfirm({ orderId, newStatus });
+  };
+
+  const confirmStatusUpdate = async () => {
+    if (!statusUpdateConfirm) return;
+
+    const { orderId, newStatus } = statusUpdateConfirm;
+    
     try {
       // Use API route instead of direct Supabase update to trigger emails
       const response = await fetch(`/api/orders/${orderId}`, {
@@ -135,6 +148,8 @@ export default function OrdersAdmin() {
       }
     } catch (error) {
       console.error('Error updating order status:', error);
+    } finally {
+      setStatusUpdateConfirm(null);
     }
   };
 
@@ -339,16 +354,20 @@ export default function OrdersAdmin() {
             </div>
           ) : (
             <div className="divide-y divide-neutral-200/50">
-              {filteredOrders.map((order) => (
+              {filteredOrders.map((order, index) => (
                 <div
                   key={order.id}
                   className="p-4 hover:bg-gradient-to-r hover:from-neutral-50/50 hover:to-white/50 transition-all duration-300"
                 >
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-3 lg:space-y-0">
                     <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-[#EF7E71] to-[#D4654F] rounded-xl flex items-center justify-center shadow-md">
-                          <Package className="h-5 w-5 text-white" />
+                      <div className="flex items-start space-x-3">
+                        <div className={`mt-1 w-10 h-10 rounded-xl flex font-semibold items-center justify-center shadow-md ${
+                          order.status === 'pending' 
+                            ? 'bg-transparent border-2 border-neutral-300 text-neutral-600' 
+                            : 'bg-gradient-to-br from-[#EF7E71] to-[#D4654F] text-white'
+                        }`}>
+                          {index + 1}
                         </div>
                         <div className="space-y-1">
                           <h3 className="font-black text-neutral-900 text-lg">#{order.id.slice(-8)}</h3>
@@ -436,7 +455,7 @@ export default function OrdersAdmin() {
                     </span>
                     <select
                       value={order.status}
-                      onChange={(e) => handleStatusUpdate(order.id, e.target.value as 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled')}
+                      onChange={(e) => handleStatusChange(order.id, e.target.value as 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled')}
                       className="font-bold border border-[#EF7E71]/20 rounded-lg px-3 py-1.5 focus:ring-1 focus:ring-[#EF7E71] focus:border-[#EF7E71] bg-white/70 backdrop-blur-sm min-w-[120px] text-sm"
                     >
                       <option value="pending">Pending</option>
@@ -642,28 +661,62 @@ export default function OrdersAdmin() {
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white/90 backdrop-blur-xl rounded-xl max-w-md w-full p-6 shadow-xl border border-white/20">
-            <div className="text-center mb-6">
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <Trash2 className="h-6 w-6 text-red-600" />
+          <div className="bg-white/90 backdrop-blur-xl rounded-3xl max-w-lg w-full p-8 shadow-2xl border border-white/20">
+            <div className="text-center mb-8">
+              <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+                <Trash2 className="h-10 w-10 text-red-600" />
               </div>
-              <h3 className="text-lg font-black text-neutral-900 mb-3">Confirm Delete</h3>
-              <p className="text-neutral-600 text-sm leading-relaxed">
+              <h3 className="text-2xl font-black text-neutral-900 mb-4">Confirm Delete</h3>
+              <p className="text-neutral-600 text-lg leading-relaxed">
                 Are you sure you want to delete this order? This action cannot be undone and will permanently remove all associated data.
               </p>
             </div>
-            <div className="flex space-x-3">
+            <div className="flex space-x-4">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="flex-1 px-4 py-2 text-neutral-600 border border-neutral-300 rounded-lg hover:bg-neutral-50 font-bold text-sm transition-all duration-300"
+                className="flex-1 px-6 py-4 text-neutral-600 border-2 border-neutral-300 rounded-2xl hover:bg-neutral-50 font-bold text-lg transition-all duration-300"
               >
                 Cancel
               </button>
               <button
                 onClick={() => deleteConfirm && handleDelete(deleteConfirm)}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-bold text-sm transition-all duration-300 shadow-md hover:shadow-lg"
+                className="flex-1 px-6 py-4 bg-red-600 text-white rounded-2xl hover:bg-red-700 font-bold text-lg transition-all duration-300 shadow-xl hover:shadow-2xl"
               >
                 Delete Order
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Status Update Confirmation Modal */}
+      {statusUpdateConfirm && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white/90 backdrop-blur-xl rounded-3xl max-w-lg w-full p-8 shadow-2xl border border-white/20">
+            <div className="text-center mb-8">
+              <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+                <Activity className="h-10 w-10 text-blue-600" />
+              </div>
+              <h3 className="text-2xl font-black text-neutral-900 mb-4">Confirm Status Update</h3>
+              <p className="text-neutral-600 text-lg leading-relaxed">
+                Are you sure you want to update this order status to <span className="font-black text-neutral-900 capitalize">{statusUpdateConfirm.newStatus}</span>?
+              </p>
+              <p className="text-neutral-500 text-sm mt-2">
+                The customer will receive an email notification about this status change.
+              </p>
+            </div>
+            <div className="flex space-x-4">
+              <button
+                onClick={() => setStatusUpdateConfirm(null)}
+                className="flex-1 px-6 py-4 text-neutral-600 border-2 border-neutral-300 rounded-2xl hover:bg-neutral-50 font-bold text-lg transition-all duration-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmStatusUpdate}
+                className="flex-1 px-6 py-4 bg-gradient-to-r from-[#EF7E71] to-[#D4654F] text-white rounded-2xl hover:shadow-xl font-bold text-lg transition-all duration-300 shadow-lg"
+              >
+                Update Status
               </button>
             </div>
           </div>

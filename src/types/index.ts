@@ -5,6 +5,12 @@ export interface Product {
   priceOneTime: number;
   price3Months: number;
   price6Months: number;
+  discountOneTime?: number;
+  discount3Months?: number;
+  discount6Months?: number;
+  discountReasonOneTime?: string | null;
+  discountReason3Months?: string | null;
+  discountReason6Months?: string | null;
   steps: string[];
   images: string[];
   stepCount: 3 | 5 | 7;

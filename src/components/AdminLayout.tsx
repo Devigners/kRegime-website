@@ -173,7 +173,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   <span className="text-white font-bold text-sm">K</span>
                 </div>
                 <div>
-                  <h1 className="text-lg font-bold text-slate-900">kRegime</h1>
+                  <h1 className="text-lg font-bold text-slate-900">KREGIME</h1>
                   <p className="text-xs text-slate-500">Admin Panel</p>
                 </div>
               </div>

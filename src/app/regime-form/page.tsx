@@ -122,11 +122,18 @@ function RegimeFormContent() {
     );
   }
 
-  const handleInputChange = (field: keyof FormData, value: string) => {
+  const handleInputChange = (field: keyof FormData, value: string, autoAdvance: boolean = false) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
+    
+    // Auto-advance to next step for single-choice questions
+    if (autoAdvance && currentStep < 16) {
+      setTimeout(() => {
+        setCurrentStep(currentStep + 1);
+      }, 300); // Small delay for better UX
+    }
   };
 
   const handleMultiSelect = (
@@ -263,6 +270,12 @@ function RegimeFormContent() {
     );
   };
 
+  // Check if current step is a single-choice question (auto-advances)
+  const isSingleChoiceQuestion = () => {
+    // Single-choice questions: 1, 2, 3, 5, 9, 11, 12, 13, 14
+    return [1, 2, 3, 5, 9, 11, 12, 13, 14].includes(currentStep);
+  };
+
   const renderStep = () => {
     switch (currentStep) {
       case 1:
@@ -276,7 +289,7 @@ function RegimeFormContent() {
                 (age) => (
                   <button
                     key={age}
-                    onClick={() => handleInputChange('age', age)}
+                    onClick={() => handleInputChange('age', age, true)}
                     className={`p-4 rounded-lg border-2 text-left transition-all cursor-pointer ${
                       formData.age === age
                         ? 'border-primary bg-primary/5 text-primary'
@@ -299,7 +312,7 @@ function RegimeFormContent() {
               {['Male', 'Female', 'Prefer not to say'].map((gender) => (
                 <button
                   key={gender}
-                  onClick={() => handleInputChange('gender', gender)}
+                  onClick={() => handleInputChange('gender', gender, true)}
                   className={`p-4 rounded-lg border-2 text-left transition-all cursor-pointer ${
                     formData.gender === gender
                       ? 'border-primary bg-primary/5 text-primary'
@@ -330,7 +343,7 @@ function RegimeFormContent() {
               ].map((type) => (
                 <button
                   key={type}
-                  onClick={() => handleInputChange('skinType', type)}
+                  onClick={() => handleInputChange('skinType', type, true)}
                   className={`p-4 rounded-lg border-2 text-left transition-all cursor-pointer ${
                     formData.skinType === type
                       ? 'border-primary bg-primary/5 text-primary'
@@ -395,7 +408,7 @@ function RegimeFormContent() {
               {['Light', 'Medium', 'Dark'].map((complexion) => (
                 <button
                   key={complexion}
-                  onClick={() => handleInputChange('complexion', complexion)}
+                  onClick={() => handleInputChange('complexion', complexion, true)}
                   className={`p-4 rounded-lg border-2 text-left transition-all cursor-pointer ${
                     formData.complexion === complexion
                       ? 'border-primary bg-primary/5 text-primary'
@@ -533,7 +546,7 @@ function RegimeFormContent() {
                 <button
                   key={experience}
                   onClick={() =>
-                    handleInputChange('koreanSkincareExperience', experience)
+                    handleInputChange('koreanSkincareExperience', experience, true)
                   }
                   className={`w-full p-4 rounded-lg border-2 text-left transition-all cursor-pointer ${
                     formData.koreanSkincareExperience === experience
@@ -600,7 +613,7 @@ function RegimeFormContent() {
               {['0', '1-2', '3-4', '5 or more'].map((count) => (
                 <button
                   key={count}
-                  onClick={() => handleInputChange('dailyProductCount', count)}
+                  onClick={() => handleInputChange('dailyProductCount', count, true)}
                   className={`p-4 rounded-lg border-2 text-left transition-all cursor-pointer ${
                     formData.dailyProductCount === count
                       ? 'border-primary bg-primary/5 text-primary'
@@ -630,7 +643,7 @@ function RegimeFormContent() {
                 <button
                   key={regularity}
                   onClick={() =>
-                    handleInputChange('routineRegularity', regularity)
+                    handleInputChange('routineRegularity', regularity, true)
                   }
                   className={`p-4 rounded-lg border-2 text-left transition-all cursor-pointer ${
                     formData.routineRegularity === regularity
@@ -666,7 +679,7 @@ function RegimeFormContent() {
                 <button
                   key={location}
                   onClick={() =>
-                    handleInputChange('purchaseLocation', location)
+                    handleInputChange('purchaseLocation', location, true)
                   }
                   className={`p-4 rounded-lg border-2 text-left transition-all cursor-pointer ${
                     formData.purchaseLocation === location
@@ -697,7 +710,7 @@ function RegimeFormContent() {
                 (budget) => (
                   <button
                     key={budget}
-                    onClick={() => handleInputChange('budget', budget)}
+                    onClick={() => handleInputChange('budget', budget, true)}
                     className={`p-4 rounded-lg border-2 text-left transition-all cursor-pointer flex items-center gap-2 ${
                       formData.budget === budget
                         ? 'border-primary bg-primary/5 text-primary'
@@ -918,36 +931,41 @@ function RegimeFormContent() {
                   </button>
                 )}
 
-                {currentStep < 16 ? (
-                  <button
-                    onClick={nextStep}
-                    disabled={!isStepValid()}
-                    className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-semibold transition-all ${
-                      !isStepValid()
-                        ? 'bg-gray-100 text-black cursor-not-allowed'
-                        : 'btn-primary cursor-pointer'
-                    }`}
-                  >
-                    <span>Next</span>
-                    <ArrowRight size={20} />
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleSubmit}
-                    className="btn-primary cursor-pointer flex items-center gap-2 justify-center"
-                  >
-                    Add to Cart - <DirhamIcon size={16} className="!text-white" />{' '}
-                    {(() => {
-                      switch (subscriptionParam) {
-                        case '3-months':
-                          return product.price3Months;
-                        case '6-months':
-                          return product.price6Months;
-                        default:
-                          return product.priceOneTime;
-                      }
-                    })()}
-                  </button>
+                {/* Only show Next/Submit buttons for non-single-choice questions */}
+                {!isSingleChoiceQuestion() && (
+                  <>
+                    {currentStep < 16 ? (
+                      <button
+                        onClick={nextStep}
+                        disabled={!isStepValid()}
+                        className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-semibold transition-all ${
+                          !isStepValid()
+                            ? 'bg-gray-100 text-black cursor-not-allowed'
+                            : 'btn-primary cursor-pointer'
+                        }`}
+                      >
+                        <span>Next</span>
+                        <ArrowRight size={20} />
+                      </button>
+                    ) : (
+                      <button
+                        onClick={handleSubmit}
+                        className="btn-primary cursor-pointer flex items-center gap-2 justify-center"
+                      >
+                        Add to Cart - <DirhamIcon size={16} className="!text-white" />{' '}
+                        {(() => {
+                          switch (subscriptionParam) {
+                            case '3-months':
+                              return product.price3Months;
+                            case '6-months':
+                              return product.price6Months;
+                            default:
+                              return product.priceOneTime;
+                          }
+                        })()}
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
             </div>

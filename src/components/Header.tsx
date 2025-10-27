@@ -79,7 +79,7 @@ const Header: React.FC = () => {
             <div className="relative w-36 h-36 rounded-lg flex items-center justify-center overflow-hidden">
               <Image
                 src="/logo.svg"
-                alt="Kregime Logo"
+                alt="KREGIME Logo"
                 width={80}
                 height={80}
                 className="w-full h-full object-contain"

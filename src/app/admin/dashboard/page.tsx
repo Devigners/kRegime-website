@@ -83,7 +83,7 @@ export default function AdminDashboard() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const completedOrders = orders?.filter((o: any) => o.status === 'completed').length || 0;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const totalRevenue = orders?.reduce((sum: number, order: any) => sum + (order.total_amount || 0), 0) || 0;
+      const totalRevenue = orders?.filter((o: any) => o.status === 'completed').reduce((sum: number, order: any) => sum + (order.total_amount || 0), 0) || 0;
       const recentOrders = (orders?.slice(0, 5) || []) as RecentOrder[];
 
       setStats({
