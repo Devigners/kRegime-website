@@ -47,6 +47,7 @@ export default function Payment() {
   const isFormValid = () => {
     const mandatoryFields = [
       'email',
+      'phoneNumber',
       'firstName',
       'address',
       'city',
@@ -205,12 +206,13 @@ export default function Payment() {
                   />
                   <input
                     type="tel"
-                    placeholder="Phone number (optional)"
+                    placeholder="Phone number *"
                     value={formData.phoneNumber}
                     onChange={(e) =>
                       handleInputChange('phoneNumber', e.target.value)
                     }
                     className="w-full p-3 focus:outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    required
                   />
                 </div>
               </motion.div>
