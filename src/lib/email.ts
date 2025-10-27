@@ -2,6 +2,7 @@ import { render } from '@react-email/render';
 import { resend } from './resend';
 import { OrderReceivedEmail } from '@/emails/OrderReceivedEmail';
 import { OrderStatusUpdateEmail } from '@/emails/OrderStatusUpdateEmail';
+import { NewOrderAdminEmail } from '@/emails/NewOrderAdminEmail';
 import { Order, Regime } from '@/models/database';
 
 export interface SendOrderReceivedEmailProps {
@@ -50,9 +51,9 @@ export async function sendOrderReceivedEmail({
 
     // Send email using Resend
     const { data, error } = await resend.emails.send({
-      from: 'kRegime <care@kregime.com>',
+      from: 'KREGIME <care@kregime.com>',
       to: [order.contactInfo.email],
-      subject: `Order Confirmed #${order.id} - Your kRegime journey begins! 🌟`,
+      subject: `Order Confirmed #${order.id} - Your KREGIME journey begins! 🌟`,
       html: emailHtml,
     });
 
@@ -122,7 +123,7 @@ export async function sendOrderStatusUpdateEmail({
 
     // Send email using Resend
     const { data, error } = await resend.emails.send({
-      from: 'kRegime <care@kregime.com>',
+      from: 'KREGIME <care@kregime.com>',
       to: [order.contactInfo.email],
       subject: getSubjectLine(order.status),
       html: emailHtml,
@@ -154,6 +155,53 @@ export async function sendOrderStatusUpdateEmail({
  * Email service configuration
  */
 export const emailConfig = {
-  from: 'kRegime <care@kregime.com>',
+  from: 'KREGIME <care@kregime.com>',
   replyTo: 'care@kregime.com',
+  adminEmail: 'care@kregime.com',
 };
+
+/**
+ * Send new order notification email to admin
+ */
+export async function sendNewOrderAdminEmail({
+  order,
+  regime,
+}: SendOrderReceivedEmailProps): Promise<EmailResponse> {
+  try {
+    // Render the email template
+    const emailHtml = await render(
+      NewOrderAdminEmail({
+        order,
+        regime,
+      })
+    );
+
+    // Send email using Resend
+    const { data, error } = await resend.emails.send({
+      from: 'KREGIME Orders <care@kregime.com>',
+      to: [emailConfig.adminEmail],
+      subject: `🔔 New Order #${order.id} - ${order.shippingAddress.firstName} ${order.shippingAddress.lastName || ''}`,
+      html: emailHtml,
+    });
+
+    if (error) {
+      console.error('Failed to send admin order notification email:', error);
+      return {
+        success: false,
+        error: error.message || 'Failed to send email',
+      };
+    }
+
+    console.log('Admin order notification email sent successfully:', data?.id);
+    return {
+      success: true,
+      id: data?.id,
+    };
+  } catch (error) {
+    console.error('Error in sendNewOrderAdminEmail:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    };
+  }
+}

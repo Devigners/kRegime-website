@@ -86,6 +86,12 @@ export type Database = {
         Row: {
           created_at: string
           description: string
+          discount_3_months: number
+          discount_6_months: number
+          discount_one_time: number
+          discount_reason_3_months: string | null
+          discount_reason_6_months: string | null
+          discount_reason_one_time: string | null
           id: string
           image: string[]
           is_active: boolean
@@ -101,6 +107,12 @@ export type Database = {
         Insert: {
           created_at?: string
           description: string
+          discount_3_months?: number
+          discount_6_months?: number
+          discount_one_time?: number
+          discount_reason_3_months?: string | null
+          discount_reason_6_months?: string | null
+          discount_reason_one_time?: string | null
           id: string
           image: string[]
           is_active?: boolean
@@ -116,6 +128,12 @@ export type Database = {
         Update: {
           created_at?: string
           description?: string
+          discount_3_months?: number
+          discount_6_months?: number
+          discount_one_time?: number
+          discount_reason_3_months?: string | null
+          discount_reason_6_months?: string | null
+          discount_reason_one_time?: string | null
           id?: string
           image?: string[]
           is_active?: boolean

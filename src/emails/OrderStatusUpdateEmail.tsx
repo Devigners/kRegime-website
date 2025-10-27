@@ -56,10 +56,10 @@ export function OrderStatusUpdateEmail({
         return {
           emoji: '🚚',
           title: 'Your order is on its way!',
-          description: 'Your kRegime package has been shipped and is heading to your doorstep.',
+          description: 'Your KREGIME package has been shipped and is heading to your doorstep.',
           color: '#3b82f6', // blue
           timeline: 'Your skincare journey is traveling to you right now!',
-          nextStep: 'You should receive your package within 3-5 business days.',
+          nextStep: 'You should receive your package within 2-3 business days.',
         };
       case 'completed':
         return {
@@ -67,7 +67,7 @@ export function OrderStatusUpdateEmail({
           title: 'Your order has been delivered!',
           description: 'Welcome to your new skincare routine! Time to start your transformation.',
           color: '#10b981', // green
-          timeline: 'Your kRegime package has arrived and your skincare journey begins now.',
+          timeline: 'Your KREGIME package has arrived and your skincare journey begins now.',
           nextStep: 'Follow your personalized routine guide for the best results.',
         };
       case 'cancelled':

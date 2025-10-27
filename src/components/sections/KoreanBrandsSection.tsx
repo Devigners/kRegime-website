@@ -7,7 +7,7 @@ import { brands } from '@/data';
 
 export default function KoreanBrandsSection() {
   return (
-    <section id="brands" className="py-32 bg-neutral-50">
+    <section id="brands" className="py-32 bg-gradient-to-b from-secondary/5 to-accent/5">
       <div className="container section-padding text-center">
         <motion.div
           className="space-y-8 mb-20"
@@ -27,15 +27,7 @@ export default function KoreanBrandsSection() {
 
         <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
           {brands.map((brand, index) => (
-            <motion.div
-              key={brand.name}
-              className="group"
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: index * 0.03 }}
-              viewport={{ once: true }}
-              whileHover={{ y: -3 }}
-            >
+            <div key={index} className="group">
               <div className="bg-white rounded-lg shadow-soft hover:shadow-medium transition-all duration-300 border border-primary/20 hover:border-primary">
                 <div className="h-24 relative rounded-lg overflow-hidden bg-white">
                   <Image
@@ -46,7 +38,7 @@ export default function KoreanBrandsSection() {
                   />
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
 

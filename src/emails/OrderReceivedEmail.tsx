@@ -38,7 +38,7 @@ export function OrderReceivedEmail({
   };
 
   return (
-    <BaseEmailLayout preview={`Order #${order.id} - Your kRegime journey begins now!`}>
+    <BaseEmailLayout preview={`Order #${order.id} - Your KREGIME journey begins now!`}>
       {/* Welcome Message */}
       <Section className="text-center mb-8">
         <div 
@@ -59,7 +59,7 @@ export function OrderReceivedEmail({
           className="text-neutral-600 text-base leading-6 mobile-text-base"
           style={{ fontSize: '16px', lineHeight: '1.5', marginBottom: '0' }}
         >
-          Thank you for choosing kRegime. Your personalized Korean skincare routine
+          Thank you for choosing KREGIME. Your personalized Korean skincare routine
           is being prepared and will be with you soon. Get ready to transform your
           skin with authentic Korean beauty products curated just for you!
         </Text>
@@ -350,7 +350,7 @@ export function OrderReceivedEmail({
                 className="text-neutral-900 font-semibold text-sm mb-1 mobile-text-sm"
                 style={{ marginBottom: '4px' }}
               >
-                Shipping (3-5 days)
+                Shipping (2-3 days)
               </Text>
               <Text 
                 className="text-neutral-600 text-sm mb-0 mobile-text-sm"
