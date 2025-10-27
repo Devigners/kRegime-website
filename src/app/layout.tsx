@@ -90,6 +90,7 @@ export default function RootLayout({
     <html lang="en" className="scroll-smooth">
       <head>
         <meta name="apple-mobile-web-app-title" content="Kregime" />
+        <meta name="theme-color" content="#EF7E71" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
