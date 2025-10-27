@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ArrowLeft, Lock } from 'lucide-react';
+import { ArrowLeft, Lock, Tag } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -9,6 +9,7 @@ import React, { useState, useEffect } from 'react';
 import { localStorage as localStorageUtils } from '@/lib/localStorage';
 import { SubscriptionType } from '@/types';
 import DirhamIcon from '@/components/icons/DirhamIcon';
+import { calculatePrice } from '@/lib/pricing';
 
 interface CartData {
   regimeId: string;
@@ -20,7 +21,15 @@ interface CartData {
     priceOneTime?: number;
     price3Months?: number;
     price6Months?: number;
+    discountOneTime?: number;
+    discount3Months?: number;
+    discount6Months?: number;
+    discountReasonOneTime?: string | null;
+    discountReason3Months?: string | null;
+    discountReason6Months?: string | null;
     images: string[];
+    steps?: string[];
+    stepCount?: 3 | 5 | 7;
   };
   formData: Record<string, string | string[]>;
   quantity: number;
@@ -42,6 +51,10 @@ export default function Payment() {
     city: '',
   });
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Calculate current price info with discounts
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const currentPriceInfo = cartData ? calculatePrice(cartData.regime as any, cartData.subscriptionType) : null;
 
   // Validation function to check if all mandatory fields are filled
   const isFormValid = () => {
@@ -367,10 +380,49 @@ export default function Payment() {
                           : '6-month subscription (monthly payment)'
                         }
                       </p>
+                      
+                      {/* Discount Badge */}
+                      {currentPriceInfo && currentPriceInfo.hasDiscount && (
+                        <div className="mt-2 bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-lg p-2">
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-2 py-0.5 rounded-full text-xs font-bold flex items-center gap-1">
+                              <Tag className="w-3 h-3" />
+                              {currentPriceInfo.discount}% OFF
+                            </div>
+                            {currentPriceInfo.discountReason && (
+                              <span className="text-xs font-semibold text-neutral-700 bg-yellow-100 px-2 py-0.5 rounded-full">
+                                {currentPriceInfo.discountReason}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-green-700 font-semibold">
+                            Save {currentPriceInfo.savingsAmount} AED!
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   <div className="space-y-2">
+                    {currentPriceInfo && currentPriceInfo.hasDiscount && (
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-2 mb-3">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-bold text-green-800">Original Price</span>
+                          <span className="text-xs text-green-700 line-through flex items-center gap-1">
+                            <DirhamIcon size={10} className="text-green-700" />
+                            {currentPriceInfo.originalPrice}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-green-800">Discount ({currentPriceInfo.discount}%)</span>
+                          <span className="text-xs font-bold text-green-700 flex items-center gap-1">
+                            - <DirhamIcon size={10} className="text-green-700" />
+                            {currentPriceInfo.savingsAmount}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    
                     <div className="flex justify-between">
                       <span className="text-black">Subtotal</span>
                       <span className="text-black flex items-center gap-1">

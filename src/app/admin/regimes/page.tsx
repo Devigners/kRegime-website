@@ -22,6 +22,12 @@ interface RegimeFormData {
   priceOneTime: number;
   price3Months: number;
   price6Months: number;
+  discountOneTime: number;
+  discount3Months: number;
+  discount6Months: number;
+  discountReasonOneTime: string;
+  discountReason3Months: string;
+  discountReason6Months: string;
   steps: string[];
   images: string[];
   stepCount: 3 | 5 | 7;
@@ -41,6 +47,12 @@ export default function RegimesAdmin() {
     priceOneTime: 0,
     price3Months: 0,
     price6Months: 0,
+    discountOneTime: 0,
+    discount3Months: 0,
+    discount6Months: 0,
+    discountReasonOneTime: '',
+    discountReason3Months: '',
+    discountReason6Months: '',
     steps: [''],
     images: [''],
     stepCount: 3,
@@ -65,6 +77,25 @@ export default function RegimesAdmin() {
       
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const convertedRegimes = data?.map((row: any) => convertRegimeRowToRegime(row)) || [];
+      
+      // Sort regimes in specific order: Tribox, Pentabox, Septabox
+      const sortOrder = ['tribox', 'pentabox', 'septabox'];
+      convertedRegimes.sort((a, b) => {
+        const aIndex = sortOrder.indexOf(a.name.toLowerCase());
+        const bIndex = sortOrder.indexOf(b.name.toLowerCase());
+        
+        // If both are in the sort order, sort by their position
+        if (aIndex !== -1 && bIndex !== -1) {
+          return aIndex - bIndex;
+        }
+        // If only a is in the sort order, it comes first
+        if (aIndex !== -1) return -1;
+        // If only b is in the sort order, it comes first
+        if (bIndex !== -1) return 1;
+        // If neither are in the sort order, maintain original order
+        return 0;
+      });
+      
       setRegimes(convertedRegimes);
     } catch (error) {
       console.error('Error fetching regimes:', error);
@@ -81,6 +112,12 @@ export default function RegimesAdmin() {
       priceOneTime: 0,
       price3Months: 0,
       price6Months: 0,
+      discountOneTime: 0,
+      discount3Months: 0,
+      discount6Months: 0,
+      discountReasonOneTime: '',
+      discountReason3Months: '',
+      discountReason6Months: '',
       steps: [''],
       images: [''],
       stepCount: 3,
@@ -97,6 +134,12 @@ export default function RegimesAdmin() {
       priceOneTime: regime.priceOneTime,
       price3Months: regime.price3Months,
       price6Months: regime.price6Months,
+      discountOneTime: regime.discountOneTime || 0,
+      discount3Months: regime.discount3Months || 0,
+      discount6Months: regime.discount6Months || 0,
+      discountReasonOneTime: regime.discountReasonOneTime || '',
+      discountReason3Months: regime.discountReason3Months || '',
+      discountReason6Months: regime.discountReason6Months || '',
       steps: regime.steps,
       images: regime.images,
       stepCount: regime.stepCount,
@@ -132,6 +175,12 @@ export default function RegimesAdmin() {
         priceOneTime: formData.priceOneTime,
         price3Months: formData.price3Months,
         price6Months: formData.price6Months,
+        discountOneTime: formData.discountOneTime || 0,
+        discount3Months: formData.discount3Months || 0,
+        discount6Months: formData.discount6Months || 0,
+        discountReasonOneTime: formData.discountReasonOneTime || null,
+        discountReason3Months: formData.discountReason3Months || null,
+        discountReason6Months: formData.discountReason6Months || null,
         createdAt: selectedRegime?.createdAt || new Date(),
         updatedAt: new Date(),
       };
@@ -403,15 +452,41 @@ export default function RegimesAdmin() {
                       <div className="text-right">
                         <p className="text-xs text-neutral-500 font-bold uppercase tracking-wider">Pricing</p>
                         <div className="space-y-1">
-                          <p className="text-sm font-black text-[#EF7E71]">
-                            One-time: AED {regime.priceOneTime}
-                          </p>
-                          <p className="text-xs text-neutral-600">
-                            3mo: AED {regime.price3Months}/mo
-                          </p>
-                          <p className="text-xs text-neutral-600">
-                            6mo: AED {regime.price6Months}/mo
-                          </p>
+                          <div>
+                            <p className="text-sm font-black text-[#EF7E71] flex items-center justify-end gap-1">
+                              One-time: AED {regime.priceOneTime}
+                              {regime.discountOneTime > 0 && (
+                                <span className="text-xs bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold">
+                                  -{regime.discountOneTime}%
+                                </span>
+                              )}
+                            </p>
+                            {regime.discountOneTime > 0 && regime.discountReasonOneTime && (
+                              <p className="text-xs text-neutral-600 italic">
+                                {regime.discountReasonOneTime}
+                              </p>
+                            )}
+                          </div>
+                          <div>
+                            <p className="text-xs text-neutral-600 flex items-center justify-end gap-1">
+                              3mo: AED {regime.price3Months}/mo
+                              {regime.discount3Months > 0 && (
+                                <span className="text-xs bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold">
+                                  -{regime.discount3Months}%
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-neutral-600 flex items-center justify-end gap-1">
+                              6mo: AED {regime.price6Months}/mo
+                              {regime.discount6Months > 0 && (
+                                <span className="text-xs bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold">
+                                  -{regime.discount6Months}%
+                                </span>
+                              )}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -491,7 +566,7 @@ export default function RegimesAdmin() {
                 <div>
                   <h3 className="text-xl font-black text-neutral-900 mb-6">Subscription Pricing</h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div>
+                    <div className="space-y-4">
                       <label className="block text-lg font-black text-neutral-900 mb-4">One-time Purchase (AED)</label>
                       <input
                         type="number"
@@ -501,8 +576,34 @@ export default function RegimesAdmin() {
                         placeholder="0.00"
                         required
                       />
+                      <p className="text-sm text-neutral-600">One time payment</p>
+                      <div className="pt-2 border-t border-neutral-200">
+                        <label className="block text-sm font-bold text-neutral-700 mb-2">Discount (%)</label>
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="1"
+                          value={formData.discountOneTime}
+                          onChange={(e) => setFormData({...formData, discountOneTime: parseFloat(e.target.value) || 0})}
+                          className="w-full border-2 border-neutral-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white/70 backdrop-blur-sm text-base font-medium"
+                          placeholder="0"
+                        />
+                      </div>
+                      {formData.discountOneTime > 0 && (
+                        <div>
+                          <label className="block text-sm font-bold text-neutral-700 mb-2">Discount Reason</label>
+                          <input
+                            type="text"
+                            value={formData.discountReasonOneTime}
+                            onChange={(e) => setFormData({...formData, discountReasonOneTime: e.target.value})}
+                            className="w-full border-2 border-neutral-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white/70 backdrop-blur-sm text-base font-medium"
+                            placeholder="e.g., Eid Sale"
+                          />
+                        </div>
+                      )}
                     </div>
-                    <div>
+                    <div className="space-y-4">
                       <label className="block text-lg font-black text-neutral-900 mb-4">3-Month Subscription (AED)</label>
                       <input
                         type="number"
@@ -512,9 +613,34 @@ export default function RegimesAdmin() {
                         placeholder="0.00"
                         required
                       />
-                      <p className="text-sm text-neutral-600 mt-2">Monthly payment for 3 months</p>
+                      <p className="text-sm text-neutral-600">Monthly payment for 3 months</p>
+                      <div className="pt-2 border-t border-neutral-200">
+                        <label className="block text-sm font-bold text-neutral-700 mb-2">Discount (%)</label>
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="1"
+                          value={formData.discount3Months}
+                          onChange={(e) => setFormData({...formData, discount3Months: parseFloat(e.target.value) || 0})}
+                          className="w-full border-2 border-neutral-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white/70 backdrop-blur-sm text-base font-medium"
+                          placeholder="0"
+                        />
+                      </div>
+                      {formData.discount3Months > 0 && (
+                        <div>
+                          <label className="block text-sm font-bold text-neutral-700 mb-2">Discount Reason</label>
+                          <input
+                            type="text"
+                            value={formData.discountReason3Months}
+                            onChange={(e) => setFormData({...formData, discountReason3Months: e.target.value})}
+                            className="w-full border-2 border-neutral-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white/70 backdrop-blur-sm text-base font-medium"
+                            placeholder="e.g., Limited Offer"
+                          />
+                        </div>
+                      )}
                     </div>
-                    <div>
+                    <div className="space-y-4">
                       <label className="block text-lg font-black text-neutral-900 mb-4">6-Month Subscription (AED)</label>
                       <input
                         type="number"
@@ -524,7 +650,32 @@ export default function RegimesAdmin() {
                         placeholder="0.00"
                         required
                       />
-                      <p className="text-sm text-neutral-600 mt-2">Monthly payment for 6 months</p>
+                      <p className="text-sm text-neutral-600">Monthly payment for 6 months</p>
+                      <div className="pt-2 border-t border-neutral-200">
+                        <label className="block text-sm font-bold text-neutral-700 mb-2">Discount (%)</label>
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="1"
+                          value={formData.discount6Months}
+                          onChange={(e) => setFormData({...formData, discount6Months: parseFloat(e.target.value) || 0})}
+                          className="w-full border-2 border-neutral-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white/70 backdrop-blur-sm text-base font-medium"
+                          placeholder="0"
+                        />
+                      </div>
+                      {formData.discount6Months > 0 && (
+                        <div>
+                          <label className="block text-sm font-bold text-neutral-700 mb-2">Discount Reason</label>
+                          <input
+                            type="text"
+                            value={formData.discountReason6Months}
+                            onChange={(e) => setFormData({...formData, discountReason6Months: e.target.value})}
+                            className="w-full border-2 border-neutral-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white/70 backdrop-blur-sm text-base font-medium"
+                            placeholder="e.g., Summer Special"
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

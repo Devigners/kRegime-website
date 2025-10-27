@@ -1,10 +1,11 @@
 import { motion } from 'framer-motion';
-import { CheckCircle, Sparkles } from 'lucide-react';
+import { CheckCircle, Sparkles, Tag } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 import { Product, SubscriptionType } from '../types';
 import DirhamIcon from './icons/DirhamIcon';
+import { calculatePrice } from '@/lib/pricing';
 
 interface ProductCardProps {
   product: Product;
@@ -17,17 +18,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const isPopular = product.id === 'pentabox';
 
-  // Get price based on subscription type
-  const getPrice = () => {
-    switch (selectedSubscription) {
-      case '3-months':
-        return product.price3Months || 0;
-      case '6-months':
-        return product.price6Months || 0;
-      default:
-        return product.priceOneTime || 0;
-    }
-  };
+  // Calculate pricing with discount
+  const priceInfo = calculatePrice(product, selectedSubscription);
 
   const getPriceDescription = () => {
     switch (selectedSubscription) {
@@ -42,32 +34,34 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   // Get the next better subscription option and calculate savings
   const getNextSubscriptionComparison = () => {
-    const currentPrice = getPrice();
+    const currentDiscountedPrice = priceInfo.discountedPrice;
     
     switch (selectedSubscription) {
       case 'one-time':
-        if (product.price3Months) {
-          const savings = currentPrice - product.price3Months;
-          const savingsPercentage = Math.round((savings / currentPrice) * 100);
+        const threeMonthsInfo = calculatePrice(product, '3-months');
+        if (threeMonthsInfo.discountedPrice < currentDiscountedPrice) {
+          const savings = currentDiscountedPrice - threeMonthsInfo.discountedPrice;
+          const savingsPercentage = Math.round((savings / currentDiscountedPrice) * 100);
           return {
             nextType: '3-month subscription',
-            nextPrice: product.price3Months,
+            nextPrice: threeMonthsInfo.discountedPrice,
             savings,
             savingsPercentage,
-            message: `Save ${savings} AED (${savingsPercentage}%) with 3-month plan`
+            message: `Save ${savings.toFixed(2)} AED (${savingsPercentage}%) with 3-month plan`
           };
         }
         break;
       case '3-months':
-        if (product.price6Months) {
-          const savings = currentPrice - product.price6Months;
-          const savingsPercentage = Math.round((savings / currentPrice) * 100);
+        const sixMonthsInfo = calculatePrice(product, '6-months');
+        if (sixMonthsInfo.discountedPrice < currentDiscountedPrice) {
+          const savings = currentDiscountedPrice - sixMonthsInfo.discountedPrice;
+          const savingsPercentage = Math.round((savings / currentDiscountedPrice) * 100);
           return {
             nextType: '6-month subscription',
-            nextPrice: product.price6Months,
+            nextPrice: sixMonthsInfo.discountedPrice,
             savings,
             savingsPercentage,
-            message: `Save ${savings} AED (${savingsPercentage}%) with 6-month plan`
+            message: `Save ${savings.toFixed(2)} AED (${savingsPercentage}%) with 6-month plan`
           };
         }
         break;
@@ -77,7 +71,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
     return null;
   };
 
-  const getCurrentPrice = getPrice();
   const priceDescription = getPriceDescription();
   const nextSubscriptionInfo = getNextSubscriptionComparison();
 
@@ -180,17 +173,41 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <div className="pt-6 border-t border-neutral-200 space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <div className="text-3xl font-bold text-neutral-900 flex items-center gap-2">
-                <DirhamIcon size={20} className="text-neutral-900" />
-                {getCurrentPrice}
+              {/* Show discount badge if applicable */}
+              {priceInfo.hasDiscount && (
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                    <Tag className="w-3 h-3" />
+                    {priceInfo.discount}% OFF
+                  </div>
+                  {priceInfo.discountReason && (
+                    <span className="text-xs font-semibold text-neutral-700 bg-yellow-100 px-2 py-1 rounded-full">
+                      {priceInfo.discountReason}
+                    </span>
+                  )}
+                </div>
+              )}
+              
+              <div className="flex items-center gap-3">
+                {priceInfo.hasDiscount && (
+                  <div className="text-lg font-medium text-neutral-400 line-through flex items-center gap-1">
+                    <DirhamIcon size={14} className="text-neutral-400" />
+                    {priceInfo.originalPrice}
+                  </div>
+                )}
+                <div className="text-3xl font-bold text-neutral-900 flex items-center gap-2">
+                  <DirhamIcon size={20} className="text-neutral-900" />
+                  {priceInfo.discountedPrice}
+                </div>
               </div>
+              
               <div className="text-sm text-black">{priceDescription}</div>
               
               {/* Show comparison with next subscription type */}
               {nextSubscriptionInfo && (
                 <div className="flex items-center gap-1 text-xs text-green-600 font-medium">
                   <Sparkles className="w-3 h-3" />
-                  <span>Save {nextSubscriptionInfo.savings} AED with {nextSubscriptionInfo.nextType.replace(' subscription', '')} subscription</span>
+                  <span>Save {nextSubscriptionInfo.savings.toFixed(2)} AED with {nextSubscriptionInfo.nextType.replace(' subscription', '')} subscription</span>
                 </div>
               )}
             </div>

@@ -25,6 +25,12 @@ export interface Regime {
   priceOneTime: number;
   price3Months: number;
   price6Months: number;
+  discountOneTime: number;
+  discount3Months: number;
+  discount6Months: number;
+  discountReasonOneTime: string | null;
+  discountReason3Months: string | null;
+  discountReason6Months: string | null;
   steps: string[];
   images: string[];
   stepCount: 3 | 5 | 7;
@@ -105,6 +111,12 @@ export function convertRegimeRowToRegime(row: RegimeRow): Regime {
     priceOneTime: row.price_one_time,
     price3Months: row.price_3_months,
     price6Months: row.price_6_months,
+    discountOneTime: row.discount_one_time || 0,
+    discount3Months: row.discount_3_months || 0,
+    discount6Months: row.discount_6_months || 0,
+    discountReasonOneTime: row.discount_reason_one_time || null,
+    discountReason3Months: row.discount_reason_3_months || null,
+    discountReason6Months: row.discount_reason_6_months || null,
     steps: row.steps,
     images: Array.isArray(row.image) ? row.image : (row.image ? [row.image] : []),
     stepCount: row.step_count as 3 | 5 | 7,
@@ -125,6 +137,12 @@ export function convertRegimeToRegimeInsert(
     price_one_time: regime.priceOneTime,
     price_3_months: regime.price3Months,
     price_6_months: regime.price6Months,
+    discount_one_time: regime.discountOneTime || 0,
+    discount_3_months: regime.discount3Months || 0,
+    discount_6_months: regime.discount6Months || 0,
+    discount_reason_one_time: regime.discountReasonOneTime || null,
+    discount_reason_3_months: regime.discountReason3Months || null,
+    discount_reason_6_months: regime.discountReason6Months || null,
     steps: regime.steps,
     image: regime.images,
     step_count: regime.stepCount,

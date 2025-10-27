@@ -9,6 +9,8 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { calculatePrice } from '@/lib/pricing';
+import { Tag } from 'lucide-react';
 
 interface CartData {
   regimeId: string;
@@ -40,14 +42,8 @@ export default function Cart() {
   const getRegimePrice = (subscriptionType: SubscriptionType): number => {
     if (!cartData) return 0;
     
-    switch (subscriptionType) {
-      case '3-months':
-        return cartData.regime.price3Months;
-      case '6-months':
-        return cartData.regime.price6Months;
-      default:
-        return cartData.regime.priceOneTime;
-    }
+    const priceInfo = calculatePrice(cartData.regime, subscriptionType);
+    return priceInfo.discountedPrice;
   };
 
   const updateSubscriptionType = (newSubscriptionType: SubscriptionType) => {
@@ -64,6 +60,9 @@ export default function Cart() {
     setCartData(updatedCartData);
     localStorageUtils.saveCartData(updatedCartData);
   };
+
+  // Get current price info for display
+  const currentPriceInfo = cartData ? calculatePrice(cartData.regime, cartData.subscriptionType) : null;
 
   if (!cartData) {
     return (
@@ -118,6 +117,26 @@ export default function Cart() {
                   {cartData.regime.description}
                 </p>
 
+                {/* Discount Badge */}
+                {currentPriceInfo && currentPriceInfo.hasDiscount && (
+                  <div className="mb-4 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-lg p-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                        <Tag className="w-3 h-3" />
+                        {currentPriceInfo.discount}% OFF
+                      </div>
+                      {currentPriceInfo.discountReason && (
+                        <span className="text-xs font-semibold text-neutral-700 bg-yellow-100 px-2 py-1 rounded-full">
+                          {currentPriceInfo.discountReason}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-green-700 font-semibold">
+                      You save {currentPriceInfo.savingsAmount} AED on this purchase!
+                    </p>
+                  </div>
+                )}
+
                 {/* Subscription Type Switcher */}
                 <div className="mt-6 flex flex-col gap-1">
                   <h4 className="text-sm font-semibold text-black">Purchase Option:</h4>
@@ -140,6 +159,25 @@ export default function Cart() {
             </h2>
 
             <div className="space-y-4 mb-6">
+              {currentPriceInfo && currentPriceInfo.hasDiscount && (
+                <div className="bg-green-50 border-2 border-green-200 rounded-lg p-3 mb-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm font-bold text-green-800">Original Price</span>
+                    <span className="text-sm text-green-700 line-through flex items-center gap-1">
+                      <DirhamIcon size={12} className="text-green-700" />
+                      {currentPriceInfo.originalPrice}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold text-green-800">Discount ({currentPriceInfo.discount}%)</span>
+                    <span className="text-sm font-bold text-green-700 flex items-center gap-1">
+                      - <DirhamIcon size={12} className="text-green-700" />
+                      {currentPriceInfo.savingsAmount}
+                    </span>
+                  </div>
+                </div>
+              )}
+              
               <div className="flex justify-between">
                 <span className="text-black">Subtotal</span>
                 <span className="text-black flex items-center gap-1">
