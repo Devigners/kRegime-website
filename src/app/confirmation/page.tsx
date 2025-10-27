@@ -278,11 +278,7 @@ function ConfirmationContent() {
               )}
             </div>
             <h1 className="text-3xl md:text-4xl font-bold text-black mb-4">
-              {order?.status === 'cancelled' 
-                ? 'Order Cancelled' 
-                : order?.status === 'completed' 
-                ? 'Order Delivered!' 
-                : 'Order Received!'}
+                {order ? getOrderStatusConfig(order.status).label : 'Order Received!'}
             </h1>
             <p className="text-lg text-black mb-2">
               {order?.status === 'cancelled' 
