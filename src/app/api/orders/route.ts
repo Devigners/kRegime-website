@@ -5,7 +5,7 @@ import {
   convertRegimeRowToRegime,
   type Order,
 } from '@/models/database';
-import { sendOrderReceivedEmail } from '@/lib/email';
+import { sendOrderReceivedEmail, sendNewOrderAdminEmail } from '@/lib/email';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET() {
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // Send the completion email
+      // Send the completion email to customer
       const emailResult = await sendOrderReceivedEmail({
         order: convertedOrder,
         regime,
@@ -117,6 +117,19 @@ export async function POST(request: NextRequest) {
         // Don't fail the order creation if email fails, just log it
       } else {
         console.log('Order completion email sent successfully:', emailResult.id);
+      }
+
+      // Send notification email to admin
+      const adminEmailResult = await sendNewOrderAdminEmail({
+        order: convertedOrder,
+        regime,
+      });
+
+      if (!adminEmailResult.success) {
+        console.error('Failed to send admin order notification email:', adminEmailResult.error);
+        // Don't fail the order creation if email fails, just log it
+      } else {
+        console.log('Admin order notification email sent successfully:', adminEmailResult.id);
       }
     } catch (emailError) {
       console.error('Error sending order completion email:', emailError);

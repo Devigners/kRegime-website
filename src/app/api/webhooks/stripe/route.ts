@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseClient } from '@/lib/supabase';
 import { convertOrderRowToOrder, convertRegimeRowToRegime } from '@/models/database';
-import { sendOrderReceivedEmail } from '@/lib/email';
+import { sendOrderReceivedEmail, sendNewOrderAdminEmail } from '@/lib/email';
 import { stripe } from '@/lib/stripe';
 
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
               }
             }
 
-            // Send completion email
+            // Send completion email to customer
             const emailResult = await sendOrderReceivedEmail({
               order: convertedOrder,
               regime,
@@ -92,6 +92,18 @@ export async function POST(request: NextRequest) {
               console.log('Order completion email sent:', emailResult.id);
             } else {
               console.error('Failed to send order completion email:', emailResult.error);
+            }
+
+            // Send notification email to admin
+            const adminEmailResult = await sendNewOrderAdminEmail({
+              order: convertedOrder,
+              regime,
+            });
+
+            if (adminEmailResult.success) {
+              console.log('Admin order notification email sent:', adminEmailResult.id);
+            } else {
+              console.error('Failed to send admin order notification email:', adminEmailResult.error);
             }
           }
         } catch (updateError) {
