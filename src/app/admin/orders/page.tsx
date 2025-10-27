@@ -339,16 +339,16 @@ export default function OrdersAdmin() {
             </div>
           ) : (
             <div className="divide-y divide-neutral-200/50">
-              {filteredOrders.map((order) => (
+              {filteredOrders.map((order, index) => (
                 <div
                   key={order.id}
                   className="p-4 hover:bg-gradient-to-r hover:from-neutral-50/50 hover:to-white/50 transition-all duration-300"
                 >
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-3 lg:space-y-0">
                     <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-[#EF7E71] to-[#D4654F] rounded-xl flex items-center justify-center shadow-md">
-                          <Package className="h-5 w-5 text-white" />
+                      <div className="flex items-start space-x-3">
+                        <div className="mt-1 w-10 h-10 bg-gradient-to-br text-white from-[#EF7E71] to-[#D4654F] rounded-xl flex items-center justify-center shadow-md">
+                          {index + 1}
                         </div>
                         <div className="space-y-1">
                           <h3 className="font-black text-neutral-900 text-lg">#{order.id.slice(-8)}</h3>
