@@ -48,7 +48,7 @@ function ConfirmationContent() {
 
   const shareOnWhatsApp = () => {
     const url = `${window.location.origin}/confirmation?orderId=${orderId}`;
-    const text = `Check out my kRegime order! Order #${orderId}`;
+    const text = `Check out my KREGIME order! Order #${orderId}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
   };
 

@@ -2,7 +2,7 @@ import AdminLayout from '@/components/AdminLayout';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Admin Panel - kRegime',
+  title: 'Admin Panel - KREGIME',
   robots: {
     index: false,
     follow: false,

@@ -18,7 +18,7 @@ interface BaseEmailLayoutProps {
 }
 
 export function BaseEmailLayout({
-  preview = 'Thank you for choosing kRegime - Your Korean skincare journey awaits!',
+  preview = 'Thank you for choosing KREGIME - Your Korean skincare journey awaits!',
   children,
 }: BaseEmailLayoutProps) {
   return (
@@ -91,7 +91,7 @@ export function BaseEmailLayout({
                   src="https://sandbox.kregime.com/logo.svg"
                   width="80"
                   height="80"
-                  alt="kRegime"
+                  alt="KREGIME"
                   style={{
                     display: 'block',
                     margin: '0 auto',
@@ -119,7 +119,7 @@ export function BaseEmailLayout({
             <Section className="mt-8 mx-6 mobile-margin mobile-padding">
               <div className="text-center border-t border-neutral-200 pt-8">
                 <Text className="text-xs text-neutral-500 mb-4 mobile-text-sm">
-                  kRegime - Personalized Korean Skincare Regimens
+                  KREGIME - Personalized Korean Skincare Regimens
                 </Text>
                 <Text className="text-xs text-neutral-500 mb-2 mobile-text-sm">
                   Follow us for skincare tips and updates:
@@ -165,7 +165,7 @@ export function BaseEmailLayout({
                   </Link>
                 </div>
                 <Text className="text-xs text-neutral-400 mobile-text-sm">
-                  © {new Date().getFullYear()} kRegime. All rights reserved.
+                  © {new Date().getFullYear()} KREGIME. All rights reserved.
                 </Text>
               </div>
             </Section>
