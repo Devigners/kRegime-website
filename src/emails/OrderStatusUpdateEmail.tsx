@@ -59,7 +59,7 @@ export function OrderStatusUpdateEmail({
           description: 'Your kRegime package has been shipped and is heading to your doorstep.',
           color: '#3b82f6', // blue
           timeline: 'Your skincare journey is traveling to you right now!',
-          nextStep: 'You should receive your package within 3-5 business days.',
+          nextStep: 'You should receive your package within 2-3 business days.',
         };
       case 'completed':
         return {

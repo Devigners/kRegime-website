@@ -350,7 +350,7 @@ export function OrderReceivedEmail({
                 className="text-neutral-900 font-semibold text-sm mb-1 mobile-text-sm"
                 style={{ marginBottom: '4px' }}
               >
-                Shipping (3-5 days)
+                Shipping (2-3 days)
               </Text>
               <Text 
                 className="text-neutral-600 text-sm mb-0 mobile-text-sm"
