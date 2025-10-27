@@ -54,7 +54,7 @@ const mockRegime = {
   price3Months: 199,
   price6Months: 179,
   steps: ['Cleanser', 'Moisturiser', 'Sunscreen'],
-  images: ['/static/1.webp'],
+  images: ['/static/regime-3.webp'],
   stepCount: 3 as const,
   isActive: true,
   createdAt: new Date(),
