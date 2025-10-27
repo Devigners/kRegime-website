@@ -49,6 +49,7 @@ export default function SubscribersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalSubscribers, setTotalSubscribers] = useState(0);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   // Statistics
   const [stats, setStats] = useState({
@@ -148,10 +149,6 @@ export default function SubscribersPage() {
 
   // Handle subscriber deletion
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to permanently delete this subscriber?')) {
-      return;
-    }
-
     try {
       const response = await fetch(`/api/subscribers/${id}`, {
         method: 'DELETE',
@@ -159,6 +156,7 @@ export default function SubscribersPage() {
 
       if (response.ok) {
         fetchSubscribers(); // Refresh the list
+        setDeleteConfirm(null);
         toast.success('Subscriber deleted successfully');
       } else {
         console.error('Failed to delete subscriber');
@@ -517,7 +515,7 @@ export default function SubscribersPage() {
                           {subscriber.isActive ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
                         <button
-                          onClick={() => handleDelete(subscriber.id)}
+                          onClick={() => setDeleteConfirm(subscriber.id)}
                           className="p-1.5 rounded-lg hover:bg-neutral-100 text-red-600 transition-colors"
                           title="Delete permanently"
                         >
@@ -588,6 +586,37 @@ export default function SubscribersPage() {
                   <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white/90 backdrop-blur-xl rounded-3xl max-w-lg w-full p-8 shadow-2xl border border-white/20">
+            <div className="text-center mb-8">
+              <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+                <Trash2 className="h-10 w-10 text-red-600" />
+              </div>
+              <h3 className="text-2xl font-black text-neutral-900 mb-4">Confirm Delete</h3>
+              <p className="text-neutral-600 text-lg leading-relaxed">
+                Are you sure you want to permanently delete this subscriber? This action cannot be undone.
+              </p>
+            </div>
+            <div className="flex space-x-4">
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                className="flex-1 px-6 py-4 text-neutral-600 border-2 border-neutral-300 rounded-2xl hover:bg-neutral-50 font-bold text-lg transition-all duration-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => deleteConfirm && handleDelete(deleteConfirm)}
+                className="flex-1 px-6 py-4 bg-red-600 text-white rounded-2xl hover:bg-red-700 font-bold text-lg transition-all duration-300 shadow-xl hover:shadow-2xl"
+              >
+                Delete Subscriber
+              </button>
             </div>
           </div>
         </div>

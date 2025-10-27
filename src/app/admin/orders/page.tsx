@@ -642,26 +642,26 @@ export default function OrdersAdmin() {
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white/90 backdrop-blur-xl rounded-xl max-w-md w-full p-6 shadow-xl border border-white/20">
-            <div className="text-center mb-6">
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <Trash2 className="h-6 w-6 text-red-600" />
+          <div className="bg-white/90 backdrop-blur-xl rounded-3xl max-w-lg w-full p-8 shadow-2xl border border-white/20">
+            <div className="text-center mb-8">
+              <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+                <Trash2 className="h-10 w-10 text-red-600" />
               </div>
-              <h3 className="text-lg font-black text-neutral-900 mb-3">Confirm Delete</h3>
-              <p className="text-neutral-600 text-sm leading-relaxed">
+              <h3 className="text-2xl font-black text-neutral-900 mb-4">Confirm Delete</h3>
+              <p className="text-neutral-600 text-lg leading-relaxed">
                 Are you sure you want to delete this order? This action cannot be undone and will permanently remove all associated data.
               </p>
             </div>
-            <div className="flex space-x-3">
+            <div className="flex space-x-4">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="flex-1 px-4 py-2 text-neutral-600 border border-neutral-300 rounded-lg hover:bg-neutral-50 font-bold text-sm transition-all duration-300"
+                className="flex-1 px-6 py-4 text-neutral-600 border-2 border-neutral-300 rounded-2xl hover:bg-neutral-50 font-bold text-lg transition-all duration-300"
               >
                 Cancel
               </button>
               <button
                 onClick={() => deleteConfirm && handleDelete(deleteConfirm)}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-bold text-sm transition-all duration-300 shadow-md hover:shadow-lg"
+                className="flex-1 px-6 py-4 bg-red-600 text-white rounded-2xl hover:bg-red-700 font-bold text-lg transition-all duration-300 shadow-xl hover:shadow-2xl"
               >
                 Delete Order
               </button>
