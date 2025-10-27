@@ -34,12 +34,12 @@ export default function Payment() {
   const [cartData, setCartData] = useState<CartData | null>(null);
   const [formData, setFormData] = useState({
     email: '',
-    phoneNumber: '',
+    phoneNumber: '+971',
     firstName: '',
     lastName: '',
+    apartmentNumber: '',
     address: '',
     city: '',
-    postalCode: '',
   });
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -49,14 +49,14 @@ export default function Payment() {
       'email',
       'phoneNumber',
       'firstName',
+      'apartmentNumber',
       'address',
       'city',
-      'postalCode',
     ];
 
     return mandatoryFields.every(
       (field) => formData[field as keyof typeof formData].trim() !== ''
-    );
+    ) && formData.phoneNumber.length > 4; // Ensure phone number has more than just +971
   };
 
   useEffect(() => {
@@ -104,9 +104,9 @@ export default function Payment() {
           shippingAddress: {
             firstName: formData.firstName,
             lastName: formData.lastName || undefined,
+            apartmentNumber: formData.apartmentNumber,
             address: formData.address,
             city: formData.city,
-            postalCode: formData.postalCode,
           },
           totalAmount: cartData.totalAmount,
           finalAmount: cartData.finalAmount,
@@ -128,9 +128,9 @@ export default function Payment() {
           shippingAddress: {
             firstName: formData.firstName,
             lastName: formData.lastName || undefined,
+            apartmentNumber: formData.apartmentNumber,
             address: formData.address,
             city: formData.city,
-            postalCode: formData.postalCode,
           },
           checkoutSessionKey, // Pass the key so we can retrieve data later
         }),
@@ -208,9 +208,15 @@ export default function Payment() {
                     type="tel"
                     placeholder="Phone number *"
                     value={formData.phoneNumber}
-                    onChange={(e) =>
-                      handleInputChange('phoneNumber', e.target.value)
-                    }
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Ensure +971 prefix is always present
+                      if (!value.startsWith('+971')) {
+                        handleInputChange('phoneNumber', '+971');
+                      } else {
+                        handleInputChange('phoneNumber', value);
+                      }
+                    }}
                     className="w-full p-3 focus:outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     required
                   />
@@ -249,32 +255,40 @@ export default function Payment() {
                   />
                   <input
                     type="text"
-                    placeholder="Address *"
+                    placeholder="Apartment/Villa/House *"
+                    value={formData.apartmentNumber}
+                    onChange={(e) =>
+                      handleInputChange('apartmentNumber', e.target.value)
+                    }
+                    className="focus:outline-none md:col-span-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Street Address *"
                     value={formData.address}
                     onChange={(e) =>
                       handleInputChange('address', e.target.value)
                     }
-                    className="focus:outline-none md:col-span-2 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="focus:outline-none md:col-span-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     required
                   />
-                  <input
-                    type="text"
-                    placeholder="City *"
+                  <select
                     value={formData.city}
                     onChange={(e) => handleInputChange('city', e.target.value)}
-                    className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="focus:outline-none md:col-span-2 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
                     required
-                  />
-                  <input
-                    type="text"
-                    placeholder="Postal code *"
-                    value={formData.postalCode}
-                    onChange={(e) =>
-                      handleInputChange('postalCode', e.target.value)
-                    }
-                    className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    required
-                  />
+                  >
+                    <option value="">Select City *</option>
+                    <option value="Dubai">Dubai</option>
+                    <option value="Abu Dhabi">Abu Dhabi</option>
+                    <option value="Sharjah">Sharjah</option>
+                    <option value="Ajman">Ajman</option>
+                    <option value="Ras Al Khaimah">Ras Al Khaimah</option>
+                    <option value="Fujairah">Fujairah</option>
+                    <option value="Umm Al Quwain">Umm Al Quwain</option>
+                    <option value="Al Ain">Al Ain</option>
+                  </select>
                 </div>
               </motion.div>
 

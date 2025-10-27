@@ -543,7 +543,7 @@ export default function RegimesAdmin() {
 
                 <div className="grid grid-cols-1 gap-8">
                   <div>
-                    <label className="block text-lg font-black text-neutral-900 mb-4">Step Count</label>
+                    <label className="block tedxt-lg font-black text-neutral-900 mb-4">Step Count</label>
                     <select
                       value={formData.stepCount}
                       onChange={(e) => setFormData({...formData, stepCount: parseInt(e.target.value) as 3 | 5 | 7})}
