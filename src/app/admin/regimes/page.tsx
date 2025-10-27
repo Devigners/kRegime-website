@@ -559,7 +559,7 @@ export default function RegimesAdmin() {
                     <ImageUploader
                       images={formData.images}
                       onImagesChange={(newImages) => setFormData({ ...formData, images: newImages })}
-                      maxImages={8}
+                      maxImages={3}
                     />
                   </div>
                 </div>
