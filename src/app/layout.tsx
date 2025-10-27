@@ -19,7 +19,7 @@ const playfairDisplay = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: 'Kregime - Handpicked Korean Skincare Regimes Simplified',
+  title: 'KREGIME - Handpicked Korean Skincare Regimes Simplified',
   description:
     'Discover your perfect Korean skincare routine with our expertly curated 3, 5, or 7 steps regime boxes featuring premium Korean skincare products.',
   keywords: [
@@ -32,32 +32,32 @@ export const metadata: Metadata = {
     'skincare regime',
     'beauty subscription',
   ],
-  authors: [{ name: 'Kregime' }],
+  authors: [{ name: 'KREGIME' }],
   icons: {
     icon: '/favicon.ico',
     shortcut: '/favicon.ico',
     apple: '/favicon.ico',
   },
   openGraph: {
-    title: 'Kregime - Handpicked Korean Skincare Regimes Simplified',
+    title: 'KREGIME - Handpicked Korean Skincare Regimes Simplified',
     description:
       'Discover your perfect Korean skincare routine with our expertly curated 3, 5, or 7 steps regime boxes featuring premium Korean skincare products.',
     type: 'website',
     locale: 'en_US',
     url: 'https://kregime.com',
-    siteName: 'Kregime',
+    siteName: 'KREGIME',
     images: [
       {
         url: '/logo.svg',
         width: 1200,
         height: 630,
-        alt: 'Kregime - Korean Skincare Made Simple',
+        alt: 'KREGIME - Korean Skincare Made Simple',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Kregime - Handpicked Korean Skincare Regimes',
+    title: 'KREGIME - Handpicked Korean Skincare Regimes',
     description:
       'Discover your perfect Korean skincare routine with Handpicked regime boxes.',
     images: ['/logo.svg'],
@@ -89,7 +89,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <head>
-        <meta name="apple-mobile-web-app-title" content="Kregime" />
+        <meta name="apple-mobile-web-app-title" content="KREGIME" />
         <meta name="theme-color" content="#EF7E71" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link

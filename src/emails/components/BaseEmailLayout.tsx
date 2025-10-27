@@ -126,7 +126,7 @@ export function BaseEmailLayout({
                 </Text>
                 <div className="text-center mb-4">
                   <Link
-                    href="#"
+                    href="https://instagram.com/kregime.official/"
                     className="text-primary text-xs mr-4 mobile-text-sm"
                     style={{ 
                       color: '#ef7e71', 
@@ -139,7 +139,7 @@ export function BaseEmailLayout({
                     Instagram
                   </Link>
                   <Link
-                    href="#"
+                    href="https://www.tiktok.com/@kregime1"
                     className="text-primary text-xs mr-4 mobile-text-sm"
                     style={{ 
                       color: '#ef7e71', 
@@ -152,7 +152,7 @@ export function BaseEmailLayout({
                     TikTok
                   </Link>
                   <Link
-                    href="#"
+                    href="https://www.youtube.com/@kregime"
                     className="text-primary text-xs mobile-text-sm"
                     style={{ 
                       color: '#ef7e71', 
@@ -161,7 +161,7 @@ export function BaseEmailLayout({
                       marginBottom: '8px'
                     }}
                   >
-                    Website
+                    YouTube
                   </Link>
                 </div>
                 <Text className="text-xs text-neutral-400 mobile-text-sm">

@@ -1,16 +1,16 @@
 'use client';
 import { motion } from 'framer-motion';
 import {
-  Facebook,
   Heart,
   Instagram,
   Mail,
-  Twitter,
+  Youtube,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState } from 'react';
 import { toast } from 'sonner';
+import Tiktok from './icons/Tiktok';
 
 const Footer: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -78,7 +78,7 @@ const Footer: React.FC = () => {
                 <div className="w-36 h-fit flex items-center justify-center overflow-hidden">
                   <Image
                     src="/logo.svg"
-                    alt="Kregime Logo"
+                    alt="KREGIME Logo"
                     width={48}
                     height={48}
                     className="w-full h-full object-contain filter brightness-0 invert"
@@ -90,19 +90,20 @@ const Footer: React.FC = () => {
               </p>
               <div className="flex space-x-4">
                 {[
-                  { icon: Instagram, href: '#', label: 'Instagram' },
-                  { icon: Twitter, href: '#', label: 'Twitter' },
-                  { icon: Facebook, href: '#', label: 'Facebook' },
+                  { icon: Instagram, href: 'https://instagram.com/kregime.official/', label: 'Instagram' },
+                  { icon: Tiktok, href: 'https://www.tiktok.com/@kregime1', label: 'TikTok' },
+                  { icon: Youtube, href: 'https://www.youtube.com/@kregime', label: 'Youtube' },
                 ].map((social) => (
                   <motion.a
                     key={social.label}
                     href={social.href}
+                    target='_blank'
                     className="w-12 h-12 bg-white backdrop-blur-sm rounded-lg flex items-center justify-center hover:bg-primary/20 transition-all duration-300 group"
                     whileHover={{ scale: 1.1, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                     aria-label={social.label}
                   >
-                    <social.icon className="w-5 h-5 text-primary group-hover:text-white transition-colors duration-300" />
+                    <social.icon className="w-7 h-7 text-primary group-hover:text-white transition-colors duration-300" />
                   </motion.a>
                 ))}
               </div>
@@ -211,7 +212,7 @@ const Footer: React.FC = () => {
           <div className="container section-padding py-8">
             <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
               <div className="flex items-center space-x-2 text-white text-sm">
-                <span>© 2025 Kregime. Made with</span>
+                <span>© 2025 KREGIME. Made with</span>
                 <Heart className="w-4 h-4 text-white fill-current" />
                 <span>for your skin</span>
               </div>
