@@ -169,12 +169,6 @@ export default function Cart() {
             >
               Proceed to Checkout
             </Link>
-            <Link
-              href="/"
-              className="w-full text-center text-primary hover:text-primary-dark mt-4 block"
-            >
-              Continue Shopping
-            </Link>
           </div>
         </div>
       </div>
