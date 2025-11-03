@@ -67,7 +67,16 @@ export type Database = {
           created_at: string
           discount_code_id: string | null
           final_amount: number
+          gift_claimed: boolean | null
+          gift_claimed_at: string | null
+          gift_giver_email: string | null
+          gift_giver_name: string | null
+          gift_giver_phone: string | null
+          gift_recipient_email: string | null
+          gift_recipient_name: string | null
+          gift_token: string | null
           id: string
+          is_gift: boolean | null
           quantity: number
           regime_id: string
           shipping_address: Json
@@ -83,7 +92,16 @@ export type Database = {
           created_at?: string
           discount_code_id?: string | null
           final_amount: number
+          gift_claimed?: boolean | null
+          gift_claimed_at?: string | null
+          gift_giver_email?: string | null
+          gift_giver_name?: string | null
+          gift_giver_phone?: string | null
+          gift_recipient_email?: string | null
+          gift_recipient_name?: string | null
+          gift_token?: string | null
           id: string
+          is_gift?: boolean | null
           quantity?: number
           regime_id: string
           shipping_address: Json
@@ -99,7 +117,16 @@ export type Database = {
           created_at?: string
           discount_code_id?: string | null
           final_amount?: number
+          gift_claimed?: boolean | null
+          gift_claimed_at?: string | null
+          gift_giver_email?: string | null
+          gift_giver_name?: string | null
+          gift_giver_phone?: string | null
+          gift_recipient_email?: string | null
+          gift_recipient_name?: string | null
+          gift_token?: string | null
           id?: string
+          is_gift?: boolean | null
           quantity?: number
           regime_id?: string
           shipping_address?: Json

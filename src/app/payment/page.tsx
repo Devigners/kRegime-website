@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ArrowLeft, Lock, Tag } from 'lucide-react';
+import { ArrowLeft, Lock, Tag, Gift } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -43,9 +43,10 @@ interface CartData {
   };
 }
 
-export default function Payment() {
+function PaymentContent() {
   const router = useRouter();
   const [cartData, setCartData] = useState<CartData | null>(null);
+  const [isGiftOrder, setIsGiftOrder] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     phoneNumber: '+971',
@@ -68,6 +69,17 @@ export default function Payment() {
 
   // Validation function to check if all mandatory fields are filled
   const isFormValid = () => {
+    // For gift orders, only require contact info (no shipping address needed)
+    if (isGiftOrder) {
+      const giftMandatoryFields = ['email', 'phoneNumber', 'firstName'];
+      return (
+        giftMandatoryFields.every(
+          (field) => formData[field as keyof typeof formData].trim() !== ''
+        ) && formData.phoneNumber.length > 4
+      );
+    }
+
+    // For regular orders, require all fields including shipping
     const mandatoryFields = [
       'email',
       'phoneNumber',
@@ -88,7 +100,20 @@ export default function Payment() {
     const loadCartData = () => {
       const data = localStorageUtils.getCartData();
       if (data) {
-        setCartData(data);
+        // Check if this is a gift order from the data itself
+        const isGift = data.isGift === true;
+        setIsGiftOrder(isGift);
+        
+        // For gift orders, form data is not required
+        if (isGift) {
+          setCartData(data);
+        } else if (data.formData && Object.keys(data.formData).length > 0) {
+          // For regular orders, ensure form data exists
+          setCartData(data);
+        } else {
+          // No form data for regular order, redirect to cart
+          router.push('/cart');
+        }
       } else {
         // Redirect to cart if no cart data
         router.push('/cart');
@@ -117,53 +142,67 @@ export default function Payment() {
 
       // Save complete order data to localStorage before redirecting
       if (typeof window !== 'undefined') {
-        localStorage.setItem(
-          checkoutSessionKey,
-          JSON.stringify({
-            regimeId: cartData.regimeId,
-            subscriptionType: cartData.subscriptionType,
-            quantity: cartData.quantity,
-            userDetails: cartData.formData,
-            contactInfo: {
+        const orderData = {
+          regimeId: cartData.regimeId,
+          subscriptionType: cartData.subscriptionType,
+          quantity: cartData.quantity,
+          contactInfo: {
+            email: formData.email,
+            phoneNumber: formData.phoneNumber || undefined,
+          },
+          totalAmount: cartData.totalAmount,
+          finalAmount: cartData.finalAmount,
+          discountCodeId: cartData.discountCode?.id,
+          isGift: isGiftOrder,
+          ...(isGiftOrder ? {
+            giftGiverInfo: {
+              firstName: formData.firstName,
+              lastName: formData.lastName || undefined,
               email: formData.email,
               phoneNumber: formData.phoneNumber || undefined,
-            },
+            }
+          } : {
+            userDetails: cartData.formData,
             shippingAddress: {
               firstName: formData.firstName,
               lastName: formData.lastName || undefined,
               apartmentNumber: formData.apartmentNumber,
               address: formData.address,
               city: formData.city,
-            },
-            totalAmount: cartData.totalAmount,
-            finalAmount: cartData.finalAmount,
-            discountCodeId: cartData.discountCode?.id,
+            }
           })
-        );
+        };
+
+        localStorage.setItem(checkoutSessionKey, JSON.stringify(orderData));
       }
 
       // Create Stripe Checkout session
-      const response = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          regimeId: cartData.regimeId,
-          subscriptionType: cartData.subscriptionType,
-          quantity: cartData.quantity,
-          customerEmail: formData.email,
-          customerName: `${formData.firstName} ${formData.lastName}`.trim(),
+      const checkoutPayload = {
+        regimeId: cartData.regimeId,
+        subscriptionType: cartData.subscriptionType,
+        quantity: cartData.quantity,
+        customerEmail: formData.email,
+        customerName: `${formData.firstName} ${formData.lastName}`.trim(),
+        checkoutSessionKey,
+        discountCodeId: cartData.discountCode?.id,
+        isGift: isGiftOrder,
+        ...(isGiftOrder ? {} : {
           shippingAddress: {
             firstName: formData.firstName,
             lastName: formData.lastName || undefined,
             apartmentNumber: formData.apartmentNumber,
             address: formData.address,
             city: formData.city,
-          },
-          checkoutSessionKey, // Pass the key so we can retrieve data later
-          discountCodeId: cartData.discountCode?.id,
-        }),
+          }
+        })
+      };
+
+      const response = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(checkoutPayload),
       });
 
       if (!response.ok) {
@@ -207,10 +246,24 @@ export default function Payment() {
               <ArrowLeft size={20} className="mr-2" />
               Back to Cart
             </Link>
-            <h1 className="text-3xl font-bold text-black">Checkout</h1>
-            <p className="text-sm text-black mt-2">
-              Fields marked with * are required
-            </p>
+            {isGiftOrder ? (
+              <>
+                <div className="flex items-center gap-3 mb-2">
+                  <Gift className="w-8 h-8 text-primary" />
+                  <h1 className="text-3xl font-bold text-black">Gift Checkout</h1>
+                </div>
+                <p className="text-sm text-black mt-2">
+                  Enter your contact information to complete the gift purchase. The recipient will provide their details and shipping address later.
+                </p>
+              </>
+            ) : (
+              <>
+                <h1 className="text-3xl font-bold text-black">Checkout</h1>
+                <p className="text-sm text-black mt-2">
+                  Fields marked with * are required
+                </p>
+              </>
+            )}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -253,74 +306,111 @@ export default function Payment() {
                 </div>
               </motion.div>
 
-              {/* Shipping Address */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="bg-white rounded-lg shadow-md p-6"
-              >
-                <h2 className="text-xl font-semibold text-black mb-4">
-                  Shipping Address
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <input
-                    type="text"
-                    placeholder="First name *"
-                    value={formData.firstName}
-                    onChange={(e) =>
-                      handleInputChange('firstName', e.target.value)
-                    }
-                    className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    required
-                  />
-                  <input
-                    type="text"
-                    placeholder="Last name (optional)"
-                    value={formData.lastName}
-                    onChange={(e) =>
-                      handleInputChange('lastName', e.target.value)
-                    }
-                    className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Apartment/Villa/House *"
-                    value={formData.apartmentNumber}
-                    onChange={(e) =>
-                      handleInputChange('apartmentNumber', e.target.value)
-                    }
-                    className="focus:outline-none md:col-span-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    required
-                  />
-                  <input
-                    type="text"
-                    placeholder="Street Address *"
-                    value={formData.address}
-                    onChange={(e) =>
-                      handleInputChange('address', e.target.value)
-                    }
-                    className="focus:outline-none md:col-span-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    required
-                  />
-                  <select
-                    value={formData.city}
-                    onChange={(e) => handleInputChange('city', e.target.value)}
-                    className="focus:outline-none md:col-span-2 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
-                    required
-                  >
-                    <option value="">Select City *</option>
-                    <option value="Dubai">Dubai</option>
-                    <option value="Abu Dhabi">Abu Dhabi</option>
-                    <option value="Sharjah">Sharjah</option>
-                    <option value="Ajman">Ajman</option>
-                    <option value="Ras Al Khaimah">Ras Al Khaimah</option>
-                    <option value="Fujairah">Fujairah</option>
-                    <option value="Umm Al Quwain">Umm Al Quwain</option>
-                    <option value="Al Ain">Al Ain</option>
-                  </select>
-                </div>
-              </motion.div>
+              {/* Gift Giver Name or Shipping Address */}
+              {isGiftOrder ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="bg-white rounded-lg shadow-md p-6"
+                >
+                  <h2 className="text-xl font-semibold text-black mb-4">
+                    Your Information
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input
+                      type="text"
+                      placeholder="First name *"
+                      value={formData.firstName}
+                      onChange={(e) =>
+                        handleInputChange('firstName', e.target.value)
+                      }
+                      className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      required
+                    />
+                    <input
+                      type="text"
+                      placeholder="Last name (optional)"
+                      value={formData.lastName}
+                      onChange={(e) =>
+                        handleInputChange('lastName', e.target.value)
+                      }
+                      className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+                  <p className="text-sm text-gray-600 mt-4">
+                    Your name will appear on the gift notification sent to the recipient.
+                  </p>
+                </motion.div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="bg-white rounded-lg shadow-md p-6"
+                >
+                  <h2 className="text-xl font-semibold text-black mb-4">
+                    Shipping Address
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input
+                      type="text"
+                      placeholder="First name *"
+                      value={formData.firstName}
+                      onChange={(e) =>
+                        handleInputChange('firstName', e.target.value)
+                      }
+                      className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      required
+                    />
+                    <input
+                      type="text"
+                      placeholder="Last name (optional)"
+                      value={formData.lastName}
+                      onChange={(e) =>
+                        handleInputChange('lastName', e.target.value)
+                      }
+                      className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Apartment/Villa/House *"
+                      value={formData.apartmentNumber}
+                      onChange={(e) =>
+                        handleInputChange('apartmentNumber', e.target.value)
+                      }
+                      className="focus:outline-none md:col-span-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      required
+                    />
+                    <input
+                      type="text"
+                      placeholder="Street Address *"
+                      value={formData.address}
+                      onChange={(e) =>
+                        handleInputChange('address', e.target.value)
+                      }
+                      className="focus:outline-none md:col-span-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      required
+                    />
+                    <select
+                      value={formData.city}
+                      onChange={(e) => handleInputChange('city', e.target.value)}
+                      className="focus:outline-none md:col-span-2 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
+                      required
+                    >
+                      <option value="">Select City *</option>
+                      <option value="Dubai">Dubai</option>
+                      <option value="Abu Dhabi">Abu Dhabi</option>
+                      <option value="Sharjah">Sharjah</option>
+                      <option value="Ajman">Ajman</option>
+                      <option value="Ras Al Khaimah">Ras Al Khaimah</option>
+                      <option value="Fujairah">Fujairah</option>
+                      <option value="Umm Al Quwain">Umm Al Quwain</option>
+                      <option value="Al Ain">Al Ain</option>
+                    </select>
+                  </div>
+                </motion.div>
+              )}
 
               {/* Payment Information */}
               <motion.div
@@ -546,4 +636,8 @@ export default function Payment() {
       </div>
     </div>
   );
+}
+
+export default function Payment() {
+  return <PaymentContent />;
 }

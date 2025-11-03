@@ -6,6 +6,8 @@ import React, { useState, useEffect } from 'react';
 import { Product, SubscriptionType } from '../types';
 import DirhamIcon from './icons/DirhamIcon';
 import { calculatePrice } from '@/lib/pricing';
+import { useRouter } from 'next/navigation';
+import { localStorage as localStorageUtils } from '@/lib/localStorage';
 
 interface ProductCardProps {
   product: Product;
@@ -16,6 +18,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   product, 
   selectedSubscription = 'one-time' 
 }) => {
+  const router = useRouter();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const hasMultipleImages = product.images && product.images.length > 1;
   const isPopular = product.id === 'pentabox';
@@ -88,6 +91,41 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   const priceDescription = getPriceDescription();
   const nextSubscriptionInfo = getNextSubscriptionComparison();
+
+  const handleGiftClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    try {
+      // Fetch regime data
+      const response = await fetch(`/api/regimes/${product.id}`);
+      if (!response.ok) throw new Error('Failed to fetch regime');
+      
+      const result = await response.json();
+      const regime = result.data || result;
+      
+      const priceInfo = calculatePrice(regime, selectedSubscription);
+      
+      const giftCartData = {
+        regimeId: product.id,
+        regime,
+        formData: {}, // Empty for gift orders
+        quantity: 1,
+        subscriptionType: selectedSubscription,
+        totalAmount: priceInfo.discountedPrice,
+        finalAmount: priceInfo.discountedPrice,
+        isGift: true,
+      };
+      
+      // Save to localStorage
+      localStorageUtils.saveCartData(giftCartData);
+      
+      // Navigate to cart
+      router.push('/cart');
+    } catch (error) {
+      console.error('Error loading product for gift:', error);
+      alert('Failed to load product. Please try again.');
+    }
+  };
 
   return (
     <motion.div
@@ -241,12 +279,21 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </div>
           </div>
 
-          <Link
-            href={`/regime-form?product=${product.id}&subscription=${selectedSubscription}`}
-            className="btn-primary w-full text-center group flex items-center justify-center"
-          >
-            Select This Regime
-          </Link>
+          <div className="space-y-3">
+            <Link
+              href={`/regime-form?product=${product.id}&subscription=${selectedSubscription}`}
+              className="btn-primary w-full text-center group flex items-center justify-center"
+            >
+              Select This Regime
+            </Link>
+
+            <button
+              onClick={handleGiftClick}
+              className="w-full cursor-pointer text-center group flex items-center justify-center px-6 py-3 bg-white border-2 border-primary text-primary rounded-lg font-medium hover:bg-primary hover:!text-white transition-all duration-300"
+            >
+              Send as a Gift
+            </button>
+          </div>
 
           <div className="text-center">
             <span className="text-sm text-black">✨ Free shipping</span>

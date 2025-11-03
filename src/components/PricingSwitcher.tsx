@@ -33,8 +33,8 @@ const PricingSwitcher: React.FC<PricingSwitcherProps> = ({
   ];
 
   return (
-      <div className={`mx-auto px-8 w-full md:w-fit overflow-x-auto md:overflow-x-visible ${className}`}>
-        <div className="flex items-center justify-center rounded-full bg-white/80 backdrop-blur-xl p-2 border border-white/60 shadow-none md:shadow-lg w-fit mx-auto">
+      <div className={`mx-auto w-full md:w-fit overflow-x-auto rounded-full border border-white/60 bg-white/80 backdrop-blur-xl md:overflow-x-visible shadow-none md:shadow-lg ${className}`}>
+        <div className="flex items-center justify-center p-2 w-fit mx-auto">
           <div className="flex space-x-1">
             {subscriptionOptions.map((option) => (
               <button
