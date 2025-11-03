@@ -46,7 +46,7 @@ export interface Regime {
 export interface Order {
   id: string;
   regimeId: string;
-  userDetails: {
+  userDetails?: {
     age: string;
     gender: string;
     skinType: string;
@@ -69,7 +69,7 @@ export interface Order {
     email: string;
     phoneNumber?: string;
   };
-  shippingAddress: {
+  shippingAddress?: {
     firstName: string;
     lastName?: string;
     address: string;
@@ -83,6 +83,8 @@ export interface Order {
   stripeSessionId?: string | null;
   discountCodeId?: string | null;
   status: 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled';
+  isGift?: boolean;
+  giftToken?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -224,34 +226,34 @@ export function convertOrderToOrderInsert(
     id: order.id,
     regime_id: order.regimeId,
     user_details: {
-      age: order.userDetails.age,
-      gender: order.userDetails.gender,
-      skin_type: order.userDetails.skinType,
-      skin_concerns: order.userDetails.skinConcerns,
-      complexion: order.userDetails.complexion,
-      allergies: order.userDetails.allergies,
-      skincare_steps: order.userDetails.skincareSteps,
-      korean_skincare_experience: order.userDetails.koreanSkincareExperience,
-      korean_skincare_attraction: order.userDetails.koreanSkincareAttraction,
-      skincare_goal: order.userDetails.skincareGoal,
-      daily_product_count: order.userDetails.dailyProductCount,
-      routine_regularity: order.userDetails.routineRegularity,
-      purchase_location: order.userDetails.purchaseLocation,
-      budget: order.userDetails.budget,
-      customized_recommendations: order.userDetails.customizedRecommendations,
-      brands_used: order.userDetails.brandsUsed,
-      additional_comments: order.userDetails.additionalComments,
+      age: order.userDetails?.age || '',
+      gender: order.userDetails?.gender || '',
+      skin_type: order.userDetails?.skinType || '',
+      skin_concerns: order.userDetails?.skinConcerns || [],
+      complexion: order.userDetails?.complexion || '',
+      allergies: order.userDetails?.allergies || '',
+      skincare_steps: order.userDetails?.skincareSteps || [],
+      korean_skincare_experience: order.userDetails?.koreanSkincareExperience || '',
+      korean_skincare_attraction: order.userDetails?.koreanSkincareAttraction || [],
+      skincare_goal: order.userDetails?.skincareGoal || [],
+      daily_product_count: order.userDetails?.dailyProductCount || '',
+      routine_regularity: order.userDetails?.routineRegularity || '',
+      purchase_location: order.userDetails?.purchaseLocation || '',
+      budget: order.userDetails?.budget || '',
+      customized_recommendations: order.userDetails?.customizedRecommendations || '',
+      brands_used: order.userDetails?.brandsUsed || '',
+      additional_comments: order.userDetails?.additionalComments || '',
     },
     contact_info: {
       email: order.contactInfo.email,
       phone_number: order.contactInfo.phoneNumber,
     },
     shipping_address: {
-      first_name: order.shippingAddress.firstName,
-      last_name: order.shippingAddress.lastName,
-      address: order.shippingAddress.address,
-      city: order.shippingAddress.city,
-      postal_code: order.shippingAddress.postalCode,
+      first_name: order.shippingAddress?.firstName || '',
+      last_name: order.shippingAddress?.lastName,
+      address: order.shippingAddress?.address || '',
+      city: order.shippingAddress?.city || '',
+      postal_code: order.shippingAddress?.postalCode || '',
     },
     quantity: order.quantity,
     total_amount: order.totalAmount,

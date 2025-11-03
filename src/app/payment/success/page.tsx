@@ -43,24 +43,31 @@ function PaymentSuccessContent() {
           
           // Create order in database
           try {
+            // Build order payload based on whether it's a gift order
+            const orderPayload = {
+              regimeId: orderData.regimeId,
+              contactInfo: orderData.contactInfo,
+              quantity: orderData.quantity || 1,
+              totalAmount: orderData.totalAmount,
+              finalAmount: orderData.finalAmount,
+              subscriptionType: orderData.subscriptionType,
+              status: 'processing' as const,
+              stripeSessionId: sessionId,
+              discountCodeId: orderData.discountCodeId || null,
+              isGift: orderData.isGift || false,
+              // Only include userDetails and shippingAddress for non-gift orders
+              ...(orderData.isGift ? {} : {
+                userDetails: orderData.userDetails,
+                shippingAddress: orderData.shippingAddress,
+              })
+            };
+
             const orderResponse = await fetch('/api/orders', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify({
-                regimeId: orderData.regimeId,
-                userDetails: orderData.userDetails,
-                contactInfo: orderData.contactInfo,
-                shippingAddress: orderData.shippingAddress,
-                quantity: orderData.quantity || 1,
-                totalAmount: orderData.totalAmount,
-                finalAmount: orderData.finalAmount,
-                subscriptionType: orderData.subscriptionType,
-                status: 'processing',
-                stripeSessionId: sessionId,
-                discountCodeId: orderData.discountCodeId || null,
-              }),
+              body: JSON.stringify(orderPayload),
             });
 
             if (!orderResponse.ok) {
