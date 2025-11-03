@@ -82,7 +82,7 @@ const TermsPage: React.FC = () => {
 
           <h2 className="text-lg font-semibold mt-4">11. Contact Us</h2>
           <p>
-            For any questions or support, reach out to: <a className="text-primary" href="mailto:care@kregime.com">care@kregime.com</a>
+            For any questions or support, reach out to: <a className="!text-primary font-medium" href="mailto:care@kregime.com">care@kregime.com</a>
           </p>
 
           <p className="text-sm text-neutral-500 mt-16">
