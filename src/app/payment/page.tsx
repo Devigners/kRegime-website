@@ -349,7 +349,7 @@ export default function Payment() {
                 </h2>
 
                 <div className="space-y-4 mb-6">
-                  <div className="flex items-start space-x-4 pb-4 border-b border-gray-100">
+                  <div className="flex flex-col items-start gap-4 pb-4 border-b border-gray-100">
                     <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
                       {cartData.regime.images && cartData.regime.images.length > 0 ? (
                         <Image
