@@ -41,12 +41,17 @@ interface CartData {
     code: string;
     percentageOff: number;
   };
+  isGift?: boolean;
+  giftRecipient?: boolean;
+  giftToken?: string;
 }
 
 function PaymentContent() {
   const router = useRouter();
   const [cartData, setCartData] = useState<CartData | null>(null);
   const [isGiftOrder, setIsGiftOrder] = useState(false);
+  const [isGiftRecipient, setIsGiftRecipient] = useState(false);
+  const [giftToken, setGiftToken] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     email: '',
     phoneNumber: '+971',
@@ -55,6 +60,7 @@ function PaymentContent() {
     apartmentNumber: '',
     address: '',
     city: '',
+    postalCode: '',
   });
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -102,10 +108,15 @@ function PaymentContent() {
       if (data) {
         // Check if this is a gift order from the data itself
         const isGift = data.isGift === true;
-        setIsGiftOrder(isGift);
+        const isRecipient = data.giftRecipient === true;
+        const token = data.giftToken;
         
-        // For gift orders, form data is not required
-        if (isGift) {
+        setIsGiftOrder(isGift);
+        setIsGiftRecipient(isRecipient);
+        if (token) setGiftToken(token);
+        
+        // For gift orders or recipients, form data is not required
+        if (isGift || isRecipient) {
           setCartData(data);
         } else if (data.formData && Object.keys(data.formData).length > 0) {
           // For regular orders, ensure form data exists
@@ -137,6 +148,53 @@ function PaymentContent() {
     setIsProcessing(true);
 
     try {
+      // For gift recipients, directly create the order without Stripe payment
+      if (isGiftRecipient && giftToken) {
+        const orderPayload = {
+          regimeId: cartData.regimeId,
+          subscriptionType: cartData.subscriptionType,
+          quantity: cartData.quantity,
+          contactInfo: {
+            email: formData.email,
+            phoneNumber: formData.phoneNumber || undefined,
+          },
+          userDetails: cartData.formData,
+          shippingAddress: {
+            firstName: formData.firstName,
+            lastName: formData.lastName || undefined,
+            apartmentNumber: formData.apartmentNumber,
+            address: formData.address,
+            city: formData.city,
+            postalCode: formData.postalCode,
+          },
+          totalAmount: 0, // Gift is already paid
+          finalAmount: 0,
+          status: 'pending',
+          giftToken: giftToken,
+          isGift: true,
+        };
+
+        const response = await fetch('/api/gifts/redeem', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(orderPayload),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to redeem gift');
+        }
+
+        const { orderId } = await response.json();
+
+        // Clear cart and redirect to confirmation
+        localStorageUtils.clearCartData();
+        router.push(`/confirmation?orderId=${orderId}`);
+        return;
+      }
+
+      // For regular orders and gift givers, proceed with Stripe
       // Generate a unique session key for this checkout
       const checkoutSessionKey = `checkout_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
@@ -246,7 +304,25 @@ function PaymentContent() {
               <ArrowLeft size={20} className="mr-2" />
               Back to Cart
             </Link>
-            {isGiftOrder ? (
+            {isGiftRecipient ? (
+              <>
+                <div className="flex items-center gap-3 mb-2">
+                  <Gift className="w-8 h-8 text-primary" />
+                  <h1 className="text-3xl font-bold text-black">Complete Your Gift Order</h1>
+                </div>
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4 mt-4">
+                  <div className="flex items-start gap-3">
+                    <Gift className="w-6 h-6 text-purple-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-purple-900 font-medium">🎁 This is a gift order - No payment required!</p>
+                      <p className="text-purple-700 text-sm mt-1">
+                        Just provide your contact details and shipping address to complete your order.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : isGiftOrder ? (
               <>
                 <div className="flex items-center gap-3 mb-2">
                   <Gift className="w-8 h-8 text-primary" />
@@ -616,6 +692,11 @@ function PaymentContent() {
                       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                       Processing...
                     </div>
+                  ) : isGiftRecipient ? (
+                    <span className="flex items-center gap-1 justify-center">
+                      <Gift className="w-5 h-5 mr-1" />
+                      Complete Gift Order
+                    </span>
                   ) : (
                     <span className="flex items-center gap-1 justify-center">
                       Complete Order -{' '}

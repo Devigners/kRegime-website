@@ -19,6 +19,12 @@ function ConfirmationContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [giftLinkCopied, setGiftLinkCopied] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [recipientEmail, setRecipientEmail] = useState('');
+  const [recipientName, setRecipientName] = useState('');
+  const [giftMessage, setGiftMessage] = useState('');
+  const [sendingEmail, setSendingEmail] = useState(false);
 
   const getSubscriptionTypeDisplay = (subscriptionType: 'one-time' | '3-months' | '6-months') => {
     switch (subscriptionType) {
@@ -43,6 +49,67 @@ function ConfirmationContent() {
     } catch (err) {
       console.error('Failed to copy:', err);
       toast.error('Failed to copy link');
+    }
+  };
+
+  const copyGiftLink = async () => {
+    if (!order?.giftToken) {
+      toast.error('Gift token not available');
+      return;
+    }
+    const url = `${window.location.origin}/gift/${order.giftToken}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setGiftLinkCopied(true);
+      toast.success('Gift link copied to clipboard!');
+      setTimeout(() => setGiftLinkCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      toast.error('Failed to copy link');
+    }
+  };
+
+  const handleSendGiftEmail = async () => {
+    if (!recipientEmail || !recipientName) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    if (!order?.giftToken) {
+      toast.error('Gift token not available');
+      return;
+    }
+
+    setSendingEmail(true);
+    try {
+      const response = await fetch('/api/gifts/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          giftToken: order.giftToken,
+          recipientEmail,
+          recipientName,
+          giftMessage,
+          senderName: order.shippingAddress?.firstName || 'A friend',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send gift email');
+      }
+
+      toast.success('Gift email sent successfully!');
+      setShowEmailModal(false);
+      setRecipientEmail('');
+      setRecipientName('');
+      setGiftMessage('');
+    } catch (error) {
+      console.error('Error sending gift email:', error);
+      toast.error('Failed to send gift email');
+    } finally {
+      setSendingEmail(false);
     }
   };
 
@@ -296,7 +363,7 @@ function ConfirmationContent() {
               {/* Copy Link */}
               <button
                 onClick={copyConfirmationLink}
-                className="flex items-center justify-center w-12 h-12 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-full transition-colors shadow-sm hover:shadow-md"
+                className="flex cursor-pointer items-center justify-center w-12 h-12 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-full transition-colors shadow-sm hover:shadow-md"
                 title="Copy confirmation link"
               >
                 {copied ? (
@@ -309,7 +376,7 @@ function ConfirmationContent() {
               {/* WhatsApp */}
               <button
                 onClick={shareOnWhatsApp}
-                className="flex items-center justify-center w-12 h-12 bg-green-500 hover:bg-green-600 text-white rounded-full transition-colors shadow-sm hover:shadow-md"
+                className="flex cursor-pointer items-center justify-center w-12 h-12 bg-green-500 hover:bg-green-600 text-white rounded-full transition-colors shadow-sm hover:shadow-md"
                 title="Share on WhatsApp"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -321,7 +388,7 @@ function ConfirmationContent() {
               {order && order.subscriptionType !== 'one-time' && order.status !== 'cancelled' && order.status !== "pending" && (
                 <button
                   onClick={openStripeCustomerPortal}
-                  className="flex items-center justify-center w-12 h-12 bg-primary hover:bg-primary-dark text-white rounded-full transition-colors shadow-sm hover:shadow-md"
+                  className="flex cursor-pointer items-center justify-center w-12 h-12 bg-primary hover:bg-primary-dark text-white rounded-full transition-colors shadow-sm hover:shadow-md"
                   title="Manage subscription"
                 >
                   <Edit size={20} />
@@ -330,12 +397,100 @@ function ConfirmationContent() {
             </div>
           </motion.div>
 
+          {/* Gift Sharing Section - Only show for gift orders */}
+          {order && order.isGift && order.giftToken && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="mb-8"
+            >
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border-2 border-purple-200 p-6">
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <span className="text-3xl">🎁</span>
+                  </div>
+                  <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                    Share Your Gift!
+                  </h2>
+                  <p className="text-gray-600">
+                    Send this special skincare gift to your loved one
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Gift Link Display */}
+                  <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-purple-200">
+                    <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                      Gift Link
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        readOnly
+                        value={`${window.location.origin}/gift/${order.giftToken}`}
+                        className="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-mono text-gray-700"
+                      />
+                      <button
+                        onClick={copyGiftLink}
+                        className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
+                      >
+                        {giftLinkCopied ? (
+                          <>
+                            <CheckCircle size={16} />
+                            <span className="hidden sm:inline">Copied!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy size={16} />
+                            <span className="hidden sm:inline">Copy</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Share Options */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button
+                      onClick={() => setShowEmailModal(true)}
+                      className="flex items-center justify-center gap-3 px-6 py-4 bg-white hover:bg-gray-50 border-2 border-purple-300 hover:border-purple-400 rounded-xl transition-all shadow-sm hover:shadow-md"
+                    >
+                      <Mail className="text-purple-600" size={24} />
+                      <div className="text-left">
+                        <div className="font-bold text-gray-800">Send via Email</div>
+                        <div className="text-xs text-gray-600">Personalized gift email</div>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={copyGiftLink}
+                      className="flex items-center justify-center gap-3 px-6 py-4 bg-white hover:bg-gray-50 border-2 border-purple-300 hover:border-purple-400 rounded-xl transition-all shadow-sm hover:shadow-md"
+                    >
+                      <Copy className="text-purple-600" size={24} />
+                      <div className="text-left">
+                        <div className="font-bold text-gray-800">Copy Link</div>
+                        <div className="text-xs text-gray-600">Share via any app</div>
+                      </div>
+                    </button>
+                  </div>
+
+                  <div className="bg-purple-100/50 rounded-lg p-4 border border-purple-200">
+                    <p className="text-sm text-purple-800 text-center">
+                      💡 <strong>How it works:</strong> Your recipient will use this link to fill out their skincare profile and shipping details. The regime has already been paid for!
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
           {/* Order Status Display */}
           {order && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
+              transition={{ delay: order.isGift ? 0.2 : 0.1 }}
               className="mb-8"
             >
               {(() => {
@@ -753,6 +908,94 @@ function ConfirmationContent() {
             </p>
           </motion.div>
         </div>
+
+        {/* Email Gift Modal */}
+        {showEmailModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-gray-800">Send Gift via Email</h3>
+                <button
+                  onClick={() => setShowEmailModal(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X size={20} className="text-gray-600" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Recipient&apos;s Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={recipientName}
+                    onChange={(e) => setRecipientName(e.target.value)}
+                    placeholder="Enter recipient's name"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Recipient&apos;s Email <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    value={recipientEmail}
+                    onChange={(e) => setRecipientEmail(e.target.value)}
+                    placeholder="Enter recipient's email"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Personal Message (Optional)
+                  </label>
+                  <textarea
+                    value={giftMessage}
+                    onChange={(e) => setGiftMessage(e.target.value)}
+                    placeholder="Add a personal message to your gift..."
+                    rows={4}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                  />
+                </div>
+
+                <div className="flex gap-3 mt-6">
+                  <button
+                    onClick={() => setShowEmailModal(false)}
+                    className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-semibold transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSendGiftEmail}
+                    disabled={sendingEmail || !recipientEmail || !recipientName}
+                    className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {sendingEmail ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Mail size={18} />
+                        Send Gift
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -70,12 +70,40 @@ export default function GiftRedemptionPage() {
     }
   };
 
-  const handleClaimGift = () => {
-    // Save gift token to localStorage so the regime form knows it's a gift
-    localStorage.setItem('giftToken', token);
-    
-    // Navigate to regime form with gift token
-    router.push(`/regime-form?giftToken=${token}&product=${giftData?.regime.id}&subscription=${giftData?.subscriptionType}`);
+  const handleClaimGift = async () => {
+    if (!giftData) return;
+
+    try {
+      // Save gift data to localStorage cart
+      const giftCartData = {
+        regimeId: giftData.regime.id,
+        regime: {
+          id: giftData.regime.id,
+          name: giftData.regime.name,
+          description: giftData.regime.description,
+          images: giftData.regime.images,
+          steps: giftData.regime.steps,
+          stepCount: giftData.regime.stepCount,
+          priceOneTime: giftData.regime.priceOneTime,
+          price3Months: giftData.regime.price3Months,
+          price6Months: giftData.regime.price6Months,
+        },
+        quantity: 1,
+        subscriptionType: giftData.subscriptionType,
+        totalAmount: 0, // Gift is already paid
+        finalAmount: 0, // Gift is already paid
+        isGift: true,
+        giftToken: token,
+        giftRecipient: true, // Flag to indicate this user is the recipient
+      };
+
+      localStorage.setItem('kregime_cart', JSON.stringify(giftCartData));
+      
+      // Navigate to regime form
+      router.push('/regime-form');
+    } catch (error) {
+      console.error('Error claiming gift:', error);
+    }
   };
 
   if (loading) {

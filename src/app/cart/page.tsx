@@ -29,6 +29,7 @@ interface CartData {
   discountCode?: DiscountCodeInfo;
   isGift?: boolean;
   giftToken?: string;
+  giftRecipient?: boolean; // Flag to indicate user is the recipient of a gift
 }
 
 function CartContent() {
@@ -44,6 +45,7 @@ function CartContent() {
 
   // Gift-specific state
   const [isGiftOrder, setIsGiftOrder] = useState(false);
+  const [isGiftRecipient, setIsGiftRecipient] = useState(false);
 
   useEffect(() => {
     // First, try to load from localStorage
@@ -53,6 +55,10 @@ function CartContent() {
       // Check if it's a gift order from the data
       if (data.isGift) {
         setIsGiftOrder(true);
+      }
+      // Check if user is the gift recipient
+      if (data.giftRecipient) {
+        setIsGiftRecipient(true);
       }
       // Set default subscription type if not present
       if (!data.subscriptionType) {
@@ -473,7 +479,25 @@ function CartContent() {
             </h2>
 
             <div className="space-y-4 mb-6">
-              {currentPriceInfo &&
+              {/* Gift Recipient Message */}
+              {isGiftRecipient && (
+                <div className="p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border-2 border-purple-200 mb-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-4xl">🎁</span>
+                    <div>
+                      <h3 className="font-bold text-gray-800 text-lg">This is a Gift!</h3>
+                      <p className="text-sm text-gray-600">Already paid for by the sender</p>
+                    </div>
+                  </div>
+                  <div className="bg-white/60 rounded-lg p-3 border border-purple-200">
+                    <p className="text-sm text-gray-700">
+                      <strong>What&apos;s next:</strong> Complete the checkout to provide your shipping details and personalize your skincare routine. No payment needed!
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {!isGiftRecipient && currentPriceInfo &&
                 currentPriceInfo.hasDiscount &&
                 !appliedDiscountCode && (
                   <div className="border-2 border-primary rounded-lg p-3 mb-4">
@@ -498,7 +522,7 @@ function CartContent() {
                 )}
 
               {/* Discount Code Section - Show by default unless code is already applied */}
-              {!appliedDiscountCode && (
+              {!appliedDiscountCode && !isGiftRecipient && (
                 <div className=" border-gray-300 rounded-lg">
                   <label className="block text-sm font-semibold text-black mb-2">
                     Have a discount code?
@@ -562,7 +586,7 @@ function CartContent() {
                 <span className="text-black">Subtotal</span>
                 <span className="text-black flex items-center gap-1">
                   <DirhamIcon size={12} className="text-black" />
-                  {cartData.totalAmount}
+                  {isGiftRecipient ? '0' : cartData.totalAmount}
                 </span>
               </div>
               {appliedDiscountCode && (
@@ -597,9 +621,14 @@ function CartContent() {
                   </span>
                   <span className="text-lg font-semibold text-black flex items-center gap-1">
                     <DirhamIcon size={14} className="text-black" />
-                    {cartData.finalAmount}
+                    {isGiftRecipient ? '0' : cartData.finalAmount}
                   </span>
                 </div>
+                {isGiftRecipient && (
+                  <p className="text-sm text-purple-600 font-semibold mt-2 text-right">
+                    ✨ Gift already paid for!
+                  </p>
+                )}
               </div>
             </div>
 
