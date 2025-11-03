@@ -4,12 +4,12 @@ import { supabaseClient } from '@/lib/supabase';
 // PUT /api/discount-codes/[id] - Update a discount code
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const body = await request.json();
     const { code, percentageOff, isActive } = body;
-    const { id } = params;
+    const { id } = await params;
 
     const updateData: {
       code?: string;
@@ -79,10 +79,10 @@ export async function PUT(
 // DELETE /api/discount-codes/[id] - Delete a discount code
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     const { error } = await supabaseClient
       .from('discount_codes')
