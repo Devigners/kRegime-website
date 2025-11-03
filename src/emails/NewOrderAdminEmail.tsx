@@ -340,7 +340,7 @@ export function NewOrderAdminEmail({
                 className="text-neutral-700 text-base mb-0 mobile-text-base"
                 style={{ margin: '0' }}
               >
-                {order.shippingAddress.firstName} {order.shippingAddress.lastName}
+                {order.shippingAddress?.firstName} {order.shippingAddress?.lastName}
               </Text>
             </Column>
           </Row>
@@ -407,19 +407,19 @@ export function NewOrderAdminEmail({
             className="text-neutral-900 font-semibold mb-2 text-base mobile-text-base"
             style={{ marginBottom: '8px' }}
           >
-            {order.shippingAddress.firstName} {order.shippingAddress.lastName}
+            {order.shippingAddress?.firstName} {order.shippingAddress?.lastName}
           </Text>
           <Text 
             className="text-neutral-700 text-sm mb-1 mobile-text-sm"
             style={{ marginBottom: '4px' }}
           >
-            {order.shippingAddress.address}
+            {order.shippingAddress?.address}
           </Text>
           <Text 
             className="text-neutral-700 text-sm mb-1 mobile-text-sm"
             style={{ marginBottom: '4px' }}
           >
-            {order.shippingAddress.city}, {order.shippingAddress.postalCode}
+            {order.shippingAddress?.city}, {order.shippingAddress?.postalCode}
           </Text>
         </div>
       </Section>

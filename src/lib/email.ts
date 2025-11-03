@@ -37,7 +37,7 @@ export async function sendOrderReceivedEmail({
     // Generate customer name from order data if not provided
     const displayName = 
       customerName || 
-      order.shippingAddress.firstName || 
+      order.shippingAddress?.firstName || 
       order.contactInfo.email.split('@')[0];
 
     // Render the email template
@@ -92,7 +92,7 @@ export async function sendOrderStatusUpdateEmail({
     // Generate customer name from order data if not provided
     const displayName = 
       customerName || 
-      order.shippingAddress.firstName || 
+      order.shippingAddress?.firstName || 
       order.contactInfo.email.split('@')[0];
 
     // Generate subject line based on status
@@ -180,7 +180,7 @@ export async function sendNewOrderAdminEmail({
     const { data, error } = await resend.emails.send({
       from: 'KREGIME Orders <care@kregime.com>',
       to: [emailConfig.adminEmail],
-      subject: `🔔 New Order #${order.id} - ${order.shippingAddress.firstName} ${order.shippingAddress.lastName || ''}`,
+      subject: `🔔 New Order #${order.id} - ${order.shippingAddress?.firstName} ${order.shippingAddress?.lastName || ''}`,
       html: emailHtml,
     });
 

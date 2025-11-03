@@ -429,7 +429,7 @@ function ConfirmationContent() {
                     Your Personalized Regime Steps
                   </h3>
                   <div className="grid grid-cols-1 gap-3">
-                    {order.userDetails.skincareSteps.map((step, index) => (
+                    {order.userDetails?.skincareSteps.map((step, index) => (
                       <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                         <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white text-sm font-bold">
                           {index + 1}
@@ -454,7 +454,7 @@ function ConfirmationContent() {
                       Korean skincare routine
                     </p>
                     <p className="text-sm text-black mt-1">
-                      Customized for {order.userDetails.skinType} skin
+                      Customized for {order.userDetails?.skinType} skin
                     </p>
                     <div className="flex justify-between items-center mt-2">
                       <span className="text-sm text-black">

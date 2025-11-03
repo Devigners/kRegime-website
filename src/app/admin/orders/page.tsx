@@ -241,7 +241,7 @@ export default function OrdersAdmin() {
   const filteredOrders = orders.filter(order => {
     const matchesSearch = order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          order.contactInfo.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.shippingAddress.firstName.toLowerCase().includes(searchTerm.toLowerCase());
+                         order.shippingAddress?.firstName?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filterStatus === 'all' || order.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
@@ -468,12 +468,14 @@ export default function OrdersAdmin() {
                         <span className="font-bold text-neutral-700 text-sm">{order.contactInfo.phoneNumber}</span>
                       </div>
                     )}
-                    <div className="flex items-center space-x-2 p-3 bg-white rounded-lg border border-gray-200">
-                      <MapPin className="h-4 w-4 text-purple-600" />
-                      <span className="font-bold text-neutral-700 text-sm">
-                        {order.shippingAddress.city}, {order.shippingAddress.postalCode}
-                      </span>
-                    </div>
+                    {order.shippingAddress && (
+                      <div className="flex items-center space-x-2 p-3 bg-white rounded-lg border border-gray-200">
+                        <MapPin className="h-4 w-4 text-purple-600" />
+                        <span className="font-bold text-neutral-700 text-sm">
+                          {order.shippingAddress.city}, {order.shippingAddress.postalCode}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Status Update */}
@@ -524,10 +526,12 @@ export default function OrdersAdmin() {
                               <span>Customer Information</span>
                             </h4>
                             <div className="space-y-2">
-                              <div className="flex justify-between items-center">
-                                <span className="text-neutral-600 font-bold text-sm">Name:</span>
-                                <span className="font-black text-sm">{order.shippingAddress.firstName} {order.shippingAddress.lastName || ''}</span>
-                              </div>
+                              {order.shippingAddress && (
+                                <div className="flex justify-between items-center">
+                                  <span className="text-neutral-600 font-bold text-sm">Name:</span>
+                                  <span className="font-black text-sm">{order.shippingAddress.firstName} {order.shippingAddress.lastName || ''}</span>
+                                </div>
+                              )}
                               <div className="flex justify-between items-center">
                                 <span className="text-neutral-600 font-bold text-sm">Email:</span>
                                 <span className="font-black text-sm">{order.contactInfo.email}</span>
@@ -538,13 +542,20 @@ export default function OrdersAdmin() {
                                   <span className="font-black text-sm">{order.contactInfo.phoneNumber}</span>
                                 </div>
                               )}
-                              <div className="flex justify-between text-right pt-2 border-t border-blue-200/50">
-                                <span className="text-neutral-600 font-bold text-sm">Address:</span>
-                                <div className="mt-1 font-black text-neutral-900 text-sm leading-relaxed">
-                                  {order.shippingAddress.address}<br />
-                                  {order.shippingAddress.city}, {order.shippingAddress.postalCode}
+                              {order.shippingAddress && (
+                                <div className="flex justify-between text-right pt-2 border-t border-blue-200/50">
+                                  <span className="text-neutral-600 font-bold text-sm">Address:</span>
+                                  <div className="mt-1 font-black text-neutral-900 text-sm leading-relaxed">
+                                    {order.shippingAddress.address}<br />
+                                    {order.shippingAddress.city}, {order.shippingAddress.postalCode}
+                                  </div>
                                 </div>
-                              </div>
+                              )}
+                              {order.isGift && (
+                                <div className="mt-3 p-2 bg-purple-50 rounded-lg border border-purple-200">
+                                  <span className="text-purple-700 font-bold text-sm">🎁 Gift Order - Recipient details pending</span>
+                                </div>
+                              )}
                             </div>
                           </div>
 
@@ -590,12 +601,13 @@ export default function OrdersAdmin() {
                           </div>
                         </div>
                         {/* User Details */}
-                        <div className="bg-white rounded-xl p-4 border border-gray-200">
-                          <h4 className="font-black text-neutral-900 mb-3 flex items-center space-x-2 text-base">
-                            <Package className="h-4 w-4 text-green-600" />
-                            <span>Complete Skincare Profile</span>
-                          </h4>
-                          <div className="space-y-3">
+                        {order.userDetails ? (
+                          <div className="bg-white rounded-xl p-4 border border-gray-200">
+                            <h4 className="font-black text-neutral-900 mb-3 flex items-center space-x-2 text-base">
+                              <Package className="h-4 w-4 text-green-600" />
+                              <span>Complete Skincare Profile</span>
+                            </h4>
+                            <div className="space-y-3">
                             {/* Basic Info */}
                             <div className="grid grid-cols-2 gap-4">
                               <div>
@@ -703,6 +715,25 @@ export default function OrdersAdmin() {
                             )}
                           </div>
                         </div>
+                        ) : (
+                          <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-200">
+                            <div className="text-center">
+                              <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                                <span className="text-3xl">🎁</span>
+                              </div>
+                              <h4 className="font-black text-neutral-900 mb-2 text-lg">Gift Order</h4>
+                              <p className="text-neutral-600 font-medium text-sm">
+                                This is a gift order. Recipient details and skincare profile will be completed when the gift is redeemed.
+                              </p>
+                              {order.giftToken && (
+                                <div className="mt-4 p-3 bg-white/70 rounded-lg border border-purple-200">
+                                  <span className="text-purple-700 font-bold text-xs uppercase tracking-wider">Gift Token:</span>
+                                  <div className="font-mono font-black text-sm text-purple-800 mt-1">{order.giftToken}</div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}

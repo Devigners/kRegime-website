@@ -209,19 +209,19 @@ export function OrderReceivedEmail({
             className="text-neutral-900 font-semibold mb-2 text-lg mobile-text-lg"
             style={{ marginBottom: '8px' }}
           >
-            {order.shippingAddress.firstName} {order.shippingAddress.lastName}
+            {order.shippingAddress?.firstName} {order.shippingAddress?.lastName}
           </Text>
           <Text 
             className="text-neutral-700 text-sm mb-1 mobile-text-sm"
             style={{ marginBottom: '4px' }}
           >
-            {order.shippingAddress.address}
+            {order.shippingAddress?.address}
           </Text>
           <Text 
             className="text-neutral-700 text-sm mb-4 mobile-text-sm"
             style={{ marginBottom: '16px' }}
           >
-            {order.shippingAddress.city}, {order.shippingAddress.postalCode}
+            {order.shippingAddress?.city}, {order.shippingAddress?.postalCode}
           </Text>
           <div 
             className="inline-block bg-accent px-3 py-1 rounded-full"
