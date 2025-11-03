@@ -11,30 +11,6 @@ The payment flow uses **Stripe Checkout**, a fully hosted payment page that:
 - Is PCI compliant
 - Supports multiple payment methods (cards, Apple Pay, Google Pay, etc.)
 
-## Products & Prices in Stripe
-
-Three regime products have been created in Stripe with multiple pricing options:
-
-### 1. TRIBOX (3-step routine)
-- **Product ID**: `prod_TAFj5WaxDovV3W`
-- **Prices**:
-  - One-time: 229 AED (`price_1SDvELIY1QU1SXfhRQR0gVkf`)
-  - 3-month subscription: 199 AED/month (`price_1SDvEUIY1QU1SXfhdRZP7PWE`)
-  - 6-month subscription: 179 AED/month (`price_1SDvEWIY1QU1SXfhPkPPvtuZ`)
-
-### 2. PENTABOX (5-step routine)
-- **Product ID**: `prod_TAFkM2idRQLyfH`
-- **Prices**:
-  - One-time: 379 AED (`price_1SDvF7IY1QU1SXfhkTwgilG8`)
-  - 3-month subscription: 329 AED/month (`price_1SDvF8IY1QU1SXfh5HBM0Pha`)
-  - 6-month subscription: 299 AED/month (`price_1SDvF9IY1QU1SXfhlmbp8wsv`)
-
-### 3. SEPTABOX (7-step routine)
-- **Product ID**: `prod_TAFkQg1qDjATvK`
-- **Prices**:
-  - One-time: 529 AED (`price_1SDvFnIY1QU1SXfhstZvA8oi`)
-  - 3-month subscription: 459 AED/month (`price_1SDvFoIY1QU1SXfhFDTooecT`)
-  - 6-month subscription: 419 AED/month (`price_1SDvFpIY1QU1SXfhybfabRur`)
 
 ## Payment Flow
 

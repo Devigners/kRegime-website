@@ -41,8 +41,8 @@ export async function POST() {
           postal_code: '12001'
         },
         quantity: 1,
-        total_amount: 299,
-        final_amount: 299,
+        total_amount: 349,
+        final_amount: 349,
         subscription_type: 'one-time',
         status: 'pending'
       },
