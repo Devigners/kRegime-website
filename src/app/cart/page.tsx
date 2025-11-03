@@ -3,11 +3,11 @@
 import DirhamIcon from '@/components/icons/DirhamIcon';
 import PricingSwitcher from '@/components/PricingSwitcher';
 import { localStorage as localStorageUtils } from '@/lib/localStorage';
-import { calculatePrice } from '@/lib/pricing';
+import { calculatePrice, applyDiscountCode, hasRegimeDiscount, DiscountCodeInfo } from '@/lib/pricing';
 import { Regime } from '@/models/database';
 import { SubscriptionType } from '@/types';
 import { motion } from 'framer-motion';
-import { ChevronDown, ChevronUp, Edit } from 'lucide-react';
+import { ChevronDown, ChevronUp, Edit, Tag, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -20,12 +20,17 @@ interface CartData {
   subscriptionType: SubscriptionType;
   totalAmount: number;
   finalAmount: number;
+  discountCode?: DiscountCodeInfo;
 }
 
 export default function Cart() {
   const router = useRouter();
   const [cartData, setCartData] = useState<CartData | null>(null);
   const [showAnswers, setShowAnswers] = useState(false);
+  const [discountCodeInput, setDiscountCodeInput] = useState('');
+  const [appliedDiscountCode, setAppliedDiscountCode] = useState<DiscountCodeInfo | null>(null);
+  const [discountCodeError, setDiscountCodeError] = useState('');
+  const [isValidatingCode, setIsValidatingCode] = useState(false);
 
   useEffect(() => {
     const loadCartData = () => {
@@ -35,6 +40,10 @@ export default function Cart() {
         if (!data.subscriptionType) {
           data.subscriptionType = 'one-time';
         }
+        // Load discount code if present
+        if (data.discountCode) {
+          setAppliedDiscountCode(data.discountCode);
+        }
         setCartData(data);
       }
     };
@@ -42,20 +51,97 @@ export default function Cart() {
     loadCartData();
   }, []);
 
-  const getRegimePrice = (subscriptionType: SubscriptionType): number => {
-    if (!cartData) return 0;
-    
-    const priceInfo = calculatePrice(cartData.regime, subscriptionType);
-    return priceInfo.discountedPrice;
+  const handleApplyDiscountCode = async () => {
+    if (!discountCodeInput.trim()) {
+      setDiscountCodeError('Please enter a discount code');
+      return;
+    }
+
+    // Check if regime already has a discount
+    if (cartData && hasRegimeDiscount(cartData.regime, cartData.subscriptionType)) {
+      const discountPercentage = currentPriceInfo?.discount || 0;
+      setDiscountCodeError(`Discount codes cannot be combined with regime discounts. You're already getting ${discountPercentage}% off!`);
+      return;
+    }
+
+    setIsValidatingCode(true);
+    setDiscountCodeError('');
+
+    try {
+      const response = await fetch('/api/discount-codes/validate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ code: discountCodeInput.trim() }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        const discountCode: DiscountCodeInfo = result.discountCode;
+        setAppliedDiscountCode(discountCode);
+        setDiscountCodeInput('');
+
+        // Update cart data with discount code
+        if (cartData) {
+          const priceInfo = calculatePrice(cartData.regime, cartData.subscriptionType);
+          const priceWithCode = applyDiscountCode(priceInfo, discountCode);
+
+          const updatedCartData = {
+            ...cartData,
+            discountCode,
+            totalAmount: priceInfo.discountedPrice,
+            finalAmount: priceWithCode.finalPriceWithCode || priceInfo.discountedPrice,
+          };
+
+          setCartData(updatedCartData);
+          localStorageUtils.saveCartData(updatedCartData);
+        }
+      } else {
+        setDiscountCodeError(result.error || 'Invalid discount code');
+      }
+    } catch (error) {
+      console.error('Error validating discount code:', error);
+      setDiscountCodeError('Failed to validate discount code');
+    } finally {
+      setIsValidatingCode(false);
+    }
+  };
+
+  const handleRemoveDiscountCode = () => {
+    setAppliedDiscountCode(null);
+    setDiscountCodeError('');
+
+    if (cartData) {
+      const priceInfo = calculatePrice(cartData.regime, cartData.subscriptionType);
+
+      const updatedCartData = {
+        ...cartData,
+        discountCode: undefined,
+        totalAmount: priceInfo.discountedPrice,
+        finalAmount: priceInfo.discountedPrice,
+      };
+
+      setCartData(updatedCartData);
+      localStorageUtils.saveCartData(updatedCartData);
+    }
   };
 
   const updateSubscriptionType = (newSubscriptionType: SubscriptionType) => {
     if (!cartData) return;
 
-    const newPrice = getRegimePrice(newSubscriptionType);
+    // Clear discount code when changing subscription type
+    setAppliedDiscountCode(null);
+    setDiscountCodeError('');
+
+    const priceInfo = calculatePrice(cartData.regime, newSubscriptionType);
+    const newPrice = priceInfo.discountedPrice;
+
     const updatedCartData = {
       ...cartData,
       subscriptionType: newSubscriptionType,
+      discountCode: undefined,
       totalAmount: newPrice,
       finalAmount: newPrice,
     };
@@ -276,32 +362,98 @@ export default function Cart() {
             </h2>
 
             <div className="space-y-4 mb-6">
-              {currentPriceInfo && currentPriceInfo.hasDiscount && (
-                <div className="bg-green-50 border-2 border-green-200 rounded-lg p-3 mb-4">
+              {currentPriceInfo && currentPriceInfo.hasDiscount && !appliedDiscountCode && (
+                <div className="border-2 border-primary rounded-lg p-3 mb-4">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-bold text-green-800">Original Price</span>
-                    <span className="text-sm text-green-700 line-through flex items-center gap-1">
-                      <DirhamIcon size={12} className="text-green-700" />
+                    <span className="text-sm font-bold">Original Price</span>
+                    <span className="text-sm line-through flex items-center gap-1">
+                      <DirhamIcon size={12} />
                       {currentPriceInfo.originalPrice}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-bold text-green-800">{currentPriceInfo.discountReason} {currentPriceInfo.discount}% Off</span>
-                    <span className="text-sm font-bold text-green-700 flex items-center gap-1">
-                      - <DirhamIcon size={12} className="text-green-700" />
+                    <span className="text-sm font-bold">{currentPriceInfo.discountReason} {currentPriceInfo.discount}% Off</span>
+                    <span className="text-sm font-bold  flex items-center gap-1">
+                      - <DirhamIcon size={12} />
                       {currentPriceInfo.savingsAmount}
                     </span>
                   </div>
                 </div>
               )}
+
+              {/* Discount Code Section - Show by default unless code is already applied */}
+              {!appliedDiscountCode && (
+                <div className=" border-gray-300 rounded-lg">
+                  <label className="block text-sm font-semibold text-black mb-2">
+                    Have a discount code?
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={discountCodeInput}
+                      onChange={(e) => setDiscountCodeInput(e.target.value.toUpperCase())}
+                      onKeyPress={(e) => e.key === 'Enter' && handleApplyDiscountCode()}
+                      placeholder="Enter code"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary text-sm focus:outline-none"
+                      disabled={isValidatingCode}
+                    />
+                    <button
+                      onClick={handleApplyDiscountCode}
+                      disabled={isValidatingCode}
+                      className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isValidatingCode ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      ) : (
+                        'Apply'
+                      )}
+                    </button>
+                  </div>
+                  {discountCodeError && (
+                    <p className="text-xs text-red-600 mt-2">{discountCodeError}</p>
+                  )}
+                </div>
+              )}
+
+              {/* Applied Discount Code */}
+              {appliedDiscountCode && (
+                <div className="border-2 border-primary rounded-lg p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Tag size={16} />
+                      <span className="text-sm font-bold">Code {appliedDiscountCode.code} Applied</span>
+                    </div>
+                    <button
+                      onClick={handleRemoveDiscountCode}
+                      className="text-red-600 hover:text-red-700 transition-colors"
+                      title="Remove discount code"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                </div>
+              )}
               
-              <div className="flex justify-between">
+              <div className="flex justify-between border-t border-gray-200 pt-4">
                 <span className="text-black">Subtotal</span>
                 <span className="text-black flex items-center gap-1">
                   <DirhamIcon size={12} className="text-black" />
                   {cartData.totalAmount}
                 </span>
               </div>
+              {appliedDiscountCode && (
+                <div className="flex justify-between ">
+                  <span className="font-semibold">Discount ({appliedDiscountCode.percentageOff}%)</span>
+                  <span className="font-semibold flex items-center gap-1">
+                    - <DirhamIcon size={12} className="" />
+                    {(() => {
+                      const priceInfo = calculatePrice(cartData.regime, cartData.subscriptionType);
+                      const priceWithCode = applyDiscountCode(priceInfo, appliedDiscountCode);
+                      return priceWithCode.additionalSavingsFromCode;
+                    })()}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-black">Shipping</span>
                 <span className="text-black">Free</span>

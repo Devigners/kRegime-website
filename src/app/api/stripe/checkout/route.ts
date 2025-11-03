@@ -42,6 +42,7 @@ interface CheckoutRequestBody {
     postalCode: string;
   };
   checkoutSessionKey: string; // Key to retrieve data from localStorage
+  discountCodeId?: string; // Optional discount code ID
 }
 
 export async function POST(request: NextRequest) {
@@ -54,6 +55,7 @@ export async function POST(request: NextRequest) {
       customerEmail,
       shippingAddress,
       checkoutSessionKey,
+      discountCodeId,
     } = body;
 
     // Validate regime ID
@@ -102,6 +104,7 @@ export async function POST(request: NextRequest) {
         checkoutSessionKey, // Store key to retrieve data from localStorage
         firstName: shippingAddress.firstName,
         city: shippingAddress.city,
+        discountCodeId: discountCodeId || '', // Store discount code ID if present
       },
       // Use client_reference_id for easy order tracking
       client_reference_id: checkoutSessionKey,

@@ -15,6 +15,7 @@ import {
   Package,
   Phone,
   ShoppingCart,
+  Tag,
   Trash2,
   Truck,
   XCircle
@@ -30,6 +31,11 @@ interface OrderWithRegime extends Order {
     price: number;
     image: string;
     step_count: number;
+  };
+  discountCode?: {
+    id: string;
+    code: string;
+    percentageOff: number;
   };
 }
 
@@ -54,32 +60,47 @@ export default function OrdersAdmin() {
     try {
       setIsLoading(true);
       
-      // Fetch orders and regimes separately, then join manually
-      const [ordersResult, regimesResult] = await Promise.all([
+      // Fetch orders, regimes, and discount codes separately, then join manually
+      const [ordersResult, regimesResult, discountCodesResult] = await Promise.all([
         supabaseClient
           .from('orders')
           .select('*')
           .order('created_at', { ascending: false }),
         supabaseClient
           .from('regimes')
-          .select('id, name, description, price, image, step_count')
+          .select('id, name, description, price, image, step_count'),
+        supabaseClient
+          .from('discount_codes')
+          .select('id, code, percentage_off')
       ]);
 
       if (ordersResult.error) throw ordersResult.error;
       if (regimesResult.error) throw regimesResult.error;
+      if (discountCodesResult.error) throw discountCodesResult.error;
 
-      // Create a lookup map for regimes
+      // Create lookup maps for regimes and discount codes
       const regimesMap = new Map();
       regimesResult.data?.forEach(regime => {
         regimesMap.set(regime.id, regime);
       });
 
+      const discountCodesMap = new Map();
+      discountCodesResult.data?.forEach(discountCode => {
+        discountCodesMap.set(discountCode.id, {
+          id: discountCode.id,
+          code: discountCode.code,
+          percentageOff: discountCode.percentage_off
+        });
+      });
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const convertedOrders = ordersResult.data?.map((row: any) => {
         const regime = regimesMap.get(row.regime_id);
+        const discountCode = row.discount_code_id ? discountCodesMap.get(row.discount_code_id) : null;
         return {
           ...convertOrderRowToOrder(row),
-          regime: regime || null
+          regime: regime || null,
+          discountCode: discountCode || undefined
         };
       }) || [];
       
@@ -404,6 +425,14 @@ export default function OrdersAdmin() {
                         <span className="text-sm">{getSubscriptionTypeDisplay(order.subscriptionType || 'one-time')}</span>
                       </span>
 
+                      {/* Discount Code Badge */}
+                      {order.discountCode && (
+                        <span className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-bold border bg-emerald-100 text-emerald-800 border-emerald-200">
+                          <Tag className="w-3 h-3" />
+                          <span className="text-sm">{order.discountCode.code} ({order.discountCode.percentageOff}% off)</span>
+                        </span>
+                      )}
+
                       {/* Actions */}
                       <div className="flex items-center space-x-2">
                         <button
@@ -518,6 +547,32 @@ export default function OrdersAdmin() {
                               </div>
                             </div>
                           </div>
+
+                          {/* Discount Code Info */}
+                          {order.discountCode && (
+                            <div className="mb-4 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl p-4 border border-emerald-200">
+                              <h4 className="font-black text-neutral-900 mb-3 flex items-center space-x-2 text-base">
+                                <Tag className="h-4 w-4 text-emerald-600" />
+                                <span>Discount Code Applied</span>
+                              </h4>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Code:</span>
+                                  <div className="font-black text-sm text-emerald-700">{order.discountCode.code}</div>
+                                </div>
+                                <div>
+                                  <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Discount:</span>
+                                  <div className="font-black text-sm text-emerald-700">{order.discountCode.percentageOff}% off</div>
+                                </div>
+                                <div>
+                                  <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Savings:</span>
+                                  <div className="font-black text-sm text-emerald-700">
+                                    AED {Math.round(order.totalAmount * (order.discountCode.percentageOff / 100))}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
 
                           <div className="bg-white rounded-xl p-4 border border-gray-200">
                             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">

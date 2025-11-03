@@ -17,6 +17,10 @@ export type SubscriberRow = Database['public']['Tables']['subscribers']['Row'];
 export type SubscriberInsert = Database['public']['Tables']['subscribers']['Insert'];
 export type SubscriberUpdate = Database['public']['Tables']['subscribers']['Update'];
 
+export type DiscountCodeRow = Database['public']['Tables']['discount_codes']['Row'];
+export type DiscountCodeInsert = Database['public']['Tables']['discount_codes']['Insert'];
+export type DiscountCodeUpdate = Database['public']['Tables']['discount_codes']['Update'];
+
 // Frontend compatible interfaces
 export interface Regime {
   id: string;
@@ -77,7 +81,17 @@ export interface Order {
   finalAmount: number;
   subscriptionType: 'one-time' | '3-months' | '6-months';
   stripeSessionId?: string | null;
+  discountCodeId?: string | null;
   status: 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled';
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface DiscountCode {
+  id: string;
+  code: string;
+  percentageOff: number;
+  isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -196,6 +210,7 @@ export function convertOrderRowToOrder(row: OrderRow): Order {
     finalAmount: row.final_amount,
     subscriptionType: (row.subscription_type || 'one-time') as 'one-time' | '3-months' | '6-months',
     stripeSessionId: row.stripe_session_id,
+    discountCodeId: row.discount_code_id,
     status: row.status as 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled',
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
@@ -243,6 +258,7 @@ export function convertOrderToOrderInsert(
     final_amount: order.finalAmount,
     subscription_type: order.subscriptionType,
     stripe_session_id: order.stripeSessionId,
+    discount_code_id: order.discountCodeId,
     status: order.status,
   };
 }
@@ -292,5 +308,27 @@ export function convertSubscriberToSubscriberInsert(
     email: subscriber.email,
     source: subscriber.source,
     is_active: subscriber.isActive,
+  };
+}
+
+export function convertDiscountCodeRowToDiscountCode(row: DiscountCodeRow): DiscountCode {
+  return {
+    id: row.id,
+    code: row.code,
+    percentageOff: row.percentage_off,
+    isActive: row.is_active,
+    createdAt: new Date(row.created_at),
+    updatedAt: new Date(row.updated_at),
+  };
+}
+
+export function convertDiscountCodeToDiscountCodeInsert(
+  discountCode: Omit<DiscountCode, 'createdAt' | 'updatedAt'>
+): DiscountCodeInsert {
+  return {
+    id: discountCode.id,
+    code: discountCode.code,
+    percentage_off: discountCode.percentageOff,
+    is_active: discountCode.isActive,
   };
 }

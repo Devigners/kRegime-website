@@ -59,6 +59,7 @@ function PaymentSuccessContent() {
                 subscriptionType: orderData.subscriptionType,
                 status: 'processing',
                 stripeSessionId: sessionId,
+                discountCodeId: orderData.discountCodeId || null,
               }),
             });
 

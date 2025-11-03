@@ -16,7 +16,7 @@ INSERT INTO regimes (id, name, description, price, price_one_time, price_3_month
   269,
   249,
   ARRAY['Cleanser', 'Moisturiser', 'Sunscreen'],
-  ARRAY['/static/regime-3.webp'],
+  ARRAY['/static/regime-3-1.webp', '/static/regime-3-2.webp'],
   3,
   true
 ),
@@ -29,7 +29,7 @@ INSERT INTO regimes (id, name, description, price, price_one_time, price_3_month
   449,
   419,
   ARRAY['Cleanser', 'Toner', 'Serum', 'Moisturiser', 'Sunscreen'],
-  ARRAY['/static/regime-5.webp'],
+  ARRAY['/static/regime-5-1.webp', '/static/regime-5-2.webp'],
   5,
   true
 ),
@@ -42,7 +42,7 @@ INSERT INTO regimes (id, name, description, price, price_one_time, price_3_month
   619,
   599,
   ARRAY['Cleansing oil', 'Cleanser', 'Mask', 'Toner', 'Serum', 'Moisturiser', 'Sunscreen'],
-  ARRAY['/static/regime-7.webp'],
+  ARRAY['/static/regime-7-1.webp', '/static/regime-7-2.webp'],
   7,
   true
 );
