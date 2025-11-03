@@ -174,17 +174,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               {/* Show discount badge if applicable */}
-              {priceInfo.hasDiscount && (
+              {priceInfo.hasDiscount && priceInfo.discountReason && (
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                  <div className="bg-primary text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
                     <Tag className="w-3 h-3" />
-                    {priceInfo.discount}% OFF
+                    {priceInfo.discountReason} {priceInfo.discount}% Off
                   </div>
-                  {priceInfo.discountReason && (
-                    <span className="text-xs font-semibold text-neutral-700 bg-yellow-100 px-2 py-1 rounded-full">
-                      {priceInfo.discountReason}
-                    </span>
-                  )}
                 </div>
               )}
               

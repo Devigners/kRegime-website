@@ -88,13 +88,14 @@ a {
 
 /* Card Styles */
 .card-modern {
-  @apply bg-white/80 backdrop-blur-xl rounded-lg border border-white/20 transition-all duration-300 hover:shadow-2xl hover:bg-white/90;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  @apply bg-white/80 backdrop-blur-xl rounded-lg border border-white/20 transition-all duration-300 hover:shadow-2xl hover:bg-white/90 md:shadow-lg;
 }
 
-.card-modern:hover {
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-  transform: translateY(-8px);
+@media (hover: hover) and (pointer: fine) {
+  .card-modern:hover {
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    transform: translateY(-8px);
+  }
 }
 
 /* Animation Classes */

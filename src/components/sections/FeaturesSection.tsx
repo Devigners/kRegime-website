@@ -7,7 +7,7 @@ import { features } from '@/data';
 
 export default function FeaturesSection() {
   return (
-    <section className="py-32 bg-gradient-to-b from-neutral-50 to-white relative overflow-hidden">
+    <section className="py-20 md:py-32 bg-gradient-to-b from-neutral-50 to-white relative overflow-hidden">
       {/* Background decorative images */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-20 left-10 w-32 h-32 rounded-full overflow-hidden">
@@ -20,7 +20,7 @@ export default function FeaturesSection() {
 
       <div className="container section-padding relative z-10">
         <motion.div
-          className="text-center mb-20"
+          className="text-center mb-12 md:mb-20"
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
@@ -29,13 +29,13 @@ export default function FeaturesSection() {
           <h2 className="heading-lg text-neutral-900 mb-6">
             The Handpicked <span className="gradient-text">Regime</span>
           </h2>
-          <p className="text-xl text-black max-w-3xl mx-auto">
+          <p className="text-lg text-black max-w-3xl mx-auto leading-relaxed">
             We curate handpicked Korean skincare regimens, with products
             carefully selected by our experts based on individual skin needs
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 divide-x-1 divide-primary/20">
+        <div className="grid grid-cols-2 md:grid-cols-4 divide-x-0 md:divide-x-1 divide-primary/20">
           {features.map((feature, index) => (
             <motion.div
               key={feature.title}
@@ -49,10 +49,10 @@ export default function FeaturesSection() {
               <div className="w-full flex items-center justify-center mb-6">
                 <feature.icon className="w-10 h-10 text-primary" />
               </div>
-              <h3 className="text-2xl font-semibold text-neutral-900 mb-4">
+              <h3 className="text-lg md:text-2xl font-semibold text-neutral-900 mb-4">
                 {feature.title}
               </h3>
-              <p className="text-black leading-relaxed">
+              <p className="hidden md:block text-black leading-relaxed">
                 {feature.description}
               </p>
             </motion.div>

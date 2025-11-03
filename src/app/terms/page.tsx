@@ -7,7 +7,7 @@ export const metadata = {
 
 const TermsPage: React.FC = () => {
   return (
-    <main className="pt-20 pb-0 md:py-32">
+    <main className="pt-20 pb-0 md:py-20 md:py-32">
       <article className="max-w-3xl mx-auto text-neutral-900 bg-white p-8 rounded-lg">
         <header className="mb-6">
           <h1 className="text-3xl font-bold">KREGIME – Terms of Service</h1>

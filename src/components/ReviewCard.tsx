@@ -11,7 +11,7 @@ interface ReviewCardProps {
 const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
   return (
     <motion.div
-      className="card-modern p-8 relative group"
+      className="card-modern p-8 border-1 md:border-0 md:!border-transparent !border-gray-100 relative group"
       whileHover={{ y: -5 }}
       transition={{ duration: 0.3 }}
     >

@@ -102,7 +102,7 @@ function PaymentSuccessContent() {
   // Show loading state while processing, or error if something went wrong
   if (status === 'loading') {
     return (
-      <div className="min-h-screen bg-gray-50 py-32 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 py-20 md:py-32 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-16 h-16 animate-spin text-primary mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-black mb-2">Processing Your Order</h2>
@@ -115,7 +115,7 @@ function PaymentSuccessContent() {
 
   // Error state
   return (
-    <div className="min-h-screen bg-gray-50 py-32 flex items-center justify-center">
+    <div className="min-h-screen bg-gray-50 py-20 md:py-32 flex items-center justify-center">
       <div className="max-w-md mx-auto text-center px-4">
         <motion.div
           initial={{ scale: 0 }}
@@ -144,7 +144,7 @@ function PaymentSuccessContent() {
 export default function PaymentSuccess() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 py-32 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 py-20 md:py-32 flex items-center justify-center">
         <Loader2 className="w-16 h-16 animate-spin text-primary" />
       </div>
     }>

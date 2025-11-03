@@ -33,7 +33,7 @@ export default function ReviewsSection() {
     return (
       <section
         id="reviews"
-        className="py-32 bg-white"
+        className="py-20 md:py-32 bg-white"
       >
         <div className="container section-padding">
           <div className="text-center">
@@ -49,7 +49,7 @@ export default function ReviewsSection() {
     return (
       <section
         id="reviews"
-        className="py-32 bg-white"
+        className="py-20 md:py-32 bg-white"
       >
         <div className="container section-padding">
           <div className="text-center">
@@ -69,11 +69,11 @@ export default function ReviewsSection() {
   return (
     <section
       id="reviews"
-      className="py-32 bg-white"
+      className="py-20 md:py-32 bg-white"
     >
-      <div className="container section-padding">
+      <div className="container">
         <motion.div
-          className="text-center mb-20"
+          className="text-center mb-12 md:mb-20 section-padding"
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -82,13 +82,13 @@ export default function ReviewsSection() {
           <h2 className="heading-lg text-neutral-900 mb-6">
             What Our <span className="gradient-text">Customers Say</span>
           </h2>
-          <p className="text-xl text-black max-w-3xl mx-auto leading-relaxed">
+          <p className="text-lg text-black max-w-3xl mx-auto leading-relaxed">
             Join thousands of satisfied customers who have transformed their
             skin with <br /> our personalized K-beauty routines
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="px-8 sm:px-8 lg:px-12 flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 overflow-x-auto overflow-y-hidden md:overflow-visible pb-4 md:pb-0 snap-x snap-mandatory md:snap-none">
           {reviews.map((review, index) => (
             <motion.div
               key={review.id}
@@ -96,6 +96,7 @@ export default function ReviewsSection() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
               viewport={{ once: true }}
+              className="min-w-[280px] md:min-w-0 snap-center"
             >
               <ReviewCard
                 review={{

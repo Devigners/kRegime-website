@@ -166,7 +166,7 @@ export default function Payment() {
 
   if (!cartData) {
     return (
-      <div className="min-h-screen bg-gray-50 py-32">
+      <div className="min-h-screen bg-gray-50 py-20 md:py-32">
         <div className="container section-padding">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
@@ -178,7 +178,7 @@ export default function Payment() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-32">
+    <div className="min-h-screen bg-gray-50 py-20 md:py-32">
       <div className="container section-padding">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
@@ -382,18 +382,13 @@ export default function Payment() {
                       </p>
                       
                       {/* Discount Badge */}
-                      {currentPriceInfo && currentPriceInfo.hasDiscount && (
+                      {currentPriceInfo && currentPriceInfo.hasDiscount && currentPriceInfo.discountReason && (
                         <div className="mt-2 bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-lg p-2">
                           <div className="flex items-center gap-2 mb-1">
-                            <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-2 py-0.5 rounded-full text-xs font-bold flex items-center gap-1">
+                            <div className="bg-primary text-white px-2 py-0.5 rounded-full text-xs font-bold flex items-center gap-1">
                               <Tag className="w-3 h-3" />
-                              {currentPriceInfo.discount}% OFF
+                              {currentPriceInfo.discountReason} {currentPriceInfo.discount}% Off
                             </div>
-                            {currentPriceInfo.discountReason && (
-                              <span className="text-xs font-semibold text-neutral-700 bg-yellow-100 px-2 py-0.5 rounded-full">
-                                {currentPriceInfo.discountReason}
-                              </span>
-                            )}
                           </div>
                           <p className="text-xs text-green-700 font-semibold">
                             Save {currentPriceInfo.savingsAmount} AED!
