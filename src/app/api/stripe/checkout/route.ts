@@ -4,27 +4,27 @@ import { SubscriptionType } from '@/types';
 
 // Map regime IDs to Stripe product IDs
 const REGIME_TO_PRODUCT_MAP: Record<string, string> = {
-  tribox: 'prod_TAFj5WaxDovV3W',
-  pentabox: 'prod_TAFkM2idRQLyfH',
-  septabox: 'prod_TAFkQg1qDjATvK',
+  tribox: 'prod_TM6BuovMVYmvOi',
+  pentabox: 'prod_TM6Ewd4IodwK7K',
+  septabox: 'prod_TM6FUZBVFo0n6E',
 };
 
 // Map subscription types to price IDs for each regime
 const PRICE_MAP: Record<string, Record<SubscriptionType, string>> = {
   tribox: {
-    'one-time': 'price_1SDvELIY1QU1SXfhRQR0gVkf',
-    '3-months': 'price_1SDvEUIY1QU1SXfhdRZP7PWE',
-    '6-months': 'price_1SDvEWIY1QU1SXfhPkPPvtuZ',
+    'one-time': 'price_1SPNylPHcfaTMcXVYNdZmwyr',
+    '3-months': 'price_1SPNylPHcfaTMcXVuBDzNisv',
+    '6-months': 'price_1SPNylPHcfaTMcXVjwG96huA',
   },
   pentabox: {
-    'one-time': 'price_1SDvF7IY1QU1SXfhkTwgilG8',
-    '3-months': 'price_1SDvF8IY1QU1SXfh5HBM0Pha',
-    '6-months': 'price_1SDvF9IY1QU1SXfhlmbp8wsv',
+    'one-time': 'price_1SPO1rPHcfaTMcXVED4Qh7Ke',
+    '3-months': 'price_1SPO1rPHcfaTMcXV2beAl1mz',
+    '6-months': 'price_1SPO1rPHcfaTMcXVRln9vxEb',
   },
   septabox: {
-    'one-time': 'price_1SDvFnIY1QU1SXfhstZvA8oi',
-    '3-months': 'price_1SDvFoIY1QU1SXfhFDTooecT',
-    '6-months': 'price_1SDvFpIY1QU1SXfhybfabRur',
+    'one-time': 'price_1SPO34PHcfaTMcXVLcVfXEOB',
+    '3-months': 'price_1SPO34PHcfaTMcXV94kgC5mV',
+    '6-months': 'price_1SPO34PHcfaTMcXVMmsLx6rM',
   },
 };
 
@@ -42,6 +42,7 @@ interface CheckoutRequestBody {
     postalCode: string;
   };
   checkoutSessionKey: string; // Key to retrieve data from localStorage
+  discountCodeId?: string; // Optional discount code ID
 }
 
 export async function POST(request: NextRequest) {
@@ -54,6 +55,7 @@ export async function POST(request: NextRequest) {
       customerEmail,
       shippingAddress,
       checkoutSessionKey,
+      discountCodeId,
     } = body;
 
     // Validate regime ID
@@ -102,6 +104,7 @@ export async function POST(request: NextRequest) {
         checkoutSessionKey, // Store key to retrieve data from localStorage
         firstName: shippingAddress.firstName,
         city: shippingAddress.city,
+        discountCodeId: discountCodeId || '', // Store discount code ID if present
       },
       // Use client_reference_id for easy order tracking
       client_reference_id: checkoutSessionKey,

@@ -10,6 +10,19 @@ export interface PriceInfo {
   savingsAmount: number;
 }
 
+export interface DiscountCodeInfo {
+  id: string;
+  code: string;
+  percentageOff: number;
+}
+
+export interface PriceWithDiscountCode extends PriceInfo {
+  discountCodeApplied: boolean;
+  discountCodePercentage?: number;
+  finalPriceWithCode?: number;
+  additionalSavingsFromCode?: number;
+}
+
 /**
  * Calculate the discounted price for a regime or product based on subscription type
  */
@@ -65,4 +78,54 @@ export function getAllPricing(item: Regime | Product) {
     threeMonths: calculatePrice(item, '3-months'),
     sixMonths: calculatePrice(item, '6-months'),
   };
+}
+
+/**
+ * Apply discount code to a price
+ * Note: Discount codes cannot be stacked with regime discounts
+ */
+export function applyDiscountCode(
+  priceInfo: PriceInfo,
+  discountCode?: DiscountCodeInfo
+): PriceWithDiscountCode {
+  // If there's already a regime discount, don't apply discount code
+  if (priceInfo.hasDiscount) {
+    return {
+      ...priceInfo,
+      discountCodeApplied: false,
+    };
+  }
+
+  // If no discount code provided, return original price info
+  if (!discountCode) {
+    return {
+      ...priceInfo,
+      discountCodeApplied: false,
+    };
+  }
+
+  // Apply discount code
+  const additionalSavingsFromCode = (priceInfo.originalPrice * discountCode.percentageOff) / 100;
+  const finalPriceWithCode = priceInfo.originalPrice - additionalSavingsFromCode;
+
+  return {
+    ...priceInfo,
+    discountCodeApplied: true,
+    discountCodePercentage: discountCode.percentageOff,
+    finalPriceWithCode: Math.round(finalPriceWithCode * 100) / 100,
+    additionalSavingsFromCode: Math.round(additionalSavingsFromCode * 100) / 100,
+    hasDiscount: true,
+    discount: discountCode.percentageOff,
+    discountReason: `Discount Code: ${discountCode.code}`,
+    savingsAmount: Math.round(additionalSavingsFromCode * 100) / 100,
+    discountedPrice: Math.round(finalPriceWithCode * 100) / 100,
+  };
+}
+
+/**
+ * Check if a regime/product has any active discounts
+ */
+export function hasRegimeDiscount(item: Regime | Product, subscriptionType: SubscriptionType): boolean {
+  const priceInfo = calculatePrice(item, subscriptionType);
+  return priceInfo.hasDiscount;
 }

@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { CheckCircle, Sparkles, Tag } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Product, SubscriptionType } from '../types';
 import DirhamIcon from './icons/DirhamIcon';
 import { calculatePrice } from '@/lib/pricing';
@@ -16,7 +16,22 @@ const ProductCard: React.FC<ProductCardProps> = ({
   product, 
   selectedSubscription = 'one-time' 
 }) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const hasMultipleImages = product.images && product.images.length > 1;
   const isPopular = product.id === 'pentabox';
+
+  // Auto-rotate images every 3 seconds
+  useEffect(() => {
+    if (!hasMultipleImages) return;
+
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        (prevIndex + 1) % product.images.length
+      );
+    }, 5000); // 5 seconds
+
+    return () => clearInterval(interval);
+  }, [hasMultipleImages, product.images.length]);
 
   // Calculate pricing with discount
   const priceInfo = calculatePrice(product, selectedSubscription);
@@ -100,12 +115,30 @@ const ProductCard: React.FC<ProductCardProps> = ({
       {/* Product Image Area */}
       <div className="aspect-[4/3] relative overflow-hidden">
         {product.images && product.images.length > 0 ? (
-          <Image
-            src={product.images[0]}
-            alt={product.name}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-110"
-          />
+          <>
+            {product.images.map((image, index) => (
+              <motion.div
+                key={image}
+                className="absolute inset-0"
+                initial={{ opacity: 0 }}
+                animate={{ 
+                  opacity: currentImageIndex === index ? 1 : 0,
+                  scale: currentImageIndex === index ? 1 : 1.1
+                }}
+                transition={{ 
+                  duration: 0.7,
+                  ease: 'easeInOut'
+                }}
+              >
+                <Image
+                  src={image}
+                  alt={`${product.name} - Image ${index + 1}`}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+              </motion.div>
+            ))}
+          </>
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-[#EF7E71]/20 to-[#D4654F]/20 flex items-center justify-center">
             <div className="text-center space-y-2">
@@ -174,17 +207,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               {/* Show discount badge if applicable */}
-              {priceInfo.hasDiscount && (
+              {priceInfo.hasDiscount && priceInfo.discountReason && (
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                  <div className="bg-primary text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
                     <Tag className="w-3 h-3" />
-                    {priceInfo.discount}% OFF
+                    {priceInfo.discountReason} {priceInfo.discount}% Off
                   </div>
-                  {priceInfo.discountReason && (
-                    <span className="text-xs font-semibold text-neutral-700 bg-yellow-100 px-2 py-1 rounded-full">
-                      {priceInfo.discountReason}
-                    </span>
-                  )}
                 </div>
               )}
               

@@ -139,19 +139,6 @@ export function BaseEmailLayout({
                     Instagram
                   </Link>
                   <Link
-                    href="https://www.tiktok.com/@kregime1"
-                    className="text-primary text-xs mr-4 mobile-text-sm"
-                    style={{ 
-                      color: '#ef7e71', 
-                      textDecoration: 'none',
-                      marginRight: '16px',
-                      display: 'inline-block',
-                      marginBottom: '8px'
-                    }}
-                  >
-                    TikTok
-                  </Link>
-                  <Link
                     href="https://www.youtube.com/@kregime"
                     className="text-primary text-xs mobile-text-sm"
                     style={{ 

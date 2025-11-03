@@ -7,10 +7,10 @@ import { brands } from '@/data';
 
 export default function KoreanBrandsSection() {
   return (
-    <section id="brands" className="py-32 bg-gradient-to-b from-secondary/5 to-accent/5">
+    <section id="brands" className="py-20 md:py-32 bg-gradient-to-b from-secondary/5 to-accent/5">
       <div className="container section-padding text-center">
         <motion.div
-          className="space-y-8 mb-20"
+          className="space-y-8 mb-12 md:mb-20"
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -19,15 +19,15 @@ export default function KoreanBrandsSection() {
           <h2 className="heading-lg text-neutral-900">
             Trusted <span className="gradient-text">Korean Brands</span>
           </h2>
-          <p className="text-xl text-black max-w-4xl mx-auto leading-relaxed">
+          <p className="text-lg text-black max-w-3xl mx-auto leading-relaxed">
             We partner with the most respected Korean beauty brands to bring you
             authentic, high-quality products that deliver real results
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+        <div className="flex flex-wrap items-center justify-center md:flex-none md:grid md:grid-cols-4 lg:grid-cols-5  gap-3">
           {brands.map((brand, index) => (
-            <div key={index} className="group">
+            <div key={index} className="group aspect-square md:aspect-auto w-26 md:w-full">
               <div className="bg-white rounded-lg shadow-soft hover:shadow-medium transition-all duration-300 border border-primary/20 hover:border-primary">
                 <div className="h-24 relative rounded-lg overflow-hidden bg-white">
                   <Image

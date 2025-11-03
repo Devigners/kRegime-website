@@ -3,12 +3,14 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { 
   LayoutDashboard, 
   Package, 
   MessageSquare, 
   ShoppingCart,
   Mail,
+  Tag,
   LogOut,
   Clock,
   Menu,
@@ -69,6 +71,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { href: '/admin/regimes', icon: Package, label: 'Regimes' },
     { href: '/admin/reviews', icon: MessageSquare, label: 'Reviews' },
     { href: '/admin/orders', icon: ShoppingCart, label: 'Orders' },
+    { href: '/admin/discount-codes', icon: Tag, label: 'Discount Codes' },
     { href: '/admin/subscribers', icon: Mail, label: 'Subscribers' },
   ];
 
@@ -97,14 +100,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             {/* Logo Section */}
             <div className="flex items-center space-x-4">
               <Link href="/admin/dashboard" className="flex items-center space-x-2">
-                <div className="relative">
-                  <div className="w-8 h-8 bg-gradient-to-br from-[#EF7E71] to-[#D4654F] rounded-lg flex items-center justify-center shadow-md">
-                    <span className="text-white font-bold text-sm">K</span>
-                  </div>
-                </div>
-                <div className="hidden md:block">
-                  <h1 className="text-lg font-bold text-slate-900">Admin Panel</h1>
-                </div>
+                <Image
+                  src="/logo.svg"
+                  alt="KREGIME"
+                  width={108}
+                  height={32}
+                  className="cursor-pointer"
+                />
               </Link>
             </div>
 
@@ -169,17 +171,17 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <div className="fixed top-0 left-0 bottom-0 w-64 bg-white border-r border-slate-200 shadow-xl">
             <div className="flex items-center justify-between p-4 border-b border-slate-200">
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-[#EF7E71] to-[#D4654F] rounded-lg flex items-center justify-center shadow-md">
-                  <span className="text-white font-bold text-sm">K</span>
-                </div>
-                <div>
-                  <h1 className="text-lg font-bold text-slate-900">KREGIME</h1>
-                  <p className="text-xs text-slate-500">Admin Panel</p>
-                </div>
+                <Image
+                  src="/logo.svg"
+                  alt="KREGIME"
+                  width={108}
+                  height={27}
+                  className="cursor-pointer"
+                />
               </div>
               <button
                 onClick={() => setIsSidebarOpen(false)}
-                className="p-1 text-slate-400 hover:text-slate-600 rounded"
+                className="p-1 text-slate-400 hover:text-slate-600 rounded cursor-pointer"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -196,7 +198,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     onClick={() => setIsSidebarOpen(false)}
                     className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 w-full ${
                       isActive
-                        ? "bg-[#EF7E71] text-white shadow-md"
+                        ? "bg-[#EF7E71] !text-white shadow-md"
                         : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                     }`}
                   >

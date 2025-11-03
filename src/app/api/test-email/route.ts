@@ -60,7 +60,7 @@ const mockRegime = {
   discountReason3Months: null,
   discountReason6Months: null,
   steps: ['Cleanser', 'Moisturiser', 'Sunscreen'],
-  images: ['/static/regime-3.webp'],
+  images: ['/static/regime-3-1.webp', '/static/regime-3-2.webp'],
   stepCount: 3 as const,
   isActive: true,
   createdAt: new Date(),

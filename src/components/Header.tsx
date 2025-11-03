@@ -113,7 +113,7 @@ const Header: React.FC = () => {
           )}
 
           {/* CTA and Cart */}
-          <div className="flex items-center space-x-6">
+          <div className="flex items-center gap-6">
             {!isComingSoon && (
               <>
                 <Link

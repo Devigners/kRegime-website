@@ -34,10 +34,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      discount_codes: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          is_active: boolean
+          percentage_off: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id: string
+          is_active?: boolean
+          percentage_off: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          percentage_off?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           contact_info: Json
           created_at: string
+          discount_code_id: string | null
           final_amount: number
           id: string
           quantity: number
@@ -53,6 +81,7 @@ export type Database = {
         Insert: {
           contact_info: Json
           created_at?: string
+          discount_code_id?: string | null
           final_amount: number
           id: string
           quantity?: number
@@ -68,6 +97,7 @@ export type Database = {
         Update: {
           contact_info?: Json
           created_at?: string
+          discount_code_id?: string | null
           final_amount?: number
           id?: string
           quantity?: number
