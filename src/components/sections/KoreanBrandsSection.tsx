@@ -50,7 +50,7 @@ export default function KoreanBrandsSection() {
           viewport={{ once: true }}
         >
           <p className="text-black text-lg">
-            And many more premium K-beauty brands curated for your skin
+            And many more premium Korean skin care brands
           </p>
         </motion.div>
       </div>

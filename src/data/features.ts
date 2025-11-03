@@ -11,7 +11,7 @@ export const features = [
     icon: Shield,
     title: 'Premium Korean Brands',
     description:
-      'Only the finest K-beauty products from trusted brands that Korean beauty experts swear by',
+      'Only the finest Korean skin care products from trusted brands that Korean beauty experts swear by',
   },
   {
     icon: Zap,

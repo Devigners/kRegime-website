@@ -125,7 +125,7 @@ export default function ProductsSection() {
                 initial={{ opacity: 0, y: 50, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="min-w-[85vw] sm:min-w-[400px] lg:min-w-0 snap-center"
+                className="min-w-[75vw] sm:min-w-[400px] lg:min-w-0 snap-center"
               >
                 <ProductCard
                   product={{

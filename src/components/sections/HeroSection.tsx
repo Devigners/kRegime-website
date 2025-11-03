@@ -79,7 +79,7 @@ export default function HeroSection() {
       <div className="relative z-20 text-center text-neutral-900 section-padding max-w-6xl mx-auto pt-12 md:pt-16">
         {/* Mobile: Show titles below video */}
         <motion.div
-          className="md:hidden space-y-6 mb-12"
+          className="md:hidden gap-6 mb-12"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: 'easeOut' }}

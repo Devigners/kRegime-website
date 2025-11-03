@@ -80,11 +80,11 @@ export default function ReviewsSection() {
           viewport={{ once: true }}
         >
           <h2 className="heading-lg text-neutral-900 mb-6">
-            What Our <span className="gradient-text">Customers Say</span>
+            What Our <span className="gradient-text"> <br className='flex md:hidden' />Customers Say</span>
           </h2>
           <p className="text-lg text-black max-w-3xl mx-auto leading-relaxed">
             Join thousands of satisfied customers who have transformed their
-            skin with <br /> our personalized K-beauty routines
+            skin with <br /> our personalized Korean skin care routines
           </p>
         </motion.div>
 

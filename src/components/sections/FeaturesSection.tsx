@@ -1,23 +1,12 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { features } from '@/data';
 
 export default function FeaturesSection() {
   return (
     <section className="py-20 md:py-32 bg-gradient-to-b from-neutral-50 to-white relative overflow-hidden">
-      {/* Background decorative images */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-20 left-10 w-32 h-32 rounded-full overflow-hidden">
-          <Image src="/static/8.webp" alt="" fill className="object-cover" />
-        </div>
-        <div className="absolute bottom-20 right-10 w-40 h-40 rounded-full overflow-hidden">
-          <Image src="/static/9.webp" alt="" fill className="object-cover" />
-        </div>
-      </div>
-
       <div className="container section-padding relative z-10">
         <motion.div
           className="text-center mb-12 md:mb-20"
@@ -30,8 +19,7 @@ export default function FeaturesSection() {
             The Handpicked <span className="gradient-text">Regime</span>
           </h2>
           <p className="text-lg text-black max-w-3xl mx-auto leading-relaxed">
-            We curate handpicked Korean skincare regimens, with products
-            carefully selected by our experts based on individual skin needs
+            We handpick Korean skincare products carefully based on individual skin needs
           </p>
         </motion.div>
 
