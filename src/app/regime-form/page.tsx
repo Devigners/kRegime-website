@@ -50,10 +50,18 @@ function RegimeFormContent() {
         const data = await regimeApi.getById(productId);
         setProduct(data);
 
-        // Load saved form data from localStorage
-        const savedData = localStorageUtils.getFormData(productId);
-        if (savedData) {
-          setFormData((prev) => ({ ...prev, ...savedData }));
+        // First, try to load from cart data (if user is editing from cart)
+        const cartData = localStorageUtils.getCartData();
+        if (cartData && cartData.regimeId === productId && cartData.formData) {
+          setFormData((prev) => ({ ...prev, ...cartData.formData }));
+          // Save to form data storage so user can continue editing
+          localStorageUtils.saveFormData(cartData.formData, productId);
+        } else {
+          // Otherwise, load saved form data from localStorage
+          const savedData = localStorageUtils.getFormData(productId);
+          if (savedData) {
+            setFormData((prev) => ({ ...prev, ...savedData }));
+          }
         }
 
         // Load saved current step from localStorage
@@ -942,7 +950,7 @@ function RegimeFormContent() {
                   {currentStep >= 9 && currentStep < 16 && (
                     <button
                       onClick={handleSubmit}
-                      className={`${isSingleChoiceQuestion() ? "flex" : "hidden"} md:flex items-center space-x-2 px-6 py-3 border border-gray-300 text-gray-600 hover:border-primary hover:text-primary rounded-lg font-medium transition-all cursor-pointer`}
+                      className={`${isSingleChoiceQuestion() ? 'flex' : 'hidden'} md:flex items-center space-x-2 px-6 py-3 border border-gray-300 text-gray-600 hover:border-primary hover:text-primary rounded-lg font-medium transition-all cursor-pointer`}
                     >
                       <span>Skip to Cart</span>
                     </button>
@@ -969,18 +977,20 @@ function RegimeFormContent() {
                           onClick={handleSubmit}
                           className="btn-primary cursor-pointer flex items-center gap-2 justify-center"
                         >
-                          Add to Cart <span className='hidden md:block'>-{' '}
-                          <DirhamIcon size={16} className="!text-white" />{' '}
-                          {(() => {
-                            switch (subscriptionParam) {
-                              case '3-months':
-                                return product.price3Months;
-                              case '6-months':
-                                return product.price6Months;
-                              default:
-                                return product.priceOneTime;
-                            }
-                          })()}</span>
+                          Add to Cart{' '}
+                          <span className="hidden md:flex items-center gap-2">
+                            - <DirhamIcon size={16} className="!text-white" />{' '}
+                            {(() => {
+                              switch (subscriptionParam) {
+                                case '3-months':
+                                  return product.price3Months;
+                                case '6-months':
+                                  return product.price6Months;
+                                default:
+                                  return product.priceOneTime;
+                              }
+                            })()}
+                          </span>
                         </button>
                       )}
                     </>
@@ -991,9 +1001,9 @@ function RegimeFormContent() {
               {currentStep >= 9 && currentStep < 16 && (
                 <button
                   onClick={handleSubmit}
-                  className={`w-full mt-4 ${isSingleChoiceQuestion() ? "hidden" : "flex"}  md:hidden items-center space-x-2 px-6 py-3 border border-gray-300 text-gray-600 hover:border-primary hover:text-primary rounded-lg font-medium transition-all cursor-pointer`}
+                  className={`w-full mt-4 ${isSingleChoiceQuestion() ? 'hidden' : 'flex'}  md:hidden items-center space-x-2 px-6 py-3 border border-gray-300 text-gray-600 hover:border-primary hover:text-primary rounded-lg font-medium transition-all cursor-pointer`}
                 >
-                  <span className='text-center w-full'>Skip to Cart</span>
+                  <span className="text-center w-full">Skip to Cart</span>
                 </button>
               )}
             </>

@@ -3,14 +3,15 @@
 import DirhamIcon from '@/components/icons/DirhamIcon';
 import PricingSwitcher from '@/components/PricingSwitcher';
 import { localStorage as localStorageUtils } from '@/lib/localStorage';
+import { calculatePrice } from '@/lib/pricing';
 import { Regime } from '@/models/database';
 import { SubscriptionType } from '@/types';
 import { motion } from 'framer-motion';
+import { ChevronDown, ChevronUp, Edit } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { calculatePrice } from '@/lib/pricing';
-import { Tag } from 'lucide-react';
 
 interface CartData {
   regimeId: string;
@@ -22,7 +23,9 @@ interface CartData {
 }
 
 export default function Cart() {
+  const router = useRouter();
   const [cartData, setCartData] = useState<CartData | null>(null);
+  const [showAnswers, setShowAnswers] = useState(false);
 
   useEffect(() => {
     const loadCartData = () => {
@@ -64,6 +67,77 @@ export default function Cart() {
   // Get current price info for display
   const currentPriceInfo = cartData ? calculatePrice(cartData.regime, cartData.subscriptionType) : null;
 
+  // Helper function to format answers for display
+  const getQuestionLabel = (key: string): string => {
+    const labels: Record<string, string> = {
+      age: 'Age Range',
+      gender: 'Gender',
+      skinType: 'Skin Type',
+      skinConcerns: 'Primary Skin Concerns',
+      complexion: 'Complexion',
+      allergies: 'Allergies/Sensitivities',
+      skincareSteps: 'Skincare Steps',
+      skincareGoal: 'Skincare Goals',
+      koreanSkincareExperience: 'Korean Skincare Experience',
+      koreanSkincareAttraction: 'What Attracts You to Korean Skincare',
+      dailyProductCount: 'Daily Product Count',
+      routineRegularity: 'Routine Regularity',
+      purchaseLocation: 'Purchase Location',
+      budget: 'Monthly Budget',
+      brandsUsed: 'Brands Used',
+      additionalComments: 'Additional Comments',
+    };
+    return labels[key] || key;
+  };
+
+  // Map form field keys to their corresponding step numbers in the form
+  const getQuestionStep = (key: string): number => {
+    const stepMap: Record<string, number> = {
+      age: 1,
+      gender: 2,
+      skinType: 3,
+      skinConcerns: 4,
+      complexion: 5,
+      allergies: 6,
+      skincareSteps: 7,
+      skincareGoal: 8,
+      koreanSkincareExperience: 9,
+      koreanSkincareAttraction: 10,
+      dailyProductCount: 11,
+      routineRegularity: 12,
+      purchaseLocation: 13,
+      budget: 14,
+      brandsUsed: 15,
+      additionalComments: 16,
+    };
+    return stepMap[key] || 1;
+  };
+
+  const formatAnswer = (value: string | string[]): string => {
+    if (Array.isArray(value)) {
+      return value.length > 0 ? value.join(', ') : 'Not answered';
+    }
+    return value || 'Not answered';
+  };
+
+  const handleEditAnswers = () => {
+    if (!cartData) return;
+    
+    // Navigate back to regime-form with the product ID and subscription type
+    router.push(`/regime-form?product=${cartData.regimeId}&subscription=${cartData.subscriptionType}`);
+  };
+
+  const handleEditSpecificAnswer = (key: string) => {
+    if (!cartData) return;
+    
+    const step = getQuestionStep(key);
+    // Save the target step to localStorage so the form knows where to navigate
+    localStorage.setItem(`currentStep_${cartData.regimeId}`, step.toString());
+    
+    // Navigate back to regime-form with the product ID and subscription type
+    router.push(`/regime-form?product=${cartData.regimeId}&subscription=${cartData.subscriptionType}`);
+  };
+
   if (!cartData) {
     return (
       <div className="container section-padding py-40 text-center">
@@ -92,7 +166,7 @@ export default function Cart() {
             animate={{ opacity: 1, y: 0 }}
             className="bg-white rounded-lg shadow-sm p-6"
           >
-            <div className="flex items-start space-x-4">
+            <div className="flex flex-col items-start gap-4">
               <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center">
                 {cartData.regime.images && cartData.regime.images.length > 0 ? (
                   <Image
@@ -117,32 +191,80 @@ export default function Cart() {
                   {cartData.regime.description}
                 </p>
 
-                {/* Discount Badge */}
-                {currentPriceInfo && currentPriceInfo.hasDiscount && currentPriceInfo.discountReason && (
-                  <div className="mb-4 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-lg p-3">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="bg-primary text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
-                        <Tag className="w-3 h-3" />
-                        {currentPriceInfo.discountReason} {currentPriceInfo.discount}% Off
-                      </div>
-                    </div>
-                    <p className="text-xs text-green-700 font-semibold">
-                      You save {currentPriceInfo.savingsAmount} AED on this purchase!
-                    </p>
-                  </div>
-                )}
-
                 {/* Subscription Type Switcher */}
                 <div className="mt-6 flex flex-col gap-1">
                   <h4 className="text-sm font-semibold text-black">Purchase Option:</h4>
                   <PricingSwitcher
                     selectedType={cartData.subscriptionType}
                     onTypeChange={updateSubscriptionType}
-                    className="!w-fit !mx-0 scale-85 shadow-none border !border-gray-200 transform origin-left"
+                    className="!w-fit !px-0 !mx-0 scale-85 shadow-none transform origin-left"
                   />
                 </div>
               </div>
             </div>
+          </motion.div>
+
+          {/* Form Answers Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-white rounded-lg shadow-sm p-6"
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-black">Your Regime Answers</h3>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleEditAnswers}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary border border-primary rounded-lg hover:bg-primary hover:text-white transition-all"
+                >
+                  <Edit size={16} />
+                  <span>Edit Answers</span>
+                </button>
+                <button
+                  onClick={() => setShowAnswers(!showAnswers)}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-black border border-gray-300 rounded-lg hover:bg-gray-50 transition-all"
+                >
+                  <span>{showAnswers ? 'Hide' : 'View'} Answers</span>
+                  {showAnswers ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
+              </div>
+            </div>
+
+            {showAnswers && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="mt-4 space-y-4 pt-4 border-t border-gray-200"
+              >
+                {Object.entries(cartData.formData).map(([key, value]) => {
+                  const answer = formatAnswer(value);
+                  if (answer === 'Not answered') return null;
+                  
+                  return (
+                    <div key={key} className="border-b border-gray-100 pb-3 last:border-b-0 group">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex-1">
+                          <h4 className="text-sm font-semibold text-black mb-1">
+                            {getQuestionLabel(key)}
+                          </h4>
+                          <p className="text-sm text-gray-700">{answer}</p>
+                        </div>
+                        <button
+                          onClick={() => handleEditSpecificAnswer(key)}
+                          className="flex-shrink-0 cursor-pointer p-1.5 text-gray-400 hover:text-primary hover:bg-primary/10 rounded transition-all opacity-0 group-hover:opacity-100"
+                          title="Edit this answer"
+                        >
+                          <Edit size={20} />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </motion.div>
+            )}
           </motion.div>
         </div>
 
@@ -164,7 +286,7 @@ export default function Cart() {
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-bold text-green-800">Discount ({currentPriceInfo.discount}%)</span>
+                    <span className="text-sm font-bold text-green-800">{currentPriceInfo.discountReason} {currentPriceInfo.discount}% Off</span>
                     <span className="text-sm font-bold text-green-700 flex items-center gap-1">
                       - <DirhamIcon size={12} className="text-green-700" />
                       {currentPriceInfo.savingsAmount}
