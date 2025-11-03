@@ -34,7 +34,7 @@ interface CheckoutRequestBody {
   quantity: number;
   customerEmail: string;
   customerName: string;
-  shippingAddress: {
+  shippingAddress?: {
     firstName: string;
     lastName?: string;
     address: string;
@@ -43,6 +43,7 @@ interface CheckoutRequestBody {
   };
   checkoutSessionKey: string; // Key to retrieve data from localStorage
   discountCodeId?: string; // Optional discount code ID
+  isGift?: boolean; // Whether this is a gift order
 }
 
 export async function POST(request: NextRequest) {
@@ -56,6 +57,7 @@ export async function POST(request: NextRequest) {
       shippingAddress,
       checkoutSessionKey,
       discountCodeId,
+      isGift,
     } = body;
 
     // Validate regime ID
@@ -90,9 +92,6 @@ export async function POST(request: NextRequest) {
       ],
       customer_email: customerEmail,
       billing_address_collection: 'auto',
-      shipping_address_collection: {
-        allowed_countries: ['AE'], // United Arab Emirates
-      },
       phone_number_collection: {
         enabled: true,
       },
@@ -102,9 +101,13 @@ export async function POST(request: NextRequest) {
         quantity: quantity.toString(),
         customerEmail: customerEmail,
         checkoutSessionKey, // Store key to retrieve data from localStorage
-        firstName: shippingAddress.firstName,
-        city: shippingAddress.city,
         discountCodeId: discountCodeId || '', // Store discount code ID if present
+        isGift: isGift ? 'true' : 'false',
+        // Only include shipping info for non-gift orders
+        ...(shippingAddress && !isGift ? {
+          firstName: shippingAddress.firstName,
+          city: shippingAddress.city,
+        } : {}),
       },
       // Use client_reference_id for easy order tracking
       client_reference_id: checkoutSessionKey,
@@ -112,6 +115,13 @@ export async function POST(request: NextRequest) {
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment?cancelled=true`,
       allow_promotion_codes: true,
     };
+
+    // Only add shipping address collection for non-gift orders
+    if (!isGift) {
+      sessionConfig.shipping_address_collection = {
+        allowed_countries: ['AE'], // United Arab Emirates
+      };
+    }
 
     // Only add shipping_options for one-time payments (payment mode)
     if (!isSubscription) {

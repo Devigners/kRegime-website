@@ -61,3 +61,40 @@ export interface FormData {
   brandsUsed: string;
   additionalComments: string;
 }
+
+export interface Order {
+  id: string;
+  regime_id: string;
+  quantity: number;
+  total_amount: number;
+  final_amount: number;
+  status: string;
+  subscription_type: string | null;
+  contact_info: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+  };
+  shipping_address: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
+  user_details: FormData;
+  stripe_session_id: string | null;
+  discount_code_id: string | null;
+  is_gift: boolean | null;
+  gift_giver_name: string | null;
+  gift_giver_email: string | null;
+  gift_giver_phone: string | null;
+  gift_token: string | null;
+  gift_claimed: boolean | null;
+  gift_claimed_at: string | null;
+  gift_recipient_name: string | null;
+  gift_recipient_email: string | null;
+  created_at: string;
+  updated_at: string;
+}
