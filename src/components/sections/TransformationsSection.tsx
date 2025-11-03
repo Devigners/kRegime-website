@@ -81,15 +81,17 @@ export default function TransformationsSection() {
         </div>
 
         {/* Desktop: Horizontal Timeline */}
-        <div className="hidden md:grid grid-cols-4 gap-8 px-6 lg:px-10">
+        <motion.div
+          className="hidden md:grid grid-cols-4 gap-8 px-6 lg:px-10"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+        >
           {milestones.map((milestone, index) => (
-            <motion.div
+            <div
               key={milestone.time}
               className="relative text-center space-y-6"
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.2 }}
-              viewport={{ once: true }}
             >
               {/* Connecting Line */}
               {index < milestones.length - 1 && (
@@ -110,9 +112,9 @@ export default function TransformationsSection() {
               <p className="text-black leading-relaxed max-w-sm mx-auto">
                 {milestone.description}
               </p>
-            </motion.div>
+            </div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
