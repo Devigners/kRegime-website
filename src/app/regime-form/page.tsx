@@ -249,8 +249,8 @@ function RegimeFormContent() {
         return formData.skinConcerns.length > 0;
       case 5: // Complexion - required
         return formData.complexion !== '';
-      case 6: // Allergies - optional but part of first 8
-        return true;
+      case 6: // Skin concerns details - required
+        return formData.allergies.trim() !== '';
       case 7: // Skincare steps - exactly product.stepCount required
         return formData.skincareSteps.length === product.stepCount;
       case 8: // Skincare goals - at least 1 required
