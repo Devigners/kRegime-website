@@ -382,14 +382,15 @@ function CartContent() {
                 </p>
 
                 {/* Subscription Type Switcher */}
-                <div className="mt-6 flex flex-col gap-1">
+                <div className="mt-6 flex flex-col gap-3 md:gap-1">
                   <h4 className="text-sm font-semibold text-black">
                     Purchase Option:
                   </h4>
                   <PricingSwitcher
                     selectedType={cartData.subscriptionType}
                     onTypeChange={updateSubscriptionType}
-                    className="!w-fit !px-0 !mx-0 scale-85 transform origin-left !shadow-none !border-gray-200"
+                    className="!w-full !px-0 !mx-0 scale-100 md:scale-85 transform origin-left !shadow-none !border-gray-200"
+                    verticalOnMobile={true}
                   />
                 </div>
               </div>
