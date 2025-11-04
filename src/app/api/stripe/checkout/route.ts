@@ -92,9 +92,9 @@ export async function POST(request: NextRequest) {
       ],
       customer_email: customerEmail,
       billing_address_collection: 'auto',
-      phone_number_collection: {
-        enabled: true,
-      },
+      // phone_number_collection: {
+      //   enabled: true,
+      // },
       metadata: {
         regimeId,
         subscriptionType,
@@ -113,15 +113,8 @@ export async function POST(request: NextRequest) {
       client_reference_id: checkoutSessionKey,
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment?cancelled=true`,
-      allow_promotion_codes: true,
+      allow_promotion_codes: false, // Disable promotion code field on Stripe Checkout
     };
-
-    // Only add shipping address collection for non-gift orders
-    if (!isGift) {
-      sessionConfig.shipping_address_collection = {
-        allowed_countries: ['AE'], // United Arab Emirates
-      };
-    }
 
     // Only add shipping_options for one-time payments (payment mode)
     if (!isSubscription) {
