@@ -287,12 +287,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
               Select This Regime
             </Link>
 
-            <button
-              onClick={handleGiftClick}
-              className="w-full cursor-pointer text-center group flex items-center justify-center px-6 py-3 bg-white border-2 border-primary text-primary rounded-lg font-medium hover:bg-primary hover:!text-white transition-all duration-300"
-            >
-              Send as a Gift
-            </button>
+            {selectedSubscription === 'one-time' && (
+              <button
+                onClick={handleGiftClick}
+                className="w-full cursor-pointer text-center group flex items-center justify-center px-6 py-3 bg-white border-2 border-primary text-primary rounded-lg font-medium hover:bg-primary hover:!text-white transition-all duration-300"
+              >
+                Send as a Gift
+              </button>
+            )}
           </div>
 
           <div className="text-center">
