@@ -1,0 +1,222 @@
+/**
+ * Base email template generator
+ * This provides the HTML structure for all KREGIME emails
+ */
+
+export interface EmailTemplateOptions {
+  title: string;
+  heading: string;
+  subheading: string;
+  ctaButton: {
+    text: string;
+    url: string;
+  };
+  footerNote?: string;
+}
+
+export function generateEmailTemplate({
+  title,
+  heading,
+  subheading,
+  ctaButton,
+  footerNote,
+}: EmailTemplateOptions): string {
+
+  return `
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en">
+<head>
+<title>${title}</title>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<!--[if !mso]>-->
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<!--<![endif]-->
+<meta name="x-apple-disable-message-reformatting" content="" />
+<meta content="target-densitydpi=device-dpi" name="viewport" />
+<meta content="true" name="HandheldFriendly" />
+<meta content="width=device-width" name="viewport" />
+<meta name="format-detection" content="telephone=no, date=no, address=no, email=no, url=no" />
+<style type="text/css">
+table {
+border-collapse: separate;
+table-layout: fixed;
+mso-table-lspace: 0pt;
+mso-table-rspace: 0pt
+}
+table td {
+border-collapse: collapse
+}
+.ExternalClass {
+width: 100%
+}
+.ExternalClass,
+.ExternalClass p,
+.ExternalClass span,
+.ExternalClass font,
+.ExternalClass td,
+.ExternalClass div {
+line-height: 100%
+}
+body, a, li, p, h1, h2, h3 {
+-ms-text-size-adjust: 100%;
+-webkit-text-size-adjust: 100%;
+}
+html {
+-webkit-text-size-adjust: none !important
+}
+body {
+min-width: 100%;
+Margin: 0px;
+padding: 0px;
+}
+body, #innerTable {
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale
+}
+#innerTable img+div {
+display: none;
+display: none !important
+}
+img {
+Margin: 0;
+padding: 0;
+-ms-interpolation-mode: bicubic
+}
+h1, h2, h3, p, a {
+line-height: inherit;
+overflow-wrap: normal;
+white-space: normal;
+word-break: break-word
+}
+a {
+text-decoration: none
+}
+h1, h2, h3, p {
+min-width: 100%!important;
+width: 100%!important;
+max-width: 100%!important;
+display: inline-block!important;
+border: 0;
+padding: 0;
+margin: 0
+}
+a[x-apple-data-detectors] {
+color: inherit !important;
+text-decoration: none !important;
+font-size: inherit !important;
+font-family: inherit !important;
+font-weight: inherit !important;
+line-height: inherit !important
+}
+u + #body a {
+color: inherit;
+text-decoration: none;
+font-size: inherit;
+font-family: inherit;
+font-weight: inherit;
+line-height: inherit;
+}
+a[href^="mailto"],
+a[href^="tel"],
+a[href^="sms"] {
+color: inherit;
+text-decoration: none
+}
+</style>
+<style type="text/css">
+@media (min-width: 481px) {
+.hd { display: none!important }
+}
+</style>
+<style type="text/css">
+@media (max-width: 480px) {
+.hm { display: none!important }
+}
+</style>
+<style type="text/css">
+@media (max-width: 480px) {
+.t63,.t67{vertical-align:middle!important}.t78{padding:40px 30px!important}.t11,.t15,.t17,.t21,.t23,.t9{max-width:416px!important}.t73{padding-bottom:36px!important}.t68{text-align:center!important}.t61{display:revert!important}.t63{width:39px!important}.t67{width:34px!important}
+}
+</style>
+<!--[if !mso]>-->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&amp;family=DM+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet" type="text/css" />
+<!--<![endif]-->
+<!--[if mso]>
+<xml>
+<o:OfficeDocumentSettings>
+<o:AllowPNG/>
+<o:PixelsPerInch>96</o:PixelsPerInch>
+</o:OfficeDocumentSettings>
+</xml>
+<![endif]-->
+</head>
+<body id=body class=t90 style="min-width:100%;Margin:0px;padding:0px;background-color:#F0F0F0;"><div class=t89 style="background-color:#F0F0F0;"><table role=presentation width=100% cellpadding=0 cellspacing=0 border=0 align=center><tr><td class=t88 style="font-size:0;line-height:0;mso-line-height-rule:exactly;background-color:#F0F0F0;" valign=top align=center>
+<!--[if mso]>
+<v:background xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false">
+<v:fill color=#F0F0F0/>
+</v:background>
+<![endif]-->
+<table role=presentation width=100% cellpadding=0 cellspacing=0 border=0 align=center id=innerTable><tr><td><div class=t82 style="mso-line-height-rule:exactly;mso-line-height-alt:24px;line-height:24px;font-size:1px;display:block;">&nbsp;&nbsp;</div></td></tr><tr><td align=center>
+<table class=t86 role=presentation cellpadding=0 cellspacing=0 style="Margin-left:auto;Margin-right:auto;"><tr><td width=600 class=t85 style="width:600px;">
+<table class=t84 role=presentation cellpadding=0 cellspacing=0 width=100% style="width:100%;"><tr><td class=t83 style="overflow:hidden;background-color:#FFFFFF;border-radius:16px 16px 16px 16px;"><table role=presentation width=100% cellpadding=0 cellspacing=0 style="width:100% !important;"><tr><td align=center>
+<table class=t33 role=presentation cellpadding=0 cellspacing=0 style="Margin-left:auto;Margin-right:auto;"><tr><td width=600 class=t32 style="width:600px;">
+<table class=t31 role=presentation cellpadding=0 cellspacing=0 width=100% style="width:100%;"><tr><td class=t30 style="background-color:transparent;padding:0 32px 0 32px;"><table role=presentation width=100% cellpadding=0 cellspacing=0 style="width:100% !important;"><tr><td><div class=t1 style="mso-line-height-rule:exactly;mso-line-height-alt:32px;line-height:32px;font-size:1px;display:block;">&nbsp;&nbsp;</div></td></tr><tr><td align=center>
+<table class=t5 role=presentation cellpadding=0 cellspacing=0 style="Margin-left:auto;Margin-right:auto;"><tr><td width=40 class=t4 style="width:40px;">
+<table class=t3 role=presentation cellpadding=0 cellspacing=0 width=100% style="width:100%;"><tr><td class=t2><a href="https://www.kregime.com/" style="font-size:0px;" target=_blank><img class=t0 style="display:block;border:0;height:auto;width:100%;Margin:0;max-width:100%;" width=40 height=40 alt="" src="https://93063cdb-20f1-478b-80bb-d23c78ce6e83.b-cdn.net/e/d5c8454a-8b47-4958-ac81-a249ac49fb61/8789b944-869d-4deb-bd05-ee92bcbb18ae.png"/></a></td></tr></table>
+</td></tr></table>
+</td></tr><tr><td><div class=t7 style="mso-line-height-rule:exactly;mso-line-height-alt:24px;line-height:24px;font-size:1px;display:block;">&nbsp;&nbsp;</div></td></tr><tr><td align=center>
+<table class=t11 role=presentation cellpadding=0 cellspacing=0 style="Margin-left:auto;Margin-right:auto;max-width:536px;"><tr><td class=t10 style="width:auto;">
+<table class=t9 role=presentation cellpadding=0 cellspacing=0 style="width:auto;max-width:536px;"><tr><td class=t8><h1 class=t6 style="margin:0;Margin:0;font-family:DM Sans,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Arial,sans-serif;line-height:52px;font-weight:700;font-style:normal;font-size:32px;text-decoration:none;text-transform:none;letter-spacing:-1px;direction:ltr;color:#000000;text-align:center;mso-line-height-rule:exactly;mso-text-raise:6px;">${heading}</h1></td></tr></table>
+</td></tr></table>
+</td></tr><tr><td><div class=t13 style="mso-line-height-rule:exactly;mso-line-height-alt:24px;line-height:24px;font-size:1px;display:block;">&nbsp;&nbsp;</div></td></tr><tr><td align=center>
+<table class=t17 role=presentation cellpadding=0 cellspacing=0 style="Margin-left:auto;Margin-right:auto;max-width:536px;"><tr><td class=t16 style="width:auto;">
+<table class=t15 role=presentation cellpadding=0 cellspacing=0 style="width:auto;max-width:536px;"><tr><td class=t14><p class=t12 style="margin:0;Margin:0;font-family:DM Sans,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Arial,sans-serif;line-height:30px;font-weight:400;font-style:normal;font-size:20px;text-decoration:none;text-transform:none;letter-spacing:0px;direction:ltr;color:#9E9E9E;text-align:center;mso-line-height-rule:exactly;mso-text-raise:3px;">${subheading}</p></td></tr></table>
+</td></tr></table>
+</td></tr><tr><td><div class=t19 style="mso-line-height-rule:exactly;mso-line-height-alt:24px;line-height:24px;font-size:1px;display:block;">&nbsp;&nbsp;</div></td></tr><tr><td align=center>
+<table class=t23 role=presentation cellpadding=0 cellspacing=0 style="Margin-left:auto;Margin-right:auto;max-width:536px;"><tr><td class=t22 style="width:auto;">
+<table class=t21 role=presentation cellpadding=0 cellspacing=0 style="width:auto;max-width:536px;"><tr><td class=t20 style="overflow:hidden;background-color:#EF7E71;text-align:center;line-height:58px;mso-line-height-rule:exactly;mso-text-raise:11px;padding:0 16px 0 16px;border-radius:8px 8px 8px 8px;"><a class=t18 href=${ctaButton.url} style="display:block;margin:0;Margin:0;font-family:DM Sans,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Arial,sans-serif;line-height:58px;font-weight:600;font-style:normal;font-size:21px;text-decoration:none;direction:ltr;color:#FFFFFF;text-align:center;mso-line-height-rule:exactly;mso-text-raise:11px;" target=_blank>${ctaButton.text}</a></td></tr></table>
+</td></tr></table>
+</td></tr><tr><td><div class=t25 style="mso-line-height-rule:exactly;mso-line-height-alt:24px;line-height:24px;font-size:1px;display:block;">&nbsp;&nbsp;</div></td></tr><tr><td align=center>
+<table class=t29 role=presentation cellpadding=0 cellspacing=0 style="Margin-left:auto;Margin-right:auto;"><tr><td width=400 class=t28 style="width:400px;">
+<table class=t27 role=presentation cellpadding=0 cellspacing=0 width=100% style="width:100%;"><tr><td class=t26><p class=t24 style="margin:0;Margin:0;font-family:DM Sans,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Arial,sans-serif;line-height:22px;font-weight:400;font-style:normal;font-size:16px;text-decoration:none;text-transform:none;direction:ltr;color:#BBBBBB;text-align:center;mso-line-height-rule:exactly;mso-text-raise:2px;">${footerNote}</p></td></tr></table>
+</td></tr></table>
+</td></tr></table></td></tr></table>
+</td></tr></table>
+</td></tr><tr><td><div class=t77 style="mso-line-height-rule:exactly;mso-line-height-alt:32px;line-height:32px;font-size:1px;display:block;">&nbsp;&nbsp;</div></td></tr><tr><td align=center>
+<table class=t81 role=presentation cellpadding=0 cellspacing=0 style="Margin-left:auto;Margin-right:auto;"><tr><td width=600 class=t80 style="width:600px;">
+<table class=t79 role=presentation cellpadding=0 cellspacing=0 width=100% style="width:100%;"><tr><td class=t78 style="background-color:#FAFAFA;padding:32px 32px 32px 32px;"><table role=presentation width=100% cellpadding=0 cellspacing=0 style="width:100% !important;"><tr><td align=center>
+<table class=t38 role=presentation cellpadding=0 cellspacing=0 style="Margin-left:auto;Margin-right:auto;"><tr><td width=120 class=t37 style="width:120px;">
+<table class=t36 role=presentation cellpadding=0 cellspacing=0 width=100% style="width:100%;"><tr><td class=t35><a href="https://www.kregime.com/" style="font-size:0px;" target=_blank><img class=t34 style="display:block;border:0;height:auto;width:100%;Margin:0;max-width:100%;" width=120 height=19.59375 alt="" src="https://93063cdb-20f1-478b-80bb-d23c78ce6e83.b-cdn.net/e/d5c8454a-8b47-4958-ac81-a249ac49fb61/9e584a8a-aee8-4262-be96-47f0d8a8238f.png"/></a></td></tr></table>
+</td></tr></table>
+</td></tr><tr><td><div class=t39 style="mso-line-height-rule:exactly;mso-line-height-alt:8px;line-height:8px;font-size:1px;display:block;">&nbsp;&nbsp;</div></td></tr><tr><td><div class=t42 style="mso-line-height-rule:exactly;mso-line-height-alt:12px;line-height:12px;font-size:1px;display:block;">&nbsp;&nbsp;</div></td></tr><tr><td align=center>
+<table class=t46 role=presentation cellpadding=0 cellspacing=0 style="Margin-left:auto;Margin-right:auto;"><tr><td width=536 class=t45 style="width:600px;">
+<table class=t44 role=presentation cellpadding=0 cellspacing=0 width=100% style="width:100%;"><tr><td class=t43><p class=t41 style="margin:0;Margin:0;font-family:Inter,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Arial,sans-serif;line-height:21px;font-weight:400;font-style:normal;font-size:14px;text-decoration:none;text-transform:none;direction:ltr;color:#000000;text-align:center;mso-line-height-rule:exactly;mso-text-raise:2px;"><a class=t40 href="mailto:care@kregime.com" style="margin:0;Margin:0;font-weight:400;font-style:normal;text-decoration:none;direction:ltr;color:#000000;mso-line-height-rule:exactly;" target=_blank>care@kregime.com</a></p></td></tr></table>
+</td></tr></table>
+</td></tr><tr><td><div class=t48 style="mso-line-height-rule:exactly;mso-line-height-alt:12px;line-height:12px;font-size:1px;display:block;">&nbsp;&nbsp;</div></td></tr><tr><td align=center>
+<table class=t52 role=presentation cellpadding=0 cellspacing=0 style="Margin-left:auto;Margin-right:auto;"><tr><td width=536 class=t51 style="width:600px;">
+<table class=t50 role=presentation cellpadding=0 cellspacing=0 width=100% style="width:100%;"><tr><td class=t49><p class=t47 style="margin:0;Margin:0;font-family:Inter,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Arial,sans-serif;line-height:21px;font-weight:400;font-style:normal;font-size:12px;text-decoration:none;text-transform:none;direction:ltr;color:#000000;text-align:center;mso-line-height-rule:exactly;mso-text-raise:3px;">KREGIME - Personalized Korean Skincare Regimens</p></td></tr></table>
+</td></tr></table>
+</td></tr><tr><td><div class=t54 style="mso-line-height-rule:exactly;mso-line-height-alt:12px;line-height:12px;font-size:1px;display:block;">&nbsp;&nbsp;</div></td></tr><tr><td align=center>
+<table class=t58 role=presentation cellpadding=0 cellspacing=0 style="Margin-left:auto;Margin-right:auto;"><tr><td width=536 class=t57 style="width:600px;">
+<table class=t56 role=presentation cellpadding=0 cellspacing=0 width=100% style="width:100%;"><tr><td class=t55><p class=t53 style="margin:0;Margin:0;font-family:Inter,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Arial,sans-serif;line-height:21px;font-weight:400;font-style:normal;font-size:12px;text-decoration:none;text-transform:none;direction:ltr;color:#000000;text-align:center;mso-line-height-rule:exactly;mso-text-raise:3px;">© 2025 KREGIME. Made with love for your skin</p></td></tr></table>
+</td></tr></table>
+</td></tr><tr><td><div class=t72 style="mso-line-height-rule:exactly;mso-line-height-alt:12px;line-height:12px;font-size:1px;display:block;">&nbsp;&nbsp;</div></td></tr><tr><td align=center>
+<table class=t76 role=presentation cellpadding=0 cellspacing=0 style="Margin-left:auto;Margin-right:auto;"><tr><td width=536 class=t75 style="width:800px;">
+<table class=t74 role=presentation cellpadding=0 cellspacing=0 width=100% style="width:100%;"><tr><td class=t73 style="padding:10px 0 10px 0;"><div class=t71 style="width:100%;text-align:center;"><div class=t70 style="display:inline-block;"><table class=t69 role=presentation cellpadding=0 cellspacing=0 align=center valign=middle>
+<tr class=t68><td></td><td class=t63 width=39 valign=middle>
+<table role=presentation width=100% cellpadding=0 cellspacing=0 class=t62 style="width:100%;"><tr><td class=t60><a href="https://www.instagram.com/kregime.official/" style="font-size:0px;" target=_blank><img class=t59 style="display:block;border:0;height:auto;width:100%;Margin:0;max-width:100%;" width=29 height=29 alt="" src="https://93063cdb-20f1-478b-80bb-d23c78ce6e83.b-cdn.net/e/d5c8454a-8b47-4958-ac81-a249ac49fb61/7fdd2551-2c94-4b24-9479-11cb4509cd2a.png"/></a></td><td class=t61 style="width:10px;" width=10></td></tr></table>
+</td><td class=t67 width=34 valign=middle>
+<table role=presentation width=100% cellpadding=0 cellspacing=0 class=t66 style="width:100%;"><tr><td class=t65><a href="https://www.youtube.com/@kregime" style="font-size:0px;" target=_blank><img class=t64 style="display:block;border:0;height:auto;width:100%;Margin:0;max-width:100%;" width=34 height=23.735849056603772 alt="" src="https://93063cdb-20f1-478b-80bb-d23c78ce6e83.b-cdn.net/e/d5c8454a-8b47-4958-ac81-a249ac49fb61/86d58c42-d906-4f10-aa44-89916f2cc26c.png"/></a></td></tr></table>
+</td>
+<td></td></tr>
+</table></div></div></td></tr></table>
+</td></tr></table>
+</td></tr></table></td></tr></table>
+</td></tr></table>
+</td></tr></table></td></tr></table>
+</td></tr></table>
+</td></tr><tr><td><div class=t87 style="mso-line-height-rule:exactly;mso-line-height-alt:24px;line-height:24px;font-size:1px;display:block;">&nbsp;&nbsp;</div></td></tr></table></td></tr></table></div><div class="gmail-fix" style="display: none; white-space: nowrap; font: 15px courier; line-height: 0;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</div></body>
+</html>
+  `;
+}

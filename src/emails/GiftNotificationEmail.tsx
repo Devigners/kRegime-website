@@ -336,18 +336,22 @@ export async function sendGiftNotificationEmail({
   giftUrl: string;
 }) {
   const { resend } = await import('@/lib/resend');
+  const { generateGiftNotificationEmail } = await import('./templates');
   
   try {
+    // Generate the email HTML
+    const emailHtml = generateGiftNotificationEmail({
+      recipientName,
+      senderName,
+      giftMessage,
+      giftUrl,
+    });
+
     await resend.emails.send({
       from: 'KREGIME <no-reply@kregime.com>',
       to: recipientEmail,
       subject: `${senderName} sent you a special skincare gift! 🎁`,
-      react: GiftNotificationEmail({
-        recipientName,
-        senderName,
-        giftMessage,
-        giftUrl,
-      }),
+      html: emailHtml,
     });
   } catch (error) {
     console.error('Error sending gift notification email:', error);

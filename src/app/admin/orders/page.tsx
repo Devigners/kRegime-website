@@ -794,13 +794,13 @@ export default function OrdersAdmin() {
             <div className="flex space-x-4">
               <button
                 onClick={() => setStatusUpdateConfirm(null)}
-                className="flex-1 px-6 py-4 text-neutral-600 border-2 border-neutral-300 rounded-2xl hover:bg-neutral-50 font-bold text-lg transition-all duration-300"
+                className="cursor-pointer flex-1 px-6 py-4 text-neutral-600 border-2 border-neutral-300 rounded-2xl hover:bg-neutral-50 font-bold text-lg transition-all duration-300"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmStatusUpdate}
-                className="flex-1 px-6 py-4 bg-gradient-to-r from-[#EF7E71] to-[#D4654F] text-white rounded-2xl hover:shadow-xl font-bold text-lg transition-all duration-300 shadow-lg"
+                className="cursor-pointer flex-1 px-6 py-4 bg-gradient-to-r from-[#EF7E71] to-[#D4654F] text-white rounded-2xl hover:shadow-xl font-bold text-lg transition-all duration-300 shadow-lg"
               >
                 Update Status
               </button>

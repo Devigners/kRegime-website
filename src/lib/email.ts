@@ -1,8 +1,10 @@
-import { render } from '@react-email/render';
 import { resend } from './resend';
-import { OrderReceivedEmail } from '@/emails/OrderReceivedEmail';
-import { OrderStatusUpdateEmail } from '@/emails/OrderStatusUpdateEmail';
-import { NewOrderAdminEmail } from '@/emails/NewOrderAdminEmail';
+import {
+  generateOrderReceivedEmail,
+  generateOrderStatusUpdateEmail,
+  generateNewOrderAdminEmail,
+  generateNewsletterSubscriptionEmail,
+} from '@/emails/templates';
 import { Order, Regime } from '@/models/database';
 
 export interface SendOrderReceivedEmailProps {
@@ -40,14 +42,12 @@ export async function sendOrderReceivedEmail({
       order.shippingAddress?.firstName || 
       order.contactInfo.email.split('@')[0];
 
-    // Render the email template
-    const emailHtml = await render(
-      OrderReceivedEmail({
-        order,
-        regime,
-        customerName: displayName,
-      })
-    );
+    // Generate the email HTML
+    const emailHtml = generateOrderReceivedEmail({
+      order,
+      regime,
+      customerName: displayName,
+    });
 
     // Send email using Resend
     const { data, error } = await resend.emails.send({
@@ -111,15 +111,13 @@ export async function sendOrderStatusUpdateEmail({
       }
     };
 
-    // Render the email template
-    const emailHtml = await render(
-      OrderStatusUpdateEmail({
-        order,
-        regime,
-        customerName: displayName,
-        trackingNumber,
-      })
-    );
+    // Generate the email HTML
+    const emailHtml = generateOrderStatusUpdateEmail({
+      order,
+      regime,
+      customerName: displayName,
+      trackingNumber,
+    });
 
     // Send email using Resend
     const { data, error } = await resend.emails.send({
@@ -168,17 +166,15 @@ export async function sendNewOrderAdminEmail({
   regime,
 }: SendOrderReceivedEmailProps): Promise<EmailResponse> {
   try {
-    // Render the email template
-    const emailHtml = await render(
-      NewOrderAdminEmail({
-        order,
-        regime,
-      })
-    );
+    // Generate the email HTML
+    const emailHtml = generateNewOrderAdminEmail({
+      order,
+      regime,
+    });
 
     // Send email using Resend
     const { data, error } = await resend.emails.send({
-      from: 'KREGIME Orders <care@kregime.com>',
+      from: 'KREGIME <care@kregime.com>',
       to: [emailConfig.adminEmail],
       subject: `🔔 New Order #${order.id} - ${order.shippingAddress?.firstName} ${order.shippingAddress?.lastName || ''}`,
       html: emailHtml,
@@ -199,6 +195,48 @@ export async function sendNewOrderAdminEmail({
     };
   } catch (error) {
     console.error('Error in sendNewOrderAdminEmail:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    };
+  }
+}
+
+/**
+ * Send newsletter subscription confirmation email to subscriber
+ */
+export async function sendNewsletterSubscriptionEmail(
+  email: string
+): Promise<EmailResponse> {
+  try {
+    // Generate the email HTML
+    const emailHtml = generateNewsletterSubscriptionEmail({
+      email,
+    });
+
+    // Send email using Resend
+    const { data, error } = await resend.emails.send({
+      from: 'KREGIME <care@kregime.com>',
+      to: [email],
+      subject: 'Welcome to KREGIME Newsletter! 💌',
+      html: emailHtml,
+    });
+
+    if (error) {
+      console.error('Failed to send newsletter subscription email:', error);
+      return {
+        success: false,
+        error: error.message || 'Failed to send email',
+      };
+    }
+
+    console.log('Newsletter subscription email sent successfully:', data?.id);
+    return {
+      success: true,
+      id: data?.id,
+    };
+  } catch (error) {
+    console.error('Error in sendNewsletterSubscriptionEmail:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error occurred',

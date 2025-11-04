@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { nanoid } from 'nanoid';
 import { Database } from '@/types/database';
+import { sendNewsletterSubscriptionEmail } from '@/lib/email';
 
 // Use proper types from the generated database types
 type SubscriberRow = Database['public']['Tables']['subscribers']['Row'];
@@ -141,6 +142,14 @@ export async function POST(request: NextRequest) {
           );
         }
 
+        // Send welcome email to the reactivated subscriber
+        try {
+          await sendNewsletterSubscriptionEmail(email.toLowerCase());
+        } catch (emailError) {
+          // Log the error but don't fail the reactivation
+          console.error('Failed to send welcome email to reactivated subscriber:', emailError);
+        }
+
         return NextResponse.json(
           { 
             message: 'Successfully reactivated subscription!',
@@ -184,6 +193,14 @@ export async function POST(request: NextRequest) {
     }
 
     const newSubscriber = convertSubscriberRowToSubscriber(data);
+
+    // Send welcome email to the new subscriber
+    try {
+      await sendNewsletterSubscriptionEmail(email.toLowerCase());
+    } catch (emailError) {
+      // Log the error but don't fail the subscription
+      console.error('Failed to send welcome email to subscriber:', emailError);
+    }
 
     return NextResponse.json(
       { 

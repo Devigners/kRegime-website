@@ -404,7 +404,7 @@ function CartContent() {
               transition={{ delay: 0.1 }}
               className="bg-white rounded-lg shadow-sm p-6"
             >
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
                 <h3 className="text-lg font-semibold text-black">
                   Your Regime Answers
                 </h3>
