@@ -285,7 +285,7 @@ export function GiftNotificationEmail({
             marginBottom: '16px'
           }}
         >
-          🎁 Claim Your Gift Now
+          Claim Your Gift Now
         </Button>
         <Text 
           className="text-xs text-neutral-500 mt-4 mb-0 mobile-text-sm"

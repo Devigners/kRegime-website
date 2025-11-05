@@ -19,7 +19,7 @@ export function generateGiftNotificationEmail({
     heading: `Hi ${recipientName}! 👋`,
     subheading: `<strong>${senderName}</strong> has gifted you a personalized Korean skincare regime from KREGIME!`,
     ctaButton: {
-      text: '🎁 Claim Your Gift Now',
+      text: 'Claim Your Gift Now',
       url: giftUrl,
     },
     footerNote: `This link is unique to your gift and can only be used once. Questions? <a href="mailto:care@kregime.com" style="text-decoration: none;">Contact us at care@kregime.com</a>`,
