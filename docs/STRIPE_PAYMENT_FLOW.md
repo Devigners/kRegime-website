@@ -166,10 +166,26 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 
 ## Maintenance
 
+### Environment Configuration:
+The application now supports environment-based Stripe configuration:
+- **Test/Staging**: Uses test Stripe products and prices
+- **Production**: Uses production Stripe products and prices
+
+See `docs/STRIPE_ENVIRONMENT_CONFIG.md` for complete documentation.
+
+To switch environments, set the `NEXT_PUBLIC_STRIPE_ENV` environment variable:
+- `test` → Uses test products (default)
+- `production` → Uses production products
+
 ### Adding New Regimes:
-1. Create product in Stripe Dashboard
-2. Create prices for each subscription type
-3. Update `REGIME_TO_PRODUCT_MAP` and `PRICE_MAP` in `/api/stripe/checkout/route.ts`
+1. Create product in Stripe Dashboard (both test and production)
+2. Create prices for each subscription type (one-time, 3-months, 6-months)
+3. Update product/price configurations in `src/lib/stripeProducts.ts`:
+   - Add to `TEST_CONFIG` (test product/price IDs)
+   - Add to `PRODUCTION_CONFIG` (production product/price IDs)
+4. Rebuild and deploy
+
+**Note**: Previously, you would update `REGIME_TO_PRODUCT_MAP` and `PRICE_MAP` in the checkout route. These are now generated dynamically from `stripeProducts.ts`.
 
 ### Changing Success Flow:
 - Modify redirect logic in `/payment/success/page.tsx`
@@ -180,3 +196,5 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 - Check server logs for API errors
 - Check Stripe Dashboard for payment events
 - Verify localStorage data with browser DevTools
+- Verify correct environment with: `console.log(process.env.NEXT_PUBLIC_STRIPE_ENV)`
+- Check product IDs in network requests (test: `prod_TM6...`, production: `prod_TM9...`)

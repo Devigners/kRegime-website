@@ -150,6 +150,33 @@ export default function RegimesAdmin() {
 
   const handleDelete = async (regimeId: string) => {
     try {
+      // Get regime data to find coupon IDs
+      const regime = regimes.find(r => r.id === regimeId);
+      
+      // Delete Stripe coupons if they exist
+      if (regime) {
+        const couponIds = [
+          regime.stripeCouponIdOneTime,
+          regime.stripeCouponId3Months,
+          regime.stripeCouponId6Months
+        ].filter(Boolean);
+
+        if (couponIds.length > 0) {
+          try {
+            await fetch('/api/regimes/delete-coupons', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ couponIds }),
+            });
+          } catch (error) {
+            console.error('Error deleting Stripe coupons:', error);
+            // Continue with regime deletion even if coupon deletion fails
+          }
+        }
+      }
+
       const { error } = await supabaseClient
         .from('regimes')
         .delete()
@@ -169,8 +196,45 @@ export default function RegimesAdmin() {
     setIsSubmitting(true);
 
     try {
+      const regimeId = selectedRegime?.id || `regime_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+      // Sync Stripe coupons for regime discounts
+      const response = await fetch('/api/regimes/sync-coupons', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          regimeId,
+          regimeName: formData.name,
+          discounts: {
+            oneTime: {
+              discount: formData.discountOneTime || 0,
+              discountReason: formData.discountReasonOneTime || null,
+              existingCouponId: selectedRegime?.stripeCouponIdOneTime || null,
+            },
+            threeMonths: {
+              discount: formData.discount3Months || 0,
+              discountReason: formData.discountReason3Months || null,
+              existingCouponId: selectedRegime?.stripeCouponId3Months || null,
+            },
+            sixMonths: {
+              discount: formData.discount6Months || 0,
+              discountReason: formData.discountReason6Months || null,
+              existingCouponId: selectedRegime?.stripeCouponId6Months || null,
+            },
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to sync Stripe coupons');
+      }
+
+      const { couponIds } = await response.json();
+
       const regimeData: Regime = {
-        id: selectedRegime?.id || `regime_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        id: regimeId,
         ...formData,
         priceOneTime: formData.priceOneTime,
         price3Months: formData.price3Months,
@@ -181,6 +245,9 @@ export default function RegimesAdmin() {
         discountReasonOneTime: formData.discountReasonOneTime || null,
         discountReason3Months: formData.discountReason3Months || null,
         discountReason6Months: formData.discountReason6Months || null,
+        stripeCouponIdOneTime: couponIds.oneTime,
+        stripeCouponId3Months: couponIds.threeMonths,
+        stripeCouponId6Months: couponIds.sixMonths,
         createdAt: selectedRegime?.createdAt || new Date(),
         updatedAt: new Date(),
       };
@@ -212,6 +279,7 @@ export default function RegimesAdmin() {
       setSelectedRegime(null);
     } catch (error) {
       console.error('Error saving regime:', error);
+      alert('Failed to save regime. Please try again.');
     } finally {
       setIsSubmitting(false);
     }

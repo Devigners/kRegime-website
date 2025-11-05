@@ -28,10 +28,10 @@ export default function TransformationsSection() {
   ];
 
   return (
-    <section className="py-32 bg-gradient-to-b from-white to-neutral-50">
-      <div className="container section-padding">
+    <section className="py-20 md:py-32 bg-gradient-to-b from-white to-neutral-50">
+      <div className="container">
         <motion.div
-          className="text-center mb-20"
+          className="text-center mb-8 md:mb-20 section-padding"
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -40,60 +40,58 @@ export default function TransformationsSection() {
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-neutral-900 mb-6">
             Transformation <span className="gradient-text">Journey</span>
           </h2>
-          <p className="text-base sm:text-lg md:text-xl text-black max-w-3xl mx-auto leading-relaxed">
+          <p className="text-lg text-black max-w-3xl mx-auto leading-relaxed">
             See the amazing results our customers have achieved with their
             personalized Korean skincare routines
           </p>
         </motion.div>
-
-        {/* Mobile: Vertical Timeline */}
-        <div className="flex flex-col md:hidden space-y-8">
-          {milestones.map((milestone, index) => (
-            <motion.div
-              key={milestone.time}
-              className="relative pl-12"
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              viewport={{ once: true }}
-            >
-              {/* Timeline Line */}
-              <div className="absolute left-5 top-8 w-0.5 h-full bg-gradient-to-b from-primary to-secondary"></div>
-
-              {/* Time Pill */}
-              <div className="absolute left-0 top-0">
-                <motion.div
-                  className="bg-gradient-to-r from-primary to-secondary text-white px-4 py-2 rounded-full text-xs font-semibold shadow-lg whitespace-nowrap"
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {milestone.time}
-                </motion.div>
-              </div>
-
-              {/* Content */}
-              <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-100 mt-12">
-                <h3 className="text-xl font-bold text-black mb-2">
-                  {milestone.title}
-                </h3>
-                <p className="text-sm text-black leading-relaxed">
-                  {milestone.description}
-                </p>
-              </div>
-            </motion.div>
-          ))}
+        {/* Mobile: Horizontal Scrollable Timeline */}
+        <div className="md:hidden -mx-4 px-4">
+          <div className="flex gap-4 overflow-x-auto py-4 px-8 snap-x snap-mandatory">
+            {milestones.map((milestone, index) => (
+              <motion.div
+                key={milestone.time}
+                className="relative min-w-[280px] snap-center"
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                viewport={{ once: true }}
+              >
+                {/* Content */}
+                <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-100 h-full">
+                  <div className="w-fit mb-4">
+                    <motion.div
+                      className="bg-gradient-to-r from-primary to-secondary text-white px-4 py-2 rounded-full text-xs font-semibold shadow-lg whitespace-nowrap"
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      {milestone.time}
+                    </motion.div>
+                  </div>
+                  <h3 className="text-xl font-bold text-black mb-2">
+                    {milestone.title}
+                  </h3>
+                  <p className="text-sm text-black leading-relaxed">
+                    {milestone.description}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
 
         {/* Desktop: Horizontal Timeline */}
-        <div className="hidden md:grid grid-cols-4 gap-8">
+        <motion.div
+          className="hidden md:grid grid-cols-4 gap-8 px-6 lg:px-10"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+        >
           {milestones.map((milestone, index) => (
-            <motion.div
+            <div
               key={milestone.time}
               className="relative text-center space-y-6"
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.2 }}
-              viewport={{ once: true }}
             >
               {/* Connecting Line */}
               {index < milestones.length - 1 && (
@@ -114,9 +112,9 @@ export default function TransformationsSection() {
               <p className="text-black leading-relaxed max-w-sm mx-auto">
                 {milestone.description}
               </p>
-            </motion.div>
+            </div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

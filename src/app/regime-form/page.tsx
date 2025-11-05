@@ -13,11 +13,25 @@ import DirhamIcon from '@/components/icons/DirhamIcon';
 function RegimeFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const productId = searchParams.get('product');
-  const subscriptionParam = searchParams.get('subscription') as SubscriptionType || 'one-time';
+  
+  // Check localStorage first for gift recipient flow
+  const cartData = typeof window !== 'undefined' ? localStorageUtils.getCartData() : null;
+  const isGiftFlow = typeof window !== 'undefined' && window.localStorage.getItem('kregime_gift_recipient') === 'true';
+  
+  // Get product ID from URL params OR localStorage (for gift recipients)
+  const productId = searchParams.get('product') || cartData?.regimeId || null;
+  
+  // Get subscription type from URL params OR localStorage (for gift recipients)
+  const subscriptionParam =
+    (searchParams.get('subscription') as SubscriptionType) || 
+    cartData?.subscriptionType ||
+    (typeof window !== 'undefined' ? window.localStorage.getItem('kregime_gift_subscription') as SubscriptionType : null) ||
+    'one-time';
+  
   const [currentStep, setCurrentStep] = useState(1);
   const [product, setProduct] = useState<Regime | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isGiftRecipient, setIsGiftRecipient] = useState(isGiftFlow || cartData?.giftRecipient === true);
   const [formData, setFormData] = useState<FormData>({
     age: '',
     gender: '',
@@ -46,13 +60,44 @@ function RegimeFormContent() {
 
       try {
         setLoading(true);
+        
+        // Check if this is a gift recipient first
+        const cartData = localStorageUtils.getCartData();
+        const isGift = cartData?.giftRecipient === true || 
+                       (typeof window !== 'undefined' && window.localStorage.getItem('kregime_gift_recipient') === 'true');
+        
+        if (isGift) {
+          setIsGiftRecipient(true);
+        }
+        
+        // If gift recipient and regime data exists in cart, use it directly
+        if (isGift && cartData?.regime) {
+          setProduct(cartData.regime);
+          
+          // Load any existing form data
+          if (cartData.formData && Object.keys(cartData.formData).length > 0) {
+            setFormData((prev) => ({ ...prev, ...cartData.formData }));
+          }
+          
+          setLoading(false);
+          return;
+        }
+        
+        // Otherwise, fetch from API
         const data = await regimeApi.getById(productId);
         setProduct(data);
 
-        // Load saved form data from localStorage
-        const savedData = localStorageUtils.getFormData(productId);
-        if (savedData) {
-          setFormData((prev) => ({ ...prev, ...savedData }));
+        // Load from cart data (if user is editing from cart)
+        if (cartData && cartData.regimeId === productId && cartData.formData) {
+          setFormData((prev) => ({ ...prev, ...cartData.formData }));
+          // Save to form data storage so user can continue editing
+          localStorageUtils.saveFormData(cartData.formData, productId);
+        } else {
+          // Otherwise, load saved form data from localStorage
+          const savedData = localStorageUtils.getFormData(productId);
+          if (savedData) {
+            setFormData((prev) => ({ ...prev, ...savedData }));
+          }
         }
 
         // Load saved current step from localStorage
@@ -122,12 +167,16 @@ function RegimeFormContent() {
     );
   }
 
-  const handleInputChange = (field: keyof FormData, value: string, autoAdvance: boolean = false) => {
+  const handleInputChange = (
+    field: keyof FormData,
+    value: string,
+    autoAdvance: boolean = false
+  ) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
-    
+
     // Auto-advance to next step for single-choice questions
     if (autoAdvance && currentStep < 16) {
       setTimeout(() => {
@@ -177,25 +226,59 @@ function RegimeFormContent() {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
+  // Helper function to calculate discounted price
+  const calculatePrice = (subscriptionType: SubscriptionType) => {
+    if (!product) return 0;
+    if (isGiftRecipient) return 0;
+
+    let price = 0;
+    let discount = 0;
+
+    switch (subscriptionType) {
+      case '3-months':
+        price = product.price3Months;
+        discount = product.discount3Months || 0;
+        break;
+      case '6-months':
+        price = product.price6Months;
+        discount = product.discount6Months || 0;
+        break;
+      default:
+        price = product.priceOneTime;
+        discount = product.discountOneTime || 0;
+    }
+
+    if (discount > 0) {
+      return price - (price * discount) / 100;
+    }
+    return price;
+  };
+
+  // Helper function to check if there's a discount
+  const hasDiscount = (subscriptionType: SubscriptionType) => {
+    if (!product) return false;
+
+    switch (subscriptionType) {
+      case '3-months':
+        return (product.discount3Months || 0) > 0;
+      case '6-months':
+        return (product.discount6Months || 0) > 0;
+      default:
+        return (product.discountOneTime || 0) > 0;
+    }
+  };
+
   const handleSubmit = async () => {
     if (!product || !productId) return;
 
     try {
-      // Calculate price based on subscription type
-      const getPrice = () => {
-        switch (subscriptionParam) {
-          case '3-months':
-            return product.price3Months;
-          case '6-months':
-            return product.price6Months;
-          default:
-            return product.priceOneTime;
-        }
-      };
+      // Get existing cart data to preserve gift information
+      const existingCartData = localStorageUtils.getCartData();
+      
+      // Calculate price based on subscription type (0 for gift recipients)
+      const selectedPrice = calculatePrice(subscriptionParam);
 
-      const selectedPrice = getPrice();
-
-      // Save cart data to localStorage
+      // Save cart data to localStorage, preserving gift information
       const cartData = {
         regimeId: productId,
         regime: product,
@@ -204,6 +287,11 @@ function RegimeFormContent() {
         subscriptionType: subscriptionParam,
         totalAmount: selectedPrice,
         finalAmount: selectedPrice,
+        // Preserve gift-related fields if they exist
+        ...(existingCartData?.isGift && { isGift: existingCartData.isGift }),
+        ...(existingCartData?.giftToken && { giftToken: existingCartData.giftToken }),
+        ...(existingCartData?.giftRecipient && { giftRecipient: existingCartData.giftRecipient }),
+        ...(existingCartData?.giftGiverName && { giftGiverName: existingCartData.giftGiverName }),
       };
 
       localStorageUtils.saveCartData(cartData);
@@ -236,8 +324,8 @@ function RegimeFormContent() {
         return formData.skinConcerns.length > 0;
       case 5: // Complexion - required
         return formData.complexion !== '';
-      case 6: // Allergies - optional but part of first 8
-        return true;
+      case 6: // Skin concerns details - required
+        return formData.allergies.trim() !== '';
       case 7: // Skincare steps - exactly product.stepCount required
         return formData.skincareSteps.length === product.stepCount;
       case 8: // Skincare goals - at least 1 required
@@ -281,7 +369,7 @@ function RegimeFormContent() {
       case 1:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-black">
+            <h2 className="text-xl md:text-2xl font-bold text-black">
               What is your age range?
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -307,7 +395,9 @@ function RegimeFormContent() {
       case 2:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-black">Gender?</h2>
+            <h2 className="text-xl md:text-2xl font-bold text-black">
+              Gender?
+            </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {['Male', 'Female', 'Prefer not to say'].map((gender) => (
                 <button
@@ -329,7 +419,7 @@ function RegimeFormContent() {
       case 3:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-black">
+            <h2 className="text-xl md:text-2xl font-bold text-black">
               What is your skin type?
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -360,7 +450,7 @@ function RegimeFormContent() {
       case 4:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-black">
+            <h2 className="text-xl md:text-2xl font-bold text-black">
               What are your primary skin concerns?
             </h2>
             <p className="text-black">
@@ -386,9 +476,9 @@ function RegimeFormContent() {
                     formData.skinConcerns.includes(concern)
                       ? 'border-primary bg-primary/5 text-primary cursor-pointer'
                       : !formData.skinConcerns.includes(concern) &&
-                        formData.skinConcerns.length >= 3
-                      ? 'border-gray-200 bg-gray-100 text-black cursor-not-allowed'
-                      : 'border-gray-200 hover:border-gray-300 cursor-pointer'
+                          formData.skinConcerns.length >= 3
+                        ? 'border-gray-200 bg-gray-100 text-black cursor-not-allowed'
+                        : 'border-gray-200 hover:border-gray-300 cursor-pointer'
                   }`}
                 >
                   <span className="font-semibold">{concern}</span>
@@ -401,14 +491,16 @@ function RegimeFormContent() {
       case 5:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-black">
+            <h2 className="text-xl md:text-2xl font-bold text-black">
               What is your complexion like?
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {['Light', 'Medium', 'Dark'].map((complexion) => (
                 <button
                   key={complexion}
-                  onClick={() => handleInputChange('complexion', complexion, true)}
+                  onClick={() =>
+                    handleInputChange('complexion', complexion, true)
+                  }
                   className={`p-4 rounded-lg border-2 text-left transition-all cursor-pointer ${
                     formData.complexion === complexion
                       ? 'border-primary bg-primary/5 text-primary'
@@ -425,7 +517,7 @@ function RegimeFormContent() {
       case 6:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-black">
+            <h2 className="text-xl md:text-2xl font-bold text-black">
               Do you want to share skin concerns with our experts so they can
               tailor your regime with precision?
             </h2>
@@ -442,7 +534,7 @@ function RegimeFormContent() {
       case 7:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-black">
+            <h2 className="text-xl md:text-2xl font-bold text-black">
               Choose your skincare steps:
             </h2>
             <p className="text-black">
@@ -474,9 +566,9 @@ function RegimeFormContent() {
                     formData.skincareSteps.includes(step)
                       ? 'border-primary bg-primary/5 text-primary cursor-pointer'
                       : !formData.skincareSteps.includes(step) &&
-                        formData.skincareSteps.length >= product.stepCount
-                      ? 'border-gray-200 bg-gray-100 text-black cursor-not-allowed'
-                      : 'border-gray-200 hover:border-gray-300 cursor-pointer'
+                          formData.skincareSteps.length >= product.stepCount
+                        ? 'border-gray-200 bg-gray-100 text-black cursor-not-allowed'
+                        : 'border-gray-200 hover:border-gray-300 cursor-pointer'
                   }`}
                 >
                   <span className="font-semibold">{step}</span>
@@ -489,7 +581,7 @@ function RegimeFormContent() {
       case 8:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-black">
+            <h2 className="text-xl md:text-2xl font-bold text-black">
               What&apos;s your skincare goal from using korean products?
             </h2>
             <p className="text-black">
@@ -514,9 +606,9 @@ function RegimeFormContent() {
                     formData.skincareGoal.includes(goal)
                       ? 'border-primary bg-primary/5 text-primary cursor-pointer'
                       : !formData.skincareGoal.includes(goal) &&
-                        formData.skincareGoal.length >= 3
-                      ? 'border-gray-200 bg-gray-100 text-black cursor-not-allowed'
-                      : 'border-gray-200 hover:border-gray-300 cursor-pointer'
+                          formData.skincareGoal.length >= 3
+                        ? 'border-gray-200 bg-gray-100 text-black cursor-not-allowed'
+                        : 'border-gray-200 hover:border-gray-300 cursor-pointer'
                   }`}
                 >
                   <span className="font-semibold">{goal}</span>
@@ -534,8 +626,8 @@ function RegimeFormContent() {
                 Optional
               </span>
             </div>
-            <h2 className="text-2xl font-bold text-black">
-              Are you familiar with korean skincare routines?
+            <h2 className="text-xl md:text-2xl font-bold text-black">
+              Are you familiar with Korean skincare routines?
             </h2>
             <div className="space-y-4">
               {[
@@ -546,7 +638,11 @@ function RegimeFormContent() {
                 <button
                   key={experience}
                   onClick={() =>
-                    handleInputChange('koreanSkincareExperience', experience, true)
+                    handleInputChange(
+                      'koreanSkincareExperience',
+                      experience,
+                      true
+                    )
                   }
                   className={`w-full p-4 rounded-lg border-2 text-left transition-all cursor-pointer ${
                     formData.koreanSkincareExperience === experience
@@ -569,8 +665,8 @@ function RegimeFormContent() {
                 Optional
               </span>
             </div>
-            <h2 className="text-2xl font-bold text-black">
-              What attracts you to korean skincare?
+            <h2 className="text-xl md:text-2xl font-bold text-black">
+              What attracts you to Korean skincare?
             </h2>
             <p className="text-black">Select all that apply</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -606,14 +702,16 @@ function RegimeFormContent() {
                 Optional
               </span>
             </div>
-            <h2 className="text-2xl font-bold text-black">
+            <h2 className="text-xl md:text-2xl font-bold text-black">
               How many skincare products do you use daily?
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {['0', '1-2', '3-4', '5 or more'].map((count) => (
                 <button
                   key={count}
-                  onClick={() => handleInputChange('dailyProductCount', count, true)}
+                  onClick={() =>
+                    handleInputChange('dailyProductCount', count, true)
+                  }
                   className={`p-4 rounded-lg border-2 text-left transition-all cursor-pointer ${
                     formData.dailyProductCount === count
                       ? 'border-primary bg-primary/5 text-primary'
@@ -635,7 +733,7 @@ function RegimeFormContent() {
                 Optional
               </span>
             </div>
-            <h2 className="text-2xl font-bold text-black">
+            <h2 className="text-xl md:text-2xl font-bold text-black">
               Do you follow a regular skincare routine?
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -666,7 +764,7 @@ function RegimeFormContent() {
                 Optional
               </span>
             </div>
-            <h2 className="text-2xl font-bold text-black">
+            <h2 className="text-xl md:text-2xl font-bold text-black">
               Where do you usually buy your skincare products?
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -702,7 +800,7 @@ function RegimeFormContent() {
                 Optional
               </span>
             </div>
-            <h2 className="text-2xl font-bold text-black">
+            <h2 className="text-xl md:text-2xl font-bold text-black">
               What is your monthly skincare budget?
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -743,7 +841,7 @@ function RegimeFormContent() {
                 Optional
               </span>
             </div>
-            <h2 className="text-2xl font-bold text-black">
+            <h2 className="text-xl md:text-2xl font-bold text-black">
               What brands have you tried or are currently using?
             </h2>
             <textarea
@@ -764,7 +862,7 @@ function RegimeFormContent() {
                 Optional
               </span>
             </div>
-            <h2 className="text-2xl font-bold text-black">
+            <h2 className="text-xl md:text-2xl font-bold text-black">
               Any additional comments or requests?
             </h2>
             <textarea
@@ -790,12 +888,39 @@ function RegimeFormContent() {
         <div className="max-w-3xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
-            <h1 className="text-3xl md:text-4xl font-bold text-black mb-4">
+            <h1 className="text-2xl md:text-4xl font-bold text-black mb-4">
               Customize Your {product.name}
             </h1>
-            <p className="text-black">
+            <p className="text-sm md:text-base text-black">
               Help us create the perfect skincare routine for you
             </p>
+            {/* Show discount badge if applicable */}
+            {!isGiftRecipient && hasDiscount(subscriptionParam) && (
+              <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-full text-sm font-medium">
+                <span>
+                  {(() => {
+                    switch (subscriptionParam) {
+                      case '3-months':
+                        return `${product.discount3Months}% OFF`;
+                      case '6-months':
+                        return `${product.discount6Months}% OFF`;
+                      default:
+                        return `${product.discountOneTime}% OFF`;
+                    }
+                  })()}
+                  {(() => {
+                    switch (subscriptionParam) {
+                      case '3-months':
+                        return product.discountReason3Months ? ` - ${product.discountReason3Months}` : '';
+                      case '6-months':
+                        return product.discountReason6Months ? ` - ${product.discountReason6Months}` : '';
+                      default:
+                        return product.discountReasonOneTime ? ` - ${product.discountReasonOneTime}` : '';
+                    }
+                  })()}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Progress Bar */}
@@ -850,7 +975,7 @@ function RegimeFormContent() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -50 }}
             transition={{ duration: 0.3 }}
-            className="bg-white rounded-lg shadow-lg p-8 mb-8"
+            className="bg-white rounded-lg shadow-lg p-6 md:p-8 mb-8"
           >
             {renderStep()}
           </motion.div>
@@ -865,7 +990,8 @@ function RegimeFormContent() {
                   Essential questions completed!
                 </h3>
                 <p className="text-black/70 text-sm mb-4">
-                  Continue with optional questions for better personalization or add to Cart now.
+                  Continue with optional questions for better personalization or
+                  add to Cart now.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <button
@@ -878,21 +1004,19 @@ function RegimeFormContent() {
                     onClick={handleSubmit}
                     className="btn-primary cursor-pointer flex items-center gap-2 justify-center"
                   >
-                    Add to Cart - <DirhamIcon size={16} className="!text-white" />{' '}
-                    {(() => {
-                      switch (subscriptionParam) {
-                        case '3-months':
-                          return product.price3Months;
-                        case '6-months':
-                          return product.price6Months;
-                        default:
-                          return product.priceOneTime;
-                      }
-                    })()}
+                    Add to Cart{isGiftRecipient ? '' : ' - '}
+                    {!isGiftRecipient && (
+                      <>
+                        <span className="flex items-center gap-1">
+                          <DirhamIcon size={16} className="!text-white" />{' '}
+                          {calculatePrice(subscriptionParam).toFixed(2)}
+                        </span>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
-              
+
               {/* Previous button */}
               <div className="flex justify-start">
                 <button
@@ -905,70 +1029,79 @@ function RegimeFormContent() {
               </div>
             </div>
           ) : (
-            // Regular navigation for other steps
-            <div className="flex justify-between">
-              <button
-                onClick={prevStep}
-                disabled={currentStep === 1}
-                className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-semibold transition-all ${
-                  currentStep === 1
-                    ? 'bg-gray-100 text-black cursor-not-allowed'
-                    : 'bg-gray-200 text-black hover:bg-gray-300 cursor-pointer'
-                }`}
-              >
-                <ArrowLeft size={20} />
-                <span>Previous</span>
-              </button>
+            <>
+              <div className="flex justify-between">
+                <button
+                  onClick={prevStep}
+                  disabled={currentStep === 1}
+                  className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-semibold transition-all ${
+                    currentStep === 1
+                      ? 'bg-gray-100 text-black cursor-not-allowed'
+                      : 'bg-gray-200 text-black hover:bg-gray-300 cursor-pointer'
+                  }`}
+                >
+                  <ArrowLeft size={20} />
+                  <span>Previous</span>
+                </button>
 
-              <div className="flex gap-3">
-                {/* Show "Skip to Cart" for optional questions (steps 9-16) */}
-                {currentStep >= 9 && currentStep < 16 && (
-                  <button
-                    onClick={handleSubmit}
-                    className="flex items-center space-x-2 px-6 py-3 border border-gray-300 text-gray-600 hover:border-primary hover:text-primary rounded-lg font-medium transition-all cursor-pointer"
-                  >
-                    <span>Skip to Cart</span>
-                  </button>
-                )}
+                <div className="flex gap-3">
+                  {/* Show "Skip to Cart" for optional questions (steps 9-16) */}
+                  {currentStep >= 9 && currentStep < 16 && (
+                    <button
+                      onClick={handleSubmit}
+                      className={`${isSingleChoiceQuestion() ? 'flex' : 'hidden'} md:flex items-center space-x-2 px-6 py-3 border border-gray-300 text-gray-600 hover:border-primary hover:text-primary rounded-lg font-medium transition-all cursor-pointer`}
+                    >
+                      <span>Skip to Cart</span>
+                    </button>
+                  )}
 
-                {/* Only show Next/Submit buttons for non-single-choice questions */}
-                {!isSingleChoiceQuestion() && (
-                  <>
-                    {currentStep < 16 ? (
-                      <button
-                        onClick={nextStep}
-                        disabled={!isStepValid()}
-                        className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-semibold transition-all ${
-                          !isStepValid()
-                            ? 'bg-gray-100 text-black cursor-not-allowed'
-                            : 'btn-primary cursor-pointer'
-                        }`}
-                      >
-                        <span>Next</span>
-                        <ArrowRight size={20} />
-                      </button>
-                    ) : (
-                      <button
-                        onClick={handleSubmit}
-                        className="btn-primary cursor-pointer flex items-center gap-2 justify-center"
-                      >
-                        Add to Cart - <DirhamIcon size={16} className="!text-white" />{' '}
-                        {(() => {
-                          switch (subscriptionParam) {
-                            case '3-months':
-                              return product.price3Months;
-                            case '6-months':
-                              return product.price6Months;
-                            default:
-                              return product.priceOneTime;
-                          }
-                        })()}
-                      </button>
-                    )}
-                  </>
-                )}
+                  {/* Only show Next/Submit buttons for non-single-choice questions */}
+                  {!isSingleChoiceQuestion() && (
+                    <>
+                      {currentStep < 16 ? (
+                        <button
+                          onClick={nextStep}
+                          disabled={!isStepValid()}
+                          className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-semibold transition-all ${
+                            !isStepValid()
+                              ? 'bg-gray-100 text-black cursor-not-allowed'
+                              : 'btn-primary cursor-pointer'
+                          }`}
+                        >
+                          <span>Next</span>
+                          <ArrowRight size={20} />
+                        </button>
+                      ) : (
+                        <button
+                          onClick={handleSubmit}
+                          className="btn-primary cursor-pointer flex items-center gap-2 justify-center"
+                        >
+                          Add to Cart{' '}
+                          {!isGiftRecipient && (
+                            <span className="hidden md:flex items-center gap-2">
+                              -{' '}
+                              <span className="flex items-center gap-1">
+                                <DirhamIcon size={16} className="!text-white" />{' '}
+                                {calculatePrice(subscriptionParam).toFixed(2)}
+                              </span>
+                            </span>
+                          )}
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
+              {/* Show "Skip to Cart" for optional questions (steps 9-16) */}
+              {currentStep >= 9 && currentStep < 16 && (
+                <button
+                  onClick={handleSubmit}
+                  className={`w-full mt-4 ${isSingleChoiceQuestion() ? 'hidden' : 'flex'}  md:hidden items-center space-x-2 px-6 py-3 border border-gray-300 text-gray-600 hover:border-primary hover:text-primary rounded-lg font-medium transition-all cursor-pointer`}
+                >
+                  <span className="text-center w-full">Skip to Cart</span>
+                </button>
+              )}
+            </>
           )}
         </div>
       </div>

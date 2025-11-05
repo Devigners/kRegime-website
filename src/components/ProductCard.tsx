@@ -2,10 +2,12 @@ import { motion } from 'framer-motion';
 import { CheckCircle, Sparkles, Tag } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Product, SubscriptionType } from '../types';
 import DirhamIcon from './icons/DirhamIcon';
 import { calculatePrice } from '@/lib/pricing';
+import { useRouter } from 'next/navigation';
+import { localStorage as localStorageUtils } from '@/lib/localStorage';
 
 interface ProductCardProps {
   product: Product;
@@ -16,7 +18,23 @@ const ProductCard: React.FC<ProductCardProps> = ({
   product, 
   selectedSubscription = 'one-time' 
 }) => {
+  const router = useRouter();
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const hasMultipleImages = product.images && product.images.length > 1;
   const isPopular = product.id === 'pentabox';
+
+  // Auto-rotate images every 3 seconds
+  useEffect(() => {
+    if (!hasMultipleImages) return;
+
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        (prevIndex + 1) % product.images.length
+      );
+    }, 5000); // 5 seconds
+
+    return () => clearInterval(interval);
+  }, [hasMultipleImages, product.images.length]);
 
   // Calculate pricing with discount
   const priceInfo = calculatePrice(product, selectedSubscription);
@@ -74,6 +92,41 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const priceDescription = getPriceDescription();
   const nextSubscriptionInfo = getNextSubscriptionComparison();
 
+  const handleGiftClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    try {
+      // Fetch regime data
+      const response = await fetch(`/api/regimes/${product.id}`);
+      if (!response.ok) throw new Error('Failed to fetch regime');
+      
+      const result = await response.json();
+      const regime = result.data || result;
+      
+      const priceInfo = calculatePrice(regime, selectedSubscription);
+      
+      const giftCartData = {
+        regimeId: product.id,
+        regime,
+        formData: {}, // Empty for gift orders
+        quantity: 1,
+        subscriptionType: selectedSubscription,
+        totalAmount: priceInfo.discountedPrice,
+        finalAmount: priceInfo.discountedPrice,
+        isGift: true,
+      };
+      
+      // Save to localStorage
+      localStorageUtils.saveCartData(giftCartData);
+      
+      // Navigate to cart
+      router.push('/cart');
+    } catch (error) {
+      console.error('Error loading product for gift:', error);
+      alert('Failed to load product. Please try again.');
+    }
+  };
+
   return (
     <motion.div
       className={`relative card-modern overflow-hidden group ${
@@ -100,12 +153,30 @@ const ProductCard: React.FC<ProductCardProps> = ({
       {/* Product Image Area */}
       <div className="aspect-[4/3] relative overflow-hidden">
         {product.images && product.images.length > 0 ? (
-          <Image
-            src={product.images[0]}
-            alt={product.name}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-110"
-          />
+          <>
+            {product.images.map((image, index) => (
+              <motion.div
+                key={image}
+                className="absolute inset-0"
+                initial={{ opacity: 0 }}
+                animate={{ 
+                  opacity: currentImageIndex === index ? 1 : 0,
+                  scale: currentImageIndex === index ? 1 : 1.1
+                }}
+                transition={{ 
+                  duration: 0.7,
+                  ease: 'easeInOut'
+                }}
+              >
+                <Image
+                  src={image}
+                  alt={`${product.name} - Image ${index + 1}`}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+              </motion.div>
+            ))}
+          </>
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-[#EF7E71]/20 to-[#D4654F]/20 flex items-center justify-center">
             <div className="text-center space-y-2">
@@ -174,17 +245,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               {/* Show discount badge if applicable */}
-              {priceInfo.hasDiscount && (
+              {priceInfo.hasDiscount && priceInfo.discountReason && (
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                  <div className="bg-primary text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
                     <Tag className="w-3 h-3" />
-                    {priceInfo.discount}% OFF
+                    {priceInfo.discountReason} {priceInfo.discount}% Off
                   </div>
-                  {priceInfo.discountReason && (
-                    <span className="text-xs font-semibold text-neutral-700 bg-yellow-100 px-2 py-1 rounded-full">
-                      {priceInfo.discountReason}
-                    </span>
-                  )}
                 </div>
               )}
               
@@ -213,12 +279,23 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </div>
           </div>
 
-          <Link
-            href={`/regime-form?product=${product.id}&subscription=${selectedSubscription}`}
-            className="btn-primary w-full text-center group flex items-center justify-center"
-          >
-            Select This Regime
-          </Link>
+          <div className="space-y-3">
+            <Link
+              href={`/regime-form?product=${product.id}&subscription=${selectedSubscription}`}
+              className="btn-primary w-full text-center group flex items-center justify-center"
+            >
+              Select This Regime
+            </Link>
+
+            {selectedSubscription === 'one-time' && (
+              <button
+                onClick={handleGiftClick}
+                className="w-full cursor-pointer text-center group flex items-center justify-center px-6 py-3 bg-white border-2 border-primary text-primary rounded-lg font-medium hover:bg-primary hover:!text-white transition-all duration-300"
+              >
+                Send as a Gift
+              </button>
+            )}
+          </div>
 
           <div className="text-center">
             <span className="text-sm text-black">✨ Free shipping</span>

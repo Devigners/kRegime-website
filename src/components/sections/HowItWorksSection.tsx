@@ -27,23 +27,23 @@ export default function HowItWorksSection() {
   ];
 
   return (
-    <section id="how-it-works" className="py-32 bg-primary text-white">
+    <section id="how-it-works" className="py-20 md:py-32 bg-primary text-white">
       <div className="container section-padding">
         <motion.div
-          className="text-center mb-20"
+          className="text-center mb-12 md:mb-20"
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
           <h2 className="heading-lg mb-6">How It Works</h2>
-          <p className="text-xl max-w-3xl mx-auto leading-relaxed">
+          <p className="text-lg max-w-3xl mx-auto leading-relaxed">
             Get a fully personalized Korean skincare routine in three simple
             steps
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-16">
           {steps.map((item, index) => (
             <motion.div
               key={index}
@@ -60,7 +60,7 @@ export default function HowItWorksSection() {
 
               <div className="relative">
                 <motion.div
-                  className="w-20 h-20 bg-white rounded-lg flex items-center justify-center mx-auto mb-6 shadow-glow relative overflow-hidden"
+                  className="w-16 md:w-20 h-16 md:h-20 bg-white rounded-lg flex items-center justify-center mx-auto mb-6 shadow-glow relative overflow-hidden"
                   whileHover={{ scale: 1.1, rotate: 5 }}
                   transition={{ duration: 0.3 }}
                 >
@@ -69,8 +69,8 @@ export default function HowItWorksSection() {
                   </span>
                 </motion.div>
               </div>
-              <h3 className="text-2xl font-semibold">{item.title}</h3>
-              <p className="leading-relaxed max-w-sm mx-auto">
+              <h3 className="text-xl md:text-2xl font-semibold">{item.title}</h3>
+              <p className="hidden md:block leading-relaxed max-w-sm mx-auto">
                 {item.description}
               </p>
             </motion.div>

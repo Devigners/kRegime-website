@@ -43,23 +43,37 @@ function PaymentSuccessContent() {
           
           // Create order in database
           try {
+            // Build order payload based on whether it's a gift order
+            const orderPayload = {
+              regimeId: orderData.regimeId,
+              contactInfo: orderData.contactInfo,
+              quantity: orderData.quantity || 1,
+              totalAmount: orderData.totalAmount,
+              finalAmount: orderData.finalAmount,
+              subscriptionType: orderData.subscriptionType,
+              status: 'processing' as const,
+              stripeSessionId: sessionId,
+              discountCodeId: orderData.discountCodeId || null,
+              isGift: orderData.isGift || false,
+              // For gift orders, include gift giver information
+              ...(orderData.isGift && orderData.giftGiverInfo ? {
+                giftGiverName: `${orderData.giftGiverInfo.firstName} ${orderData.giftGiverInfo.lastName || ''}`.trim(),
+                giftGiverEmail: orderData.giftGiverInfo.email,
+                giftGiverPhone: orderData.giftGiverInfo.phoneNumber || undefined,
+              } : {}),
+              // Only include userDetails and shippingAddress for non-gift orders
+              ...(orderData.isGift ? {} : {
+                userDetails: orderData.userDetails,
+                shippingAddress: orderData.shippingAddress,
+              })
+            };
+
             const orderResponse = await fetch('/api/orders', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify({
-                regimeId: orderData.regimeId,
-                userDetails: orderData.userDetails,
-                contactInfo: orderData.contactInfo,
-                shippingAddress: orderData.shippingAddress,
-                quantity: orderData.quantity || 1,
-                totalAmount: orderData.totalAmount,
-                finalAmount: orderData.finalAmount,
-                subscriptionType: orderData.subscriptionType,
-                status: 'processing',
-                stripeSessionId: sessionId,
-              }),
+              body: JSON.stringify(orderPayload),
             });
 
             if (!orderResponse.ok) {
@@ -102,12 +116,12 @@ function PaymentSuccessContent() {
   // Show loading state while processing, or error if something went wrong
   if (status === 'loading') {
     return (
-      <div className="min-h-screen bg-gray-50 py-32 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 py-20 md:py-32 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-16 h-16 animate-spin text-primary mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-black mb-2">Processing Your Order</h2>
           <p className="text-neutral-600">Please wait while we confirm your payment and create your order...</p>
-          <p className="text-sm text-neutral-500 mt-4">You will be redirected automatically</p>
+          <p className="text-sm text-neutral-500 mt-4">You will be redirected automatically, please do not refresh or close the page.</p>
         </div>
       </div>
     );
@@ -115,7 +129,7 @@ function PaymentSuccessContent() {
 
   // Error state
   return (
-    <div className="min-h-screen bg-gray-50 py-32 flex items-center justify-center">
+    <div className="min-h-screen bg-gray-50 py-20 md:py-32 flex items-center justify-center">
       <div className="max-w-md mx-auto text-center px-4">
         <motion.div
           initial={{ scale: 0 }}
@@ -144,7 +158,7 @@ function PaymentSuccessContent() {
 export default function PaymentSuccess() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 py-32 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 py-20 md:py-32 flex items-center justify-center">
         <Loader2 className="w-16 h-16 animate-spin text-primary" />
       </div>
     }>

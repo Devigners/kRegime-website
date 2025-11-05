@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     'Discover your perfect Korean skincare routine with our expertly curated 3, 5, or 7 steps regime boxes featuring premium Korean skincare products.',
   keywords: [
     'Korean skincare',
-    'K-beauty',
+    'Korean skin care',
     'skincare routine',
     'Handpicked',
     'personalized skincare',

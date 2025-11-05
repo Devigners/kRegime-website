@@ -34,12 +34,58 @@ export type Database = {
   }
   public: {
     Tables: {
+      discount_codes: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          is_active: boolean
+          is_recurring: boolean
+          percentage_off: number
+          stripe_coupon_id: string | null
+          updated_at: string
+          usage_count: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id: string
+          is_active?: boolean
+          is_recurring?: boolean
+          percentage_off: number
+          stripe_coupon_id?: string | null
+          updated_at?: string
+          usage_count?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_recurring?: boolean
+          percentage_off?: number
+          stripe_coupon_id?: string | null
+          updated_at?: string
+          usage_count?: number
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           contact_info: Json
           created_at: string
+          discount_code_id: string | null
           final_amount: number
+          gift_claimed: boolean | null
+          gift_claimed_at: string | null
+          gift_giver_email: string | null
+          gift_giver_name: string | null
+          gift_giver_phone: string | null
+          gift_recipient_email: string | null
+          gift_recipient_name: string | null
+          gift_token: string | null
           id: string
+          is_gift: boolean | null
           quantity: number
           regime_id: string
           shipping_address: Json
@@ -53,8 +99,18 @@ export type Database = {
         Insert: {
           contact_info: Json
           created_at?: string
+          discount_code_id?: string | null
           final_amount: number
+          gift_claimed?: boolean | null
+          gift_claimed_at?: string | null
+          gift_giver_email?: string | null
+          gift_giver_name?: string | null
+          gift_giver_phone?: string | null
+          gift_recipient_email?: string | null
+          gift_recipient_name?: string | null
+          gift_token?: string | null
           id: string
+          is_gift?: boolean | null
           quantity?: number
           regime_id: string
           shipping_address: Json
@@ -68,8 +124,18 @@ export type Database = {
         Update: {
           contact_info?: Json
           created_at?: string
+          discount_code_id?: string | null
           final_amount?: number
+          gift_claimed?: boolean | null
+          gift_claimed_at?: string | null
+          gift_giver_email?: string | null
+          gift_giver_name?: string | null
+          gift_giver_phone?: string | null
+          gift_recipient_email?: string | null
+          gift_recipient_name?: string | null
+          gift_token?: string | null
           id?: string
+          is_gift?: boolean | null
           quantity?: number
           regime_id?: string
           shipping_address?: Json
@@ -102,6 +168,9 @@ export type Database = {
           price_one_time: number
           step_count: number
           steps: string[]
+          stripe_coupon_id_one_time: string | null
+          stripe_coupon_id_3_months: string | null
+          stripe_coupon_id_6_months: string | null
           updated_at: string
         }
         Insert: {
@@ -123,6 +192,9 @@ export type Database = {
           price_one_time?: number
           step_count: number
           steps: string[]
+          stripe_coupon_id_one_time?: string | null
+          stripe_coupon_id_3_months?: string | null
+          stripe_coupon_id_6_months?: string | null
           updated_at?: string
         }
         Update: {
@@ -144,6 +216,9 @@ export type Database = {
           price_one_time?: number
           step_count?: number
           steps?: string[]
+          stripe_coupon_id_one_time?: string | null
+          stripe_coupon_id_3_months?: string | null
+          stripe_coupon_id_6_months?: string | null
           updated_at?: string
         }
         Relationships: []

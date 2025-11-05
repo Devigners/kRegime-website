@@ -10,7 +10,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState } from 'react';
 import { toast } from 'sonner';
-import Tiktok from './icons/Tiktok';
 
 const Footer: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -91,7 +90,6 @@ const Footer: React.FC = () => {
               <div className="flex space-x-4">
                 {[
                   { icon: Instagram, href: 'https://instagram.com/kregime.official/', label: 'Instagram' },
-                  { icon: Tiktok, href: 'https://www.tiktok.com/@kregime1', label: 'TikTok' },
                   { icon: Youtube, href: 'https://www.youtube.com/@kregime', label: 'Youtube' },
                 ].map((social) => (
                   <motion.a

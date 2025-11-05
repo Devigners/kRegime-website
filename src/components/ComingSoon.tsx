@@ -103,7 +103,7 @@ const ComingSoon: React.FC = () => {
               },
               {
                 title: 'Premium Brands',
-                description: 'Top K-beauty brands in one box',
+                description: 'Top Korean skin care brands in one box',
                 icon: '🌸',
               },
               {

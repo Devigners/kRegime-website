@@ -13,9 +13,12 @@ import {
   Plus,
   Star,
   Trash2,
+  Upload,
+  User,
   X
 } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface ReviewFormData {
   name: string;
@@ -41,6 +44,8 @@ export default function ReviewsAdmin() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchReviews();
@@ -64,6 +69,48 @@ export default function ReviewsAdmin() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleAvatarUpload = async (file: File) => {
+    if (!file) return;
+
+    // Validate file type
+    const acceptedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!acceptedTypes.includes(file.type)) {
+      alert('Please upload a valid image file (JPEG, PNG, or WebP)');
+      return;
+    }
+
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File is too large. Maximum size is 5MB.');
+      return;
+    }
+
+    setUploadingAvatar(true);
+    try {
+      // Convert to base64
+      const base64 = await convertToBase64(file);
+      setFormData({ ...formData, avatar: base64 });
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      alert('Error uploading image. Please try again.');
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  const convertToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  };
+
+  const removeAvatar = () => {
+    setFormData({ ...formData, avatar: '' });
   };
 
   const handleAddNew = () => {
@@ -360,6 +407,29 @@ export default function ReviewsAdmin() {
               >
                 <div className="flex flex-col lg:flex-row lg:items-start gap-4">
                   <div className="flex items-start space-x-3 flex-1">
+                    {/* Avatar */}
+                    <div className="flex-shrink-0">
+                      {review.avatar ? (
+                        <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-[#EF7E71]/30 shadow-md">
+                          <Image
+                            src={review.avatar}
+                            alt={`${review.name}'s avatar`}
+                            fill
+                            className="object-cover"
+                            onError={(e) => {
+                              // Fallback to default avatar on error
+                              const target = e.target as HTMLElement;
+                              target.style.display = 'none';
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#EF7E71]/20 to-[#D4654F]/20 flex items-center justify-center border-2 border-[#EF7E71]/30">
+                          <User className="h-8 w-8 text-[#EF7E71]/60" />
+                        </div>
+                      )}
+                    </div>
+
                     {/* Review Content */}
                     <div className="flex-1 space-y-2">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -487,14 +557,77 @@ export default function ReviewsAdmin() {
                 </div>
 
                 <div>
-                  <label className="block text-lg font-black text-neutral-900 mb-4">Avatar URL (Optional)</label>
-                  <input
-                    type="url"
-                    value={formData.avatar}
-                    onChange={(e) => setFormData({...formData, avatar: e.target.value})}
-                    className="w-full border-2 border-neutral-300 rounded-2xl px-6 py-4 focus:ring-2 focus:ring-primary focus:border-primary bg-white/70 backdrop-blur-sm transition-all text-lg font-medium"
-                    placeholder="https://example.com/avatar.jpg"
-                  />
+                  <label className="block text-lg font-black text-neutral-900 mb-4">
+                    Profile Image (Optional)
+                  </label>
+                  
+                  {/* Avatar Preview and Upload */}
+                  <div className="space-y-4">
+                    {/* Current Avatar Display */}
+                    {formData.avatar ? (
+                      <div className="relative inline-block">
+                        <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-primary/20 shadow-lg">
+                          <Image
+                            src={formData.avatar}
+                            alt="Reviewer avatar"
+                            fill
+                            className="object-cover"
+                            onError={() => {
+                              console.error('Failed to load avatar image');
+                              removeAvatar();
+                            }}
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={removeAvatar}
+                          className="absolute -top-2 -right-2 p-2 bg-red-500 text-white rounded-full shadow-lg hover:bg-red-600 transition-all duration-300"
+                          title="Remove avatar"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="w-32 h-32 rounded-full bg-gradient-to-br from-neutral-100 to-neutral-200 flex items-center justify-center border-4 border-neutral-200">
+                        <User className="h-16 w-16 text-neutral-400" />
+                      </div>
+                    )}
+
+                    {/* Upload Button */}
+                    <div>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/jpeg,image/jpg,image/png,image/webp"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleAvatarUpload(file);
+                        }}
+                        className="hidden"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploadingAvatar}
+                        className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-primary/10 to-secondary/10 border-2 border-primary/20 text-primary rounded-xl hover:shadow-lg disabled:opacity-50 transition-all duration-300 font-bold"
+                      >
+                        {uploadingAvatar ? (
+                          <>
+                            <div className="rounded-full h-5 w-5 border-b-2 border-primary"></div>
+                            <span>Uploading...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="h-5 w-5" />
+                            <span>{formData.avatar ? 'Change Image' : 'Upload Image'}</span>
+                          </>
+                        )}
+                      </button>
+                      <p className="text-neutral-500 text-sm mt-2">
+                        Supports: JPEG, PNG, WebP (Max 5MB)
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl p-6 border-2 border-primary/20">

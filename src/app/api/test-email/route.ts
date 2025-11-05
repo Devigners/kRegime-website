@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
-import { render } from '@react-email/render';
-import { OrderStatusUpdateEmail } from '@/emails/OrderStatusUpdateEmail';
-import { OrderReceivedEmail } from '@/emails/OrderReceivedEmail';
+import { 
+  generateOrderStatusUpdateEmail, 
+  generateOrderReceivedEmail 
+} from '@/emails/templates';
 
 // Mock data for testing
 const mockOrder = {
@@ -60,7 +61,7 @@ const mockRegime = {
   discountReason3Months: null,
   discountReason6Months: null,
   steps: ['Cleanser', 'Moisturiser', 'Sunscreen'],
-  images: ['/static/regime-3.webp'],
+  images: ['/static/regime-3-1.webp', '/static/regime-3-2.webp'],
   stepCount: 3 as const,
   isActive: true,
   createdAt: new Date(),
@@ -79,22 +80,18 @@ export async function GET(request: Request) {
     let htmlContent: string;
 
     if (type === 'status-update') {
-      htmlContent = await render(
-        OrderStatusUpdateEmail({
-          order: testOrder,
-          regime: mockRegime,
-          customerName: 'Jane Doe',
-          trackingNumber: 'TR123456789',
-        })
-      );
+      htmlContent = generateOrderStatusUpdateEmail({
+        order: testOrder,
+        regime: mockRegime,
+        customerName: 'Jane Doe',
+        trackingNumber: 'TR123456789',
+      });
     } else {
-      htmlContent = await render(
-        OrderReceivedEmail({
-          order: testOrder,
-          regime: mockRegime,
-          customerName: 'Jane Doe',
-        })
-      );
+      htmlContent = generateOrderReceivedEmail({
+        order: testOrder,
+        regime: mockRegime,
+        customerName: 'Jane Doe',
+      });
     }
 
     return new Response(htmlContent, {
