@@ -1,5 +1,6 @@
 // Legacy React Email components (kept for backwards compatibility if needed)
 export { OrderReceivedEmail } from './OrderReceivedEmail';
+export { OrderReceivedGiftEmail } from './OrderReceivedGiftEmail';
 export { OrderStatusUpdateEmail } from './OrderStatusUpdateEmail';
 export { NewOrderAdminEmail } from './NewOrderAdminEmail';
 export { BaseEmailLayout } from './components/BaseEmailLayout';

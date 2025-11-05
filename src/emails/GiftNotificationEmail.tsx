@@ -312,7 +312,7 @@ export function GiftNotificationEmail({
           Questions about your gift?{' '}
           <a 
             href="mailto:care@kregime.com" 
-            style={{ color: '#9333ea', textDecoration: 'none' }}
+            style={{ textDecoration: 'none' }}
           >
             Contact us at care@kregime.com
           </a>

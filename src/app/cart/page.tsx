@@ -12,7 +12,7 @@ import {
 import { Regime } from '@/models/database';
 import { SubscriptionType } from '@/types';
 import { motion } from 'framer-motion';
-import { ChevronDown, ChevronUp, Edit, Tag, X } from 'lucide-react';
+import { ChevronDown, ChevronUp, Edit, Tag, Trash2, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -30,6 +30,7 @@ interface CartData {
   isGift?: boolean;
   giftToken?: string;
   giftRecipient?: boolean; // Flag to indicate user is the recipient of a gift
+  giftGiverName?: string; // Name of the person who purchased the gift
 }
 
 function CartContent() {
@@ -51,13 +52,18 @@ function CartContent() {
     // First, try to load from localStorage
     const data = localStorageUtils.getCartData();
 
+    // Also check for gift recipient flag
+    const isGiftRecipientFlag =
+      typeof window !== 'undefined' &&
+      window.localStorage.getItem('kregime_gift_recipient') === 'true';
+
     if (data) {
       // Check if it's a gift order from the data
       if (data.isGift) {
         setIsGiftOrder(true);
       }
-      // Check if user is the gift recipient
-      if (data.giftRecipient) {
+      // Check if user is the gift recipient (from cart data OR localStorage flag)
+      if (data.giftRecipient || isGiftRecipientFlag) {
         setIsGiftRecipient(true);
       }
       // Set default subscription type if not present
@@ -316,6 +322,23 @@ function CartContent() {
     );
   };
 
+  const handleRemoveFromCart = () => {
+    if (!cartData) return;
+
+    // Clear all cart data from localStorage
+    localStorageUtils.clearCartData();
+
+    // Clear regime form data for this specific regime
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(`formData_${cartData.regimeId}`);
+      localStorage.removeItem(`currentStep_${cartData.regimeId}`);
+      localStorage.removeItem('kregime_gift_recipient');
+    }
+
+    // Redirect to home page
+    router.push('/');
+  };
+
   if (!cartData) {
     return (
       <div className="container section-padding py-40 text-center">
@@ -340,7 +363,7 @@ function CartContent() {
           <p className="text-black mb-8">
             You&apos;re purchasing a personalized skincare regime as a gift.
             After payment, you&apos;ll receive a unique link to share with your
-            recipient, who will then complete the regime customization form and
+            loved ones, who will then complete the regime customization form and
             provide their shipping address.
           </p>
         </div>
@@ -357,23 +380,36 @@ function CartContent() {
             className="bg-white rounded-lg shadow-sm p-6"
           >
             <div className="flex flex-col items-start gap-4">
-              <div className="w-32 h-32 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                {cartData.regime.images && cartData.regime.images.length > 0 ? (
-                  <Image
-                    src={cartData.regime.images[0]}
-                    alt={cartData.regime.name}
-                    width={128}
-                    height={128}
-                    className="w-full h-full object-cover rounded-lg"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-[#EF7E71]/20 to-[#D4654F]/20 rounded-lg flex items-center justify-center">
-                    <span className="text-xs text-neutral-500">No Image</span>
-                  </div>
-                )}
-              </div>
+              <data className="flex items-start w-full justify-between">
+                <div className="w-32 h-32 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  {cartData.regime.images &&
+                  cartData.regime.images.length > 0 ? (
+                    <Image
+                      src={cartData.regime.images[0]}
+                      alt={cartData.regime.name}
+                      width={128}
+                      height={128}
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-[#EF7E71]/20 to-[#D4654F]/20 rounded-lg flex items-center justify-center">
+                      <span className="text-xs text-neutral-500">No Image</span>
+                    </div>
+                  )}
+                </div>
 
-              <div className="flex-1 w-full">
+                {/* Delete Button */}
+                <button
+                  onClick={handleRemoveFromCart}
+                  className="p-2 text-red-500 cursor-pointer hover:text-red-600 hover:bg-red-50 rounded-lg transition-all flex-shrink-0"
+                  title="Remove from cart"
+                  aria-label="Remove from cart"
+                >
+                  <Trash2 size={20} />
+                </button>
+              </data>
+
+              <div className="flex-1">
                 <h3 className="text-xl font-semibold text-black mb-2">
                   {cartData.regime.name}
                 </h3>
@@ -381,18 +417,53 @@ function CartContent() {
                   {cartData.regime.description}
                 </p>
 
-                {/* Subscription Type Switcher */}
-                <div className="mt-6 flex flex-col gap-3 md:gap-1">
-                  <h4 className="text-sm font-semibold text-black">
-                    Purchase Option:
-                  </h4>
-                  <PricingSwitcher
-                    selectedType={cartData.subscriptionType}
-                    onTypeChange={updateSubscriptionType}
-                    className="!w-full !px-0 !mx-0 scale-100 md:scale-85 transform origin-left !shadow-none !border-gray-200"
-                    verticalOnMobile={true}
-                  />
-                </div>
+                {/* Subscription Type Switcher - Hidden for gift recipients */}
+                {!isGiftRecipient && (
+                  <div className="mt-6 flex flex-col gap-3 md:gap-1">
+                    <h4 className="text-sm font-semibold text-black">
+                      Purchase Option:
+                    </h4>
+                    {isGiftOrder ? (
+                      <div className="opacity-60 pointer-events-none flex flex-col gap-2">
+                        <p className="text-sm">
+                          The gift feature is only available for one-time regime
+                          purchases.
+                        </p>
+                        <PricingSwitcher
+                          selectedType={cartData.subscriptionType}
+                          onTypeChange={updateSubscriptionType}
+                          className="!w-full !px-0 !mx-0 scale-100 md:scale-85 transform origin-left !shadow-none !border-gray-200"
+                          verticalOnMobile={true}
+                        />
+                      </div>
+                    ) : (
+                      <PricingSwitcher
+                        selectedType={cartData.subscriptionType}
+                        onTypeChange={updateSubscriptionType}
+                        className="!w-full !px-0 !mx-0 scale-100 md:scale-85 transform origin-left !shadow-none !border-gray-200"
+                        verticalOnMobile={true}
+                      />
+                    )}
+                  </div>
+                )}
+                {/* Gift info for recipients */}
+                {isGiftRecipient && (
+                  <div className="mt-4 p-4 border border-primary/50 rounded-lg">
+                    <p className="text-sm text-gray-700">
+                      <span className="font-semibold">Selected Option:</span>{' '}
+                      {cartData.subscriptionType === 'one-time' &&
+                        'One-Time Purchase'}
+                      {cartData.subscriptionType === '3-months' &&
+                        '3-Month Subscription'}
+                      {cartData.subscriptionType === '6-months' &&
+                        '6-Month Subscription'}
+                    </p>
+                    <p className="text-xs text-gray-600 mt-1">
+                      This option was chosen by the gift sender and cannot be
+                      changed.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>
@@ -480,25 +551,8 @@ function CartContent() {
             </h2>
 
             <div className="space-y-4 mb-6">
-              {/* Gift Recipient Message */}
-              {isGiftRecipient && (
-                <div className="p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border-2 border-purple-200 mb-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="text-4xl">🎁</span>
-                    <div>
-                      <h3 className="font-bold text-gray-800 text-lg">This is a Gift!</h3>
-                      <p className="text-sm text-gray-600">Already paid for by the sender</p>
-                    </div>
-                  </div>
-                  <div className="bg-white/60 rounded-lg p-3 border border-purple-200">
-                    <p className="text-sm text-gray-700">
-                      <strong>What&apos;s next:</strong> Complete the checkout to provide your shipping details and personalize your skincare routine. No payment needed!
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {!isGiftRecipient && currentPriceInfo &&
+              {!isGiftRecipient &&
+                currentPriceInfo &&
                 currentPriceInfo.hasDiscount &&
                 !appliedDiscountCode && (
                   <div className="border-2 border-primary rounded-lg p-3 mb-4">
@@ -626,15 +680,19 @@ function CartContent() {
                   </span>
                 </div>
                 {isGiftRecipient && (
-                  <p className="text-sm text-purple-600 font-semibold mt-2 text-right">
-                    ✨ Gift already paid for!
+                  <p className="text-sm text-primary font-semibold mt-2">
+                    Gift already paid by{' '}
+                    {cartData.giftGiverName
+                      ? cartData.giftGiverName
+                      : 'the sender'}{' '}
+                    ✨
                   </p>
                 )}
               </div>
             </div>
 
             <Link
-              href={isGiftOrder ? '/payment?gift=true' : '/payment'}
+              href="/payment"
               className="w-full btn-primary text-center block"
             >
               Proceed to Checkout

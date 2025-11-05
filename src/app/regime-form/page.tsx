@@ -13,12 +13,25 @@ import DirhamIcon from '@/components/icons/DirhamIcon';
 function RegimeFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const productId = searchParams.get('product');
+  
+  // Check localStorage first for gift recipient flow
+  const cartData = typeof window !== 'undefined' ? localStorageUtils.getCartData() : null;
+  const isGiftFlow = typeof window !== 'undefined' && window.localStorage.getItem('kregime_gift_recipient') === 'true';
+  
+  // Get product ID from URL params OR localStorage (for gift recipients)
+  const productId = searchParams.get('product') || cartData?.regimeId || null;
+  
+  // Get subscription type from URL params OR localStorage (for gift recipients)
   const subscriptionParam =
-    (searchParams.get('subscription') as SubscriptionType) || 'one-time';
+    (searchParams.get('subscription') as SubscriptionType) || 
+    cartData?.subscriptionType ||
+    (typeof window !== 'undefined' ? window.localStorage.getItem('kregime_gift_subscription') as SubscriptionType : null) ||
+    'one-time';
+  
   const [currentStep, setCurrentStep] = useState(1);
   const [product, setProduct] = useState<Regime | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isGiftRecipient, setIsGiftRecipient] = useState(isGiftFlow || cartData?.giftRecipient === true);
   const [formData, setFormData] = useState<FormData>({
     age: '',
     gender: '',
@@ -47,11 +60,34 @@ function RegimeFormContent() {
 
       try {
         setLoading(true);
+        
+        // Check if this is a gift recipient first
+        const cartData = localStorageUtils.getCartData();
+        const isGift = cartData?.giftRecipient === true || 
+                       (typeof window !== 'undefined' && window.localStorage.getItem('kregime_gift_recipient') === 'true');
+        
+        if (isGift) {
+          setIsGiftRecipient(true);
+        }
+        
+        // If gift recipient and regime data exists in cart, use it directly
+        if (isGift && cartData?.regime) {
+          setProduct(cartData.regime);
+          
+          // Load any existing form data
+          if (cartData.formData && Object.keys(cartData.formData).length > 0) {
+            setFormData((prev) => ({ ...prev, ...cartData.formData }));
+          }
+          
+          setLoading(false);
+          return;
+        }
+        
+        // Otherwise, fetch from API
         const data = await regimeApi.getById(productId);
         setProduct(data);
 
-        // First, try to load from cart data (if user is editing from cart)
-        const cartData = localStorageUtils.getCartData();
+        // Load from cart data (if user is editing from cart)
         if (cartData && cartData.regimeId === productId && cartData.formData) {
           setFormData((prev) => ({ ...prev, ...cartData.formData }));
           // Save to form data storage so user can continue editing
@@ -194,8 +230,13 @@ function RegimeFormContent() {
     if (!product || !productId) return;
 
     try {
-      // Calculate price based on subscription type
+      // Get existing cart data to preserve gift information
+      const existingCartData = localStorageUtils.getCartData();
+      
+      // Calculate price based on subscription type (0 for gift recipients)
       const getPrice = () => {
+        if (isGiftRecipient) return 0;
+        
         switch (subscriptionParam) {
           case '3-months':
             return product.price3Months;
@@ -208,7 +249,7 @@ function RegimeFormContent() {
 
       const selectedPrice = getPrice();
 
-      // Save cart data to localStorage
+      // Save cart data to localStorage, preserving gift information
       const cartData = {
         regimeId: productId,
         regime: product,
@@ -217,6 +258,11 @@ function RegimeFormContent() {
         subscriptionType: subscriptionParam,
         totalAmount: selectedPrice,
         finalAmount: selectedPrice,
+        // Preserve gift-related fields if they exist
+        ...(existingCartData?.isGift && { isGift: existingCartData.isGift }),
+        ...(existingCartData?.giftToken && { giftToken: existingCartData.giftToken }),
+        ...(existingCartData?.giftRecipient && { giftRecipient: existingCartData.giftRecipient }),
+        ...(existingCartData?.giftGiverName && { giftGiverName: existingCartData.giftGiverName }),
       };
 
       localStorageUtils.saveCartData(cartData);
@@ -902,18 +948,22 @@ function RegimeFormContent() {
                     onClick={handleSubmit}
                     className="btn-primary cursor-pointer flex items-center gap-2 justify-center"
                   >
-                    Add to Cart -{' '}
-                    <DirhamIcon size={16} className="!text-white" />{' '}
-                    {(() => {
-                      switch (subscriptionParam) {
-                        case '3-months':
-                          return product.price3Months;
-                        case '6-months':
-                          return product.price6Months;
-                        default:
-                          return product.priceOneTime;
-                      }
-                    })()}
+                    Add to Cart{isGiftRecipient ? '' : ' - '}
+                    {!isGiftRecipient && (
+                      <>
+                        <DirhamIcon size={16} className="!text-white" />{' '}
+                        {(() => {
+                          switch (subscriptionParam) {
+                            case '3-months':
+                              return product.price3Months;
+                            case '6-months':
+                              return product.price6Months;
+                            default:
+                              return product.priceOneTime;
+                          }
+                        })()}
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -978,19 +1028,21 @@ function RegimeFormContent() {
                           className="btn-primary cursor-pointer flex items-center gap-2 justify-center"
                         >
                           Add to Cart{' '}
-                          <span className="hidden md:flex items-center gap-2">
-                            - <DirhamIcon size={16} className="!text-white" />{' '}
-                            {(() => {
-                              switch (subscriptionParam) {
-                                case '3-months':
-                                  return product.price3Months;
-                                case '6-months':
-                                  return product.price6Months;
-                                default:
-                                  return product.priceOneTime;
-                              }
-                            })()}
-                          </span>
+                          {!isGiftRecipient && (
+                            <span className="hidden md:flex items-center gap-2">
+                              - <DirhamIcon size={16} className="!text-white" />{' '}
+                              {(() => {
+                                switch (subscriptionParam) {
+                                  case '3-months':
+                                    return product.price3Months;
+                                  case '6-months':
+                                    return product.price6Months;
+                                  default:
+                                    return product.priceOneTime;
+                                }
+                              })()}
+                            </span>
+                          )}
                         </button>
                       )}
                     </>

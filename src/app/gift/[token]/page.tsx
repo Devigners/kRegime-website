@@ -6,8 +6,6 @@ import { motion } from 'framer-motion';
 import { Gift, Check, X, Sparkles } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import DirhamIcon from '@/components/icons/DirhamIcon';
-import { calculatePrice } from '@/lib/pricing';
 
 interface GiftData {
   orderId: string;
@@ -43,6 +41,7 @@ export default function GiftRedemptionPage() {
   const [giftData, setGiftData] = useState<GiftData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     if (token) {
@@ -50,6 +49,19 @@ export default function GiftRedemptionPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
+
+  // Auto-rotate images every 5 seconds
+  useEffect(() => {
+    if (!giftData?.regime.images || giftData.regime.images.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        (prevIndex + 1) % giftData.regime.images.length
+      );
+    }, 5000); // 5 seconds
+
+    return () => clearInterval(interval);
+  }, [giftData?.regime.images]);
 
   const fetchGiftData = async () => {
     try {
@@ -74,7 +86,7 @@ export default function GiftRedemptionPage() {
     if (!giftData) return;
 
     try {
-      // Save gift data to localStorage cart
+      // Save comprehensive gift data to localStorage
       const giftCartData = {
         regimeId: giftData.regime.id,
         regime: {
@@ -88,6 +100,7 @@ export default function GiftRedemptionPage() {
           price3Months: giftData.regime.price3Months,
           price6Months: giftData.regime.price6Months,
         },
+        formData: {}, // Empty form data for gift recipient
         quantity: 1,
         subscriptionType: giftData.subscriptionType,
         totalAmount: 0, // Gift is already paid
@@ -95,11 +108,20 @@ export default function GiftRedemptionPage() {
         isGift: true,
         giftToken: token,
         giftRecipient: true, // Flag to indicate this user is the recipient
+        giftGiverName: giftData.giftGiverName, // Include gift giver's name
       };
 
+      // Save to localStorage using standard cart key
       localStorage.setItem('kregime_cart', JSON.stringify(giftCartData));
       
-      // Navigate to regime form
+      // Also save the regime ID for the form to pick up
+      localStorage.setItem('kregime_selected_regime', giftData.regime.id);
+      
+      // Save a flag specifically for gift recipient flow
+      localStorage.setItem('kregime_gift_recipient', 'true');
+      localStorage.setItem('kregime_gift_subscription', giftData.subscriptionType);
+      
+      // Navigate to regime form WITHOUT query parameters
       router.push('/regime-form');
     } catch (error) {
       console.error('Error claiming gift:', error);
@@ -157,27 +179,6 @@ export default function GiftRedemptionPage() {
     );
   }
 
-  // Create a properly typed product object for calculatePrice
-  const productForPricing = {
-    id: giftData.regime.id,
-    name: giftData.regime.name,
-    description: giftData.regime.description,
-    steps: giftData.regime.steps,
-    images: giftData.regime.images,
-    stepCount: giftData.regime.stepCount as 3 | 5 | 7,
-    priceOneTime: giftData.regime.priceOneTime,
-    price3Months: giftData.regime.price3Months,
-    price6Months: giftData.regime.price6Months,
-    discountOneTime: giftData.regime.discountOneTime,
-    discount3Months: giftData.regime.discount3Months,
-    discount6Months: giftData.regime.discount6Months,
-    discountReasonOneTime: giftData.regime.discountReasonOneTime,
-    discountReason3Months: giftData.regime.discountReason3Months,
-    discountReason6Months: giftData.regime.discountReason6Months,
-  };
-
-  const priceInfo = calculatePrice(productForPricing, giftData.subscriptionType);
-
   return (
     <div className="container section-padding py-40">
       <motion.div
@@ -197,7 +198,7 @@ export default function GiftRedemptionPage() {
           </motion.div>
           
           <h1 className="text-4xl md:text-5xl font-bold gradient-text mb-4">
-            You&apos;ve Received a Gift! 🎁
+            You&apos;ve Received a Gift!
           </h1>
           
           <p className="text-xl text-gray-700">
@@ -208,15 +209,33 @@ export default function GiftRedemptionPage() {
         {/* Gift Details Card */}
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
           <div className="md:flex">
-            {/* Image Section */}
-            <div className="md:w-1/2 bg-gradient-to-br from-[#EF7E71]/20 to-[#D4654F]/20 relative h-64 md:h-auto">
+            {/* Image Section - Carousel */}
+            <div className="md:w-1/2 bg-gradient-to-br from-[#EF7E71]/20 to-[#D4654F]/20 relative h-64 md:h-auto overflow-hidden">
               {giftData.regime.images && giftData.regime.images.length > 0 ? (
-                <Image
-                  src={giftData.regime.images[0]}
-                  alt={giftData.regime.name}
-                  fill
-                  className="object-cover"
-                />
+                <>
+                  {giftData.regime.images.map((image, index) => (
+                    <motion.div
+                      key={image}
+                      className="absolute inset-0"
+                      initial={{ opacity: 0 }}
+                      animate={{ 
+                        opacity: currentImageIndex === index ? 1 : 0,
+                        scale: currentImageIndex === index ? 1 : 1.1
+                      }}
+                      transition={{ 
+                        duration: 0.7,
+                        ease: 'easeInOut'
+                      }}
+                    >
+                      <Image
+                        src={image}
+                        alt={`${giftData.regime.name} - Image ${index + 1}`}
+                        fill
+                        className="object-cover"
+                      />
+                    </motion.div>
+                  ))}
+                </>
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <Sparkles className="w-16 h-16 text-primary" />
@@ -256,31 +275,12 @@ export default function GiftRedemptionPage() {
                   ))}
                 </div>
               </div>
-
-              {/* Value */}
-              <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg p-4 mb-6">
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-700 font-medium">Gift Value:</span>
-                  <div className="flex items-center gap-2">
-                    {priceInfo.hasDiscount && (
-                      <span className="text-gray-500 line-through flex items-center gap-1">
-                        <DirhamIcon size={12} className="text-gray-500" />
-                        {priceInfo.originalPrice}
-                      </span>
-                    )}
-                    <span className="text-2xl font-bold text-primary flex items-center gap-1">
-                      <DirhamIcon size={16} className="text-primary" />
-                      {priceInfo.discountedPrice}
-                    </span>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
 
         {/* Instructions */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+        <div className="border border-gray-200 bg-white rounded-lg p-6 mb-8">
           <h3 className="font-semibold text-black mb-3">What happens next?</h3>
           <ol className="space-y-2 text-gray-700">
             <li className="flex items-start">

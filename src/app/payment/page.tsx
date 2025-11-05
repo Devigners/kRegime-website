@@ -76,8 +76,8 @@ function PaymentContent() {
 
   // Validation function to check if all mandatory fields are filled
   const isFormValid = () => {
-    // For gift orders, only require contact info (no shipping address needed)
-    if (isGiftOrder) {
+    // For gift givers (not recipients), only require contact info (no shipping address needed)
+    if (isGiftOrder && !isGiftRecipient) {
       const giftMandatoryFields = ['email', 'phoneNumber', 'firstName'];
       return (
         giftMandatoryFields.every(
@@ -86,7 +86,7 @@ function PaymentContent() {
       );
     }
 
-    // For regular orders, require all fields including shipping
+    // For regular orders AND gift recipients, require all fields including shipping
     const mandatoryFields = [
       'email',
       'phoneNumber',
@@ -175,6 +175,8 @@ function PaymentContent() {
           isGift: true,
         };
 
+        console.log('Submitting gift redemption:', orderPayload);
+
         const response = await fetch('/api/gifts/redeem', {
           method: 'POST',
           headers: {
@@ -183,15 +185,20 @@ function PaymentContent() {
           body: JSON.stringify(orderPayload),
         });
 
+        console.log('Gift redemption response status:', response.status);
+
         if (!response.ok) {
-          throw new Error('Failed to redeem gift');
+          const errorData = await response.json();
+          console.error('Gift redemption error:', errorData);
+          throw new Error(errorData.error || 'Failed to redeem gift');
         }
 
-        const { orderId } = await response.json();
+        const result = await response.json();
+        console.log('Gift redemption successful:', result);
 
         // Clear cart and redirect to confirmation
         localStorageUtils.clearCartData();
-        router.push(`/confirmation?orderId=${orderId}`);
+        router.push(`/confirmation?orderId=${result.orderId}`);
         return;
       }
 
@@ -274,8 +281,11 @@ function PaymentContent() {
       // Redirect to Stripe Checkout
       window.location.href = url;
     } catch (error) {
-      console.error('Error creating checkout session:', error);
-      alert('Failed to initiate payment. Please try again.');
+      console.error('Error processing order:', error);
+      const errorMessage = isGiftRecipient 
+        ? 'Failed to complete your gift order. Please try again.' 
+        : 'Failed to initiate payment. Please try again.';
+      alert(errorMessage);
       setIsProcessing(false);
     }
   };
@@ -312,17 +322,9 @@ function PaymentContent() {
                   <Gift className="w-8 h-8 text-primary" />
                   <h1 className="text-3xl font-bold text-black">Complete Your Gift Order</h1>
                 </div>
-                <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4 mt-4">
-                  <div className="flex items-start gap-3">
-                    <Gift className="w-6 h-6 text-purple-600 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="text-purple-900 font-medium">🎁 This is a gift order - No payment required!</p>
-                      <p className="text-purple-700 text-sm mt-1">
-                        Just provide your contact details and shipping address to complete your order.
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                <p className="text-sm text-black mt-2">
+                  Just provide your contact details and shipping address to complete your order. No payment required!
+                </p>
               </>
             ) : isGiftOrder ? (
               <>
@@ -357,6 +359,32 @@ function PaymentContent() {
                   Contact Information
                 </h2>
                 <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <input
+                    type="text"
+                    placeholder="First name *"
+                    value={formData.firstName}
+                    onChange={(e) =>
+                      handleInputChange('firstName', e.target.value)
+                    }
+                    className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Last name (optional)"
+                    value={formData.lastName}
+                    onChange={(e) =>
+                      handleInputChange('lastName', e.target.value)
+                    }
+                    className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  />
+                </div>
+                {isGiftOrder && !isGiftRecipient && (
+                  <p className="text-sm text-gray-600 mt-4">
+                    Your name will appear on the gift notification sent to the recipient.
+                  </p>
+                )}
                   <input
                     type="email"
                     placeholder="Email address *"
@@ -384,72 +412,18 @@ function PaymentContent() {
                 </div>
               </motion.div>
 
-              {/* Gift Giver Name or Shipping Address */}
-              {isGiftOrder ? (
+              {/* Shipping Address Section - Show for regular orders and gift recipients, hide for gift givers */}
+              {!isGiftOrder || isGiftRecipient ? (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
+                  transition={{ delay: 0.15 }}
                   className="bg-white rounded-lg shadow-md p-6"
                 >
                   <h2 className="text-xl font-semibold text-black mb-4">
-                    Your Information
+                    Delivery Address
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input
-                      type="text"
-                      placeholder="First name *"
-                      value={formData.firstName}
-                      onChange={(e) =>
-                        handleInputChange('firstName', e.target.value)
-                      }
-                      className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                      required
-                    />
-                    <input
-                      type="text"
-                      placeholder="Last name (optional)"
-                      value={formData.lastName}
-                      onChange={(e) =>
-                        handleInputChange('lastName', e.target.value)
-                      }
-                      className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
-                  </div>
-                  <p className="text-sm text-gray-600 mt-4">
-                    Your name will appear on the gift notification sent to the recipient.
-                  </p>
-                </motion.div>
-              ) : (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="bg-white rounded-lg shadow-md p-6"
-                >
-                  <h2 className="text-xl font-semibold text-black mb-4">
-                    Shipping Address
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input
-                      type="text"
-                      placeholder="First name *"
-                      value={formData.firstName}
-                      onChange={(e) =>
-                        handleInputChange('firstName', e.target.value)
-                      }
-                      className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                      required
-                    />
-                    <input
-                      type="text"
-                      placeholder="Last name (optional)"
-                      value={formData.lastName}
-                      onChange={(e) =>
-                        handleInputChange('lastName', e.target.value)
-                      }
-                      className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
                     <input
                       type="text"
                       placeholder="Apartment/Villa/House *"
@@ -487,22 +461,28 @@ function PaymentContent() {
                       <option value="Al Ain">Al Ain</option>
                     </select>
                   </div>
+                  {isGiftRecipient && (
+                    <p className="text-sm text-primary mt-4 font-medium">
+                      This is where we&apos;ll ship your gift!
+                    </p>
+                  )}
                 </motion.div>
-              )}
+              ) : null}
 
-              {/* Payment Information */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="hidden md:block bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg shadow-md p-6 border-2 border-primary/20"
-              >
-                <div className="flex items-center justify-center mb-4">
-                  <Lock size={24} className="text-primary mr-2" />
-                  <h2 className="text-xl font-semibold text-black">
-                    Secure Payment with Stripe
-                  </h2>
-                </div>
+              {/* Payment Information - Hide for gift recipients */}
+              {!isGiftRecipient && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="hidden md:block bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg shadow-md p-6 border-2 border-primary/20"
+                >
+                  <div className="flex items-center justify-center mb-4">
+                    <Lock size={24} className="text-primary mr-2" />
+                    <h2 className="text-xl font-semibold text-black">
+                      Secure Payment with Stripe
+                    </h2>
+                  </div>
 
                 <div className="text-center space-y-3">
                   <p className="text-black">
@@ -535,6 +515,7 @@ function PaymentContent() {
                   </div>
                 </div>
               </motion.div>
+              )}
             </div>
 
             {/* Order Summary */}
@@ -713,18 +694,19 @@ function PaymentContent() {
                   and Privacy Policy.
                 </p>
               </motion.div>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="block md:hidden bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg shadow-md p-6 border-2 border-primary/20"
-              >
-                <div className="flex flex-col items-center justify-center gap-2 mb-4">
-                  <Lock size={24} className="text-primary mr-2" />
-                  <h2 className="text-xl font-semibold text-black">
-                    Secure Payment with Stripe
-                  </h2>
-                </div>
+              {!isGiftRecipient && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="block md:hidden bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg shadow-md p-6 border-2 border-primary/20"
+                >
+                  <div className="flex flex-col items-center justify-center gap-2 mb-4">
+                    <Lock size={24} className="text-primary mr-2" />
+                    <h2 className="text-xl font-semibold text-black">
+                      Secure Payment with Stripe
+                    </h2>
+                  </div>
 
                 <div className="text-center space-y-3">
                   <p className="text-black">
@@ -757,6 +739,7 @@ function PaymentContent() {
                   </div>
                 </div>
               </motion.div>
+              )}
             </div>
           </div>
         </div>

@@ -44,6 +44,7 @@ export default function OrdersAdmin() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [filterGift, setFilterGift] = useState<string>('all'); // all, gift-only, non-gift
 
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
@@ -241,9 +242,17 @@ export default function OrdersAdmin() {
   const filteredOrders = orders.filter(order => {
     const matchesSearch = order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          order.contactInfo.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.shippingAddress?.firstName?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterStatus === 'all' || order.status === filterStatus;
-    return matchesSearch && matchesFilter;
+                         order.shippingAddress?.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         order.giftGiverName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         order.giftGiverEmail?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatusFilter = filterStatus === 'all' || order.status === filterStatus;
+    const matchesGiftFilter = 
+      filterGift === 'all' || 
+      (filterGift === 'gift-only' && order.isGift) ||
+      (filterGift === 'non-gift' && !order.isGift) ||
+      (filterGift === 'gift-redeemed' && order.isGift && order.giftClaimed) ||
+      (filterGift === 'gift-pending' && order.isGift && !order.giftClaimed);
+    return matchesSearch && matchesStatusFilter && matchesGiftFilter;
   });
 
   const pendingOrders = orders.filter(o => o.status === 'pending').length;
@@ -321,24 +330,42 @@ export default function OrdersAdmin() {
               />
             </div>
 
-            {/* Filter */}
-            <div className="flex items-center space-x-2">
-              <div className="flex items-center space-x-2 px-3 py-2 bg-white/70 backdrop-blur-sm rounded-lg border border-neutral-300/50">
-                <Filter className="h-4 w-4 text-[#EF7E71]" />
-                <span className="text-sm font-bold text-neutral-700">Status:</span>
+            {/* Filters */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              {/* Status Filter */}
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 px-3 py-2 bg-white/70 backdrop-blur-sm rounded-lg border border-neutral-300/50">
+                  <Filter className="h-4 w-4 text-[#EF7E71]" />
+                  <span className="text-sm font-bold text-neutral-700">Status:</span>
+                </div>
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="border border-neutral-300/50 rounded-lg px-3 py-2 focus:ring-1 focus:ring-[#EF7E71] focus:border-[#EF7E71] bg-white/70 backdrop-blur-sm min-w-[120px] text-sm font-medium"
+                >
+                  <option value="all">All Status</option>
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="shipped">Shipped</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
               </div>
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="border border-neutral-300/50 rounded-lg px-3 py-2 focus:ring-1 focus:ring-[#EF7E71] focus:border-[#EF7E71] bg-white/70 backdrop-blur-sm min-w-[120px] text-sm font-medium"
-              >
-                <option value="all">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="processing">Processing</option>
-                <option value="shipped">Shipped</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
+
+              {/* Gift Filter */}
+              <div className="flex items-center space-x-2">
+                <select
+                  value={filterGift}
+                  onChange={(e) => setFilterGift(e.target.value)}
+                  className="border border-neutral-300/50 rounded-lg px-3 py-2 focus:ring-1 focus:ring-[#EF7E71] focus:border-[#EF7E71] bg-white/70 backdrop-blur-sm min-w-[140px] text-sm font-medium"
+                >
+                  <option value="all">All Orders</option>
+                  <option value="gift-only">Gifts Only</option>
+                  <option value="gift-redeemed">Gifts Redeemed</option>
+                  <option value="gift-pending">Gifts Pending</option>
+                  <option value="non-gift">Regular Orders</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -374,7 +401,7 @@ export default function OrdersAdmin() {
               </div>
             </div>
           ) : (
-            <div className="divide-y divide-neutral-200/50">
+            <div className="divide-y divide-neutral-200/60">
               {filteredOrders.map((order, index) => (
                 <div
                   key={order.id}
@@ -388,7 +415,7 @@ export default function OrdersAdmin() {
                             ? 'bg-transparent border-2 border-neutral-300 text-neutral-600' 
                             : 'bg-gradient-to-br from-[#EF7E71] to-[#D4654F] text-white'
                         }`}>
-                          {index + 1}
+                          {filteredOrders.length - index}
                         </div>
                         <div className="space-y-1">
                           <h3 className="font-black text-neutral-900 text-lg">#{order.id.slice(-8)}</h3>
@@ -424,6 +451,19 @@ export default function OrdersAdmin() {
                       <span className={`inline-flex items-center px-3 py-1.5 rounded-lg font-bold border ${getSubscriptionTypeBadge(order.subscriptionType || 'one-time')}`}>
                         <span className="text-sm">{getSubscriptionTypeDisplay(order.subscriptionType || 'one-time')}</span>
                       </span>
+
+                      {/* Gift Badge */}
+                      {order.isGift && (
+                        <span className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-bold border ${
+                          order.giftClaimed 
+                            ? 'bg-green-100 text-green-800 border-green-200' 
+                            : 'bg-purple-100 text-purple-800 border-purple-200'
+                        }`}>
+                          <span className="text-sm">
+                            {order.giftClaimed ? 'Redeemed' : 'Awaiting Redemption'}
+                          </span>
+                        </span>
+                      )}
 
                       {/* Discount Code Badge */}
                       {order.discountCode && (
@@ -520,44 +560,139 @@ export default function OrdersAdmin() {
                             </div>
                           </div>
                           {/* Customer Details */}
-                          <div className="mb-4 bg-white rounded-xl p-4 border border-gray-200">
-                            <h4 className="font-black text-neutral-900 mb-3 flex items-center space-x-2 text-base">
-                              <Mail className="h-4 w-4 text-blue-600" />
-                              <span>Customer Information</span>
-                            </h4>
-                            <div className="space-y-2">
-                              {order.shippingAddress && (
-                                <div className="flex justify-between items-center">
-                                  <span className="text-neutral-600 font-bold text-sm">Name:</span>
-                                  <span className="font-black text-sm">{order.shippingAddress.firstName} {order.shippingAddress.lastName || ''}</span>
+                          {order.isGift ? (
+                            <>
+                              {/* Gift Giver Information */}
+                              <div className="mb-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 border-2 border-purple-200">
+                                <h4 className="font-black text-neutral-900 mb-3 flex items-center space-x-2 text-base">
+                                  <span className="text-lg">🎁</span>
+                                  <span>Gift Giver Information</span>
+                                </h4>
+                                <div className="space-y-2">
+                                  {order.giftGiverName && (
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-neutral-600 font-bold text-sm">Name:</span>
+                                      <span className="font-black text-sm">{order.giftGiverName}</span>
+                                    </div>
+                                  )}
+                                  {order.giftGiverEmail && (
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-neutral-600 font-bold text-sm">Email:</span>
+                                      <span className="font-black text-sm">{order.giftGiverEmail}</span>
+                                    </div>
+                                  )}
+                                  {order.giftGiverPhone && (
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-neutral-600 font-bold text-sm">Phone:</span>
+                                      <span className="font-black text-sm">{order.giftGiverPhone}</span>
+                                    </div>
+                                  )}
+                                  {order.giftToken && (
+                                    <div className="flex justify-between items-start pt-2 border-t border-purple-200">
+                                      <span className="text-neutral-600 font-bold text-sm">Gift Token:</span>
+                                      <span className="font-mono font-black text-xs text-purple-700 break-all text-right max-w-[200px]">{order.giftToken}</span>
+                                    </div>
+                                  )}
                                 </div>
-                              )}
-                              <div className="flex justify-between items-center">
-                                <span className="text-neutral-600 font-bold text-sm">Email:</span>
-                                <span className="font-black text-sm">{order.contactInfo.email}</span>
                               </div>
-                              {order.contactInfo.phoneNumber && (
-                                <div className="flex justify-between items-center">
-                                  <span className="text-neutral-600 font-bold text-sm">Phone:</span>
-                                  <span className="font-black text-sm">{order.contactInfo.phoneNumber}</span>
-                                </div>
-                              )}
-                              {order.shippingAddress && (
-                                <div className="flex justify-between text-right pt-2 border-t border-blue-200/50">
-                                  <span className="text-neutral-600 font-bold text-sm">Address:</span>
-                                  <div className="mt-1 font-black text-neutral-900 text-sm leading-relaxed">
-                                    {order.shippingAddress.address}<br />
-                                    {order.shippingAddress.city}, {order.shippingAddress.postalCode}
+
+                              {/* Gift Recipient Information */}
+                              {order.giftClaimed ? (
+                                <div className="mb-4 bg-white rounded-xl p-4 border border-gray-200">
+                                  <h4 className="font-black text-neutral-900 mb-3 flex items-center space-x-2 text-base">
+                                    <Mail className="h-4 w-4 text-green-600" />
+                                    <span>Gift Recipient Information</span>
+                                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">Redeemed</span>
+                                  </h4>
+                                  <div className="space-y-2">
+                                    {order.shippingAddress && (
+                                      <div className="flex justify-between items-center">
+                                        <span className="text-neutral-600 font-bold text-sm">Name:</span>
+                                        <span className="font-black text-sm">{order.shippingAddress.firstName} {order.shippingAddress.lastName || ''}</span>
+                                      </div>
+                                    )}
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-neutral-600 font-bold text-sm">Email:</span>
+                                      <span className="font-black text-sm">{order.contactInfo.email}</span>
+                                    </div>
+                                    {order.contactInfo.phoneNumber && (
+                                      <div className="flex justify-between items-center">
+                                        <span className="text-neutral-600 font-bold text-sm">Phone:</span>
+                                        <span className="font-black text-sm">{order.contactInfo.phoneNumber}</span>
+                                      </div>
+                                    )}
+                                    {order.shippingAddress && (
+                                      <div className="flex justify-between text-right pt-2 border-t border-gray-200">
+                                        <span className="text-neutral-600 font-bold text-sm">Address:</span>
+                                        <div className="mt-1 font-black text-neutral-900 text-sm leading-relaxed">
+                                          {order.shippingAddress.address}<br />
+                                          {order.shippingAddress.city}, {order.shippingAddress.postalCode}
+                                        </div>
+                                      </div>
+                                    )}
+                                    {order.giftClaimedAt && (
+                                      <div className="flex justify-between items-center pt-2 border-t border-gray-200">
+                                        <span className="text-neutral-600 font-bold text-sm">Claimed On:</span>
+                                        <span className="font-black text-sm">
+                                          {new Date(order.giftClaimedAt).toLocaleDateString('en-US', {
+                                            month: 'short',
+                                            day: 'numeric',
+                                            year: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                          })}
+                                        </span>
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
-                              )}
-                              {order.isGift && (
-                                <div className="mt-3 p-2 bg-purple-50 rounded-lg border border-purple-200">
-                                  <span className="text-purple-700 font-bold text-sm">🎁 Gift Order - Recipient details pending</span>
+                              ) : (
+                                <div className="mb-4 bg-yellow-50 rounded-xl p-4 border border-yellow-200">
+                                  <h4 className="font-black text-neutral-900 mb-2 flex items-center space-x-2 text-base">
+                                    <Clock className="h-4 w-4 text-yellow-600" />
+                                    <span>Awaiting Recipient</span>
+                                  </h4>
+                                  <p className="text-neutral-600 text-sm">
+                                    Gift has not been redeemed yet. Recipient details will appear once the gift is claimed.
+                                  </p>
                                 </div>
                               )}
+                            </>
+                          ) : (
+                            <div className="mb-4 bg-white rounded-xl p-4 border border-gray-200">
+                              <h4 className="font-black text-neutral-900 mb-3 flex items-center space-x-2 text-base">
+                                <Mail className="h-4 w-4 text-blue-600" />
+                                <span>Customer Information</span>
+                              </h4>
+                              <div className="space-y-2">
+                                {order.shippingAddress && (
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-neutral-600 font-bold text-sm">Name:</span>
+                                    <span className="font-black text-sm">{order.shippingAddress.firstName} {order.shippingAddress.lastName || ''}</span>
+                                  </div>
+                                )}
+                                <div className="flex justify-between items-center">
+                                  <span className="text-neutral-600 font-bold text-sm">Email:</span>
+                                  <span className="font-black text-sm">{order.contactInfo.email}</span>
+                                </div>
+                                {order.contactInfo.phoneNumber && (
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-neutral-600 font-bold text-sm">Phone:</span>
+                                    <span className="font-black text-sm">{order.contactInfo.phoneNumber}</span>
+                                  </div>
+                                )}
+                                {order.shippingAddress && (
+                                  <div className="flex justify-between text-right pt-2 border-t border-blue-200/50">
+                                    <span className="text-neutral-600 font-bold text-sm">Address:</span>
+                                    <div className="mt-1 font-black text-neutral-900 text-sm leading-relaxed">
+                                      {order.shippingAddress.address}<br />
+                                      {order.shippingAddress.city}, {order.shippingAddress.postalCode}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                          </div>
+                          )}
 
                           {/* Discount Code Info */}
                           {order.discountCode && (

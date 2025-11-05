@@ -55,6 +55,12 @@ function PaymentSuccessContent() {
               stripeSessionId: sessionId,
               discountCodeId: orderData.discountCodeId || null,
               isGift: orderData.isGift || false,
+              // For gift orders, include gift giver information
+              ...(orderData.isGift && orderData.giftGiverInfo ? {
+                giftGiverName: `${orderData.giftGiverInfo.firstName} ${orderData.giftGiverInfo.lastName || ''}`.trim(),
+                giftGiverEmail: orderData.giftGiverInfo.email,
+                giftGiverPhone: orderData.giftGiverInfo.phoneNumber || undefined,
+              } : {}),
               // Only include userDetails and shippingAddress for non-gift orders
               ...(orderData.isGift ? {} : {
                 userDetails: orderData.userDetails,

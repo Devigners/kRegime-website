@@ -5,7 +5,7 @@ import {
   convertRegimeRowToRegime,
   type Order,
 } from '@/models/database';
-import { sendOrderReceivedEmail, sendNewOrderAdminEmail } from '@/lib/email';
+import { sendOrderReceivedEmail, sendOrderReceivedGiftEmail, sendNewOrderAdminEmail } from '@/lib/email';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET() {
@@ -66,13 +66,29 @@ export async function POST(request: NextRequest) {
 
     const orderId = await generateOrderId();
 
+    // Generate gift token for gift orders
+    const generateGiftToken = (): string => {
+      // Generate a random alphanumeric token (e.g., "gift_abc123xyz789")
+      const randomString = Math.random().toString(36).substring(2, 15) + 
+                          Math.random().toString(36).substring(2, 15);
+      return `gift_${randomString}`;
+    };
+
     const newOrder: Omit<Order, 'createdAt' | 'updatedAt'> = {
       ...orderData,
       id: orderId,
       status: 'pending',
+      // Generate giftToken if this is a gift order
+      ...(orderData.isGift ? { giftToken: generateGiftToken() } : {}),
     };
 
     const orderInsert = convertOrderToOrderInsert(newOrder);
+
+    console.log('Creating order with gift data:', {
+      isGift: orderInsert.is_gift,
+      giftToken: orderInsert.gift_token,
+      giftGiverName: orderInsert.gift_giver_name,
+    });
 
     const { data, error } = await supabaseClient
       .from('orders')
@@ -87,6 +103,8 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
+
+    console.log('Order created successfully with ID:', data.id);
 
     const convertedOrder = convertOrderRowToOrder(data);
 
@@ -142,10 +160,26 @@ export async function POST(request: NextRequest) {
       }
 
       // Send the completion email to customer
-      const emailResult = await sendOrderReceivedEmail({
-        order: convertedOrder,
-        regime,
-      });
+      let emailResult;
+      
+      if (convertedOrder.isGift && !convertedOrder.giftClaimed) {
+        // Send gift order email to gift buyer
+        const giftGiverName = convertedOrder.shippingAddress?.firstName || 
+                              convertedOrder.contactInfo.email.split('@')[0];
+        const giftLink = `${process.env.NEXT_PUBLIC_APP_URL}/gift/${convertedOrder.giftToken}`;
+        
+        emailResult = await sendOrderReceivedGiftEmail({
+          order: convertedOrder,
+          giftGiverName,
+          giftLink,
+        });
+      } else {
+        // Send regular order confirmation email
+        emailResult = await sendOrderReceivedEmail({
+          order: convertedOrder,
+          regime,
+        });
+      }
 
       if (!emailResult.success) {
         console.error('Failed to send order completion email:', emailResult.error);

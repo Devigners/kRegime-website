@@ -43,7 +43,7 @@ a {
 
 /* Modern Button Styles */
 .btn-primary {
-  @apply relative bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl;
+  @apply cursor-pointer relative bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl;
   box-shadow: 0 8px 32px rgba(239, 126, 113, 0.3);
 }
 

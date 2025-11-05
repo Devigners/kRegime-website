@@ -8,62 +8,57 @@ export async function GET(
   try {
     const { token } = await params;
     
+    console.log('Fetching gift with token:', token);
+    
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    // Fetch gift order with regime details
-    const { data: order, error } = await supabase
+    // First, fetch the gift order
+    const { data: order, error: orderError } = await supabase
       .from('orders')
-      .select(`
-        *,
-        regimes (
-          id,
-          name,
-          description,
-          image,
-          steps,
-          step_count,
-          price_one_time,
-          price_3_months,
-          price_6_months,
-          discount_one_time,
-          discount_3_months,
-          discount_6_months,
-          discount_reason_one_time,
-          discount_reason_3_months,
-          discount_reason_6_months
-        )
-      `)
+      .select('*')
       .eq('gift_token', token)
       .eq('is_gift', true)
       .single();
 
-    if (error || !order) {
+    console.log('Order query result:', { order, orderError });
+
+    if (orderError || !order) {
+      console.error('Gift not found error:', orderError);
       return NextResponse.json(
-        { error: 'Gift not found' },
+        { error: 'Gift not found', details: orderError?.message },
         { status: 404 }
       );
     }
 
+    // Then fetch the regime separately
+    const { data: regimeData, error: regimeError } = await supabase
+      .from('regimes')
+      .select('*')
+      .eq('id', order.regime_id)
+      .single();
+
+    console.log('Regime query result:', { regimeData, regimeError });
+
     // Transform regime data to match frontend interface
-    const regime = order.regimes ? {
-      id: order.regimes.id,
-      name: order.regimes.name,
-      description: order.regimes.description,
-      images: order.regimes.image || [],
-      steps: order.regimes.steps || [],
-      stepCount: order.regimes.step_count,
-      priceOneTime: order.regimes.price_one_time,
-      price3Months: order.regimes.price_3_months,
-      price6Months: order.regimes.price_6_months,
-      discountOneTime: order.regimes.discount_one_time,
-      discount3Months: order.regimes.discount_3_months,
-      discount6Months: order.regimes.discount_6_months,
-      discountReasonOneTime: order.regimes.discount_reason_one_time,
-      discountReason3Months: order.regimes.discount_reason_3_months,
-      discountReason6Months: order.regimes.discount_reason_6_months,
+    const regime = regimeData ? {
+      id: regimeData.id,
+      name: regimeData.name,
+      description: regimeData.description,
+      images: regimeData.image || [],
+      steps: regimeData.steps || [],
+      stepCount: regimeData.step_count,
+      priceOneTime: regimeData.price_one_time,
+      price3Months: regimeData.price_3_months,
+      price6Months: regimeData.price_6_months,
+      discountOneTime: regimeData.discount_one_time,
+      discount3Months: regimeData.discount_3_months,
+      discount6Months: regimeData.discount_6_months,
+      discountReasonOneTime: regimeData.discount_reason_one_time,
+      discountReason3Months: regimeData.discount_reason_3_months,
+      discountReason6Months: regimeData.discount_reason_6_months,
     } : null;
 
     return NextResponse.json({

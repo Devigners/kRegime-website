@@ -1,9 +1,12 @@
 import { resend } from './resend';
 import {
   generateOrderReceivedEmail,
+  generateOrderReceivedGiftEmail,
   generateOrderStatusUpdateEmail,
   generateNewOrderAdminEmail,
   generateNewsletterSubscriptionEmail,
+  generateGiftClaimedEmail,
+  generateGiftRecipientOrderEmail,
 } from '@/emails/templates';
 import { Order, Regime } from '@/models/database';
 
@@ -72,6 +75,54 @@ export async function sendOrderReceivedEmail({
     };
   } catch (error) {
     console.error('Error in sendOrderReceivedEmail:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    };
+  }
+}
+
+/**
+ * Send gift order received email to gift buyer
+ */
+export async function sendOrderReceivedGiftEmail({
+  order,
+  giftGiverName,
+  giftLink,
+}: {
+  order: Order;
+  giftGiverName: string;
+  giftLink: string;
+}): Promise<EmailResponse> {
+  try {
+    const emailHtml = generateOrderReceivedGiftEmail({
+      order,
+      giftGiverName,
+      giftLink,
+    });
+
+    const { data, error } = await resend.emails.send({
+      from: 'KREGIME <care@kregime.com>',
+      to: [order.contactInfo.email],
+      subject: `Thanks for your gift order! 🎁`,
+      html: emailHtml,
+    });
+
+    if (error) {
+      console.error('Failed to send gift order received email:', error);
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+
+    console.log('Gift order received email sent successfully:', data?.id);
+    return {
+      success: true,
+      id: data?.id,
+    };
+  } catch (error) {
+    console.error('Error in sendOrderReceivedGiftEmail:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error occurred',
@@ -237,6 +288,111 @@ export async function sendNewsletterSubscriptionEmail(
     };
   } catch (error) {
     console.error('Error in sendNewsletterSubscriptionEmail:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    };
+  }
+}
+
+/**
+ * Send gift recipient order confirmation email
+ */
+export async function sendGiftRecipientOrderEmail({
+  order,
+  regime,
+  recipientName,
+  giftGiverName,
+}: {
+  order: Order;
+  regime?: Regime;
+  recipientName: string;
+  giftGiverName: string;
+}): Promise<EmailResponse> {
+  try {
+    // Generate the email HTML
+    const emailHtml = generateGiftRecipientOrderEmail({
+      order,
+      regime,
+      recipientName,
+      giftGiverName,
+    });
+
+    // Send email using Resend
+    const { data, error } = await resend.emails.send({
+      from: 'KREGIME <care@kregime.com>',
+      to: [order.contactInfo.email],
+      subject: `🎁 Gift Order Confirmed #${order.id} - Your skincare journey begins!`,
+      html: emailHtml,
+    });
+
+    if (error) {
+      console.error('Failed to send gift recipient order email:', error);
+      return {
+        success: false,
+        error: error.message || 'Failed to send email',
+      };
+    }
+
+    console.log('Gift recipient order email sent successfully:', data?.id);
+    return {
+      success: true,
+      id: data?.id,
+    };
+  } catch (error) {
+    console.error('Error in sendGiftRecipientOrderEmail:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    };
+  }
+}
+
+/**
+ * Send gift claimed notification email to gift giver
+ */
+export async function sendGiftClaimedEmail({
+  order,
+  giftGiverEmail,
+  giftGiverName,
+  recipientName,
+}: {
+  order: Order;
+  giftGiverEmail: string;
+  giftGiverName: string;
+  recipientName: string;
+}): Promise<EmailResponse> {
+  try {
+    // Generate the email HTML
+    const emailHtml = generateGiftClaimedEmail({
+      order,
+      giftGiverName,
+      recipientName,
+    });
+
+    // Send email using Resend
+    const { data, error } = await resend.emails.send({
+      from: 'KREGIME <care@kregime.com>',
+      to: [giftGiverEmail],
+      subject: `🎉 ${recipientName} claimed your gift! - Order #${order.id}`,
+      html: emailHtml,
+    });
+
+    if (error) {
+      console.error('Failed to send gift claimed email:', error);
+      return {
+        success: false,
+        error: error.message || 'Failed to send email',
+      };
+    }
+
+    console.log('Gift claimed email sent successfully:', data?.id);
+    return {
+      success: true,
+      id: data?.id,
+    };
+  } catch (error) {
+    console.error('Error in sendGiftClaimedEmail:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error occurred',

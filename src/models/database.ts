@@ -85,6 +85,13 @@ export interface Order {
   status: 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled';
   isGift?: boolean;
   giftToken?: string;
+  giftGiverName?: string;
+  giftGiverEmail?: string;
+  giftGiverPhone?: string;
+  giftRecipientName?: string;
+  giftRecipientEmail?: string;
+  giftClaimed?: boolean;
+  giftClaimedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -217,6 +224,15 @@ export function convertOrderRowToOrder(row: OrderRow): Order {
     stripeSessionId: row.stripe_session_id,
     discountCodeId: row.discount_code_id,
     status: row.status as 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled',
+    isGift: row.is_gift || false,
+    giftToken: row.gift_token || undefined,
+    giftGiverName: row.gift_giver_name || undefined,
+    giftGiverEmail: row.gift_giver_email || undefined,
+    giftGiverPhone: row.gift_giver_phone || undefined,
+    giftRecipientName: row.gift_recipient_name || undefined,
+    giftRecipientEmail: row.gift_recipient_email || undefined,
+    giftClaimed: row.gift_claimed || false,
+    giftClaimedAt: row.gift_claimed_at ? new Date(row.gift_claimed_at) : undefined,
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
   };
@@ -265,6 +281,15 @@ export function convertOrderToOrderInsert(
     stripe_session_id: order.stripeSessionId,
     discount_code_id: order.discountCodeId,
     status: order.status,
+    is_gift: order.isGift,
+    gift_token: order.giftToken,
+    gift_giver_name: order.giftGiverName,
+    gift_giver_email: order.giftGiverEmail,
+    gift_giver_phone: order.giftGiverPhone,
+    gift_recipient_name: order.giftRecipientName,
+    gift_recipient_email: order.giftRecipientEmail,
+    gift_claimed: order.giftClaimed,
+    gift_claimed_at: order.giftClaimedAt?.toISOString(),
   };
 }
 
