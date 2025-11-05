@@ -94,7 +94,7 @@ export default function ProductsSection() {
     >
       <div className="container ">
         <motion.div
-          className="text-center mb-12 md:mb-16"
+          className="text-center mb-4 md:mb-16"
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -117,7 +117,7 @@ export default function ProductsSection() {
           />
         </motion.div>
 
-        <div className="-mx-4 px-4 lg:px-8">
+        <div className="-mx-4 px-0 lg:px-8">
           <div className="flex lg:grid px-8 lg:grid-cols-3 gap-4 md:gap-8 overflow-x-auto lg:overflow-x-visible py-4 lg:py-0 snap-x snap-mandatory lg:snap-none">
             {regimes.map((regime, index) => (
               <motion.div
