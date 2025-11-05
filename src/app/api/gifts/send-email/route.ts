@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Construct the gift redemption URL
-    const giftUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/gift/${giftToken}`;
+    const giftUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/gift/${giftToken}`;
 
     // Send the gift notification email
     await sendGiftNotificationEmail({
