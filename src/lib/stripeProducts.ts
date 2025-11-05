@@ -83,12 +83,7 @@ const PRODUCTION_CONFIG: StripeProductConfig = {
  * You can customize this logic based on your deployment setup
  */
 function isProduction(): boolean {
-  // Option 1: Use NODE_ENV
-  if (process.env.NODE_ENV === 'production') {
-    return true;
-  }
-  
-  // Option 2: Use a custom environment variable (recommended)
+  // Use a custom environment variable (recommended)
   // This allows you to have production builds in staging
   if (process.env.NEXT_PUBLIC_STRIPE_ENV === 'production') {
     return true;
