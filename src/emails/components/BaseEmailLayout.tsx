@@ -119,7 +119,7 @@ export function BaseEmailLayout({
             <Section className="mt-8 mx-6 mobile-margin mobile-padding">
               <div className="text-center border-t border-neutral-200 pt-8">
                 <Text className="text-xs text-neutral-500 mb-4 mobile-text-sm">
-                  KREGIME - Personalized Korean Skincare Regimens
+                  KREGIME - Personalized Korean Skincare Regime
                 </Text>
                 <Text className="text-xs text-neutral-500 mb-2 mobile-text-sm">
                   Follow us for skincare tips and updates:

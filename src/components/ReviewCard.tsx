@@ -52,12 +52,26 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
       {/* Reviewer Info */}
       <div className="flex items-center">
         <div className="w-12 h-12 rounded-lg mr-4 relative overflow-hidden ring-2 ring-primary/20">
-          <Image
-            src={`/reviewers/reviewer-${review.id}.png`}
-            alt={`${review.name} avatar`}
-            fill
-            className="object-cover"
-          />
+          {review.avatar ? (
+            <Image
+              src={review.avatar}
+              alt={`${review.name} avatar`}
+              fill
+              className="object-cover"
+              onError={(e) => {
+                // Fallback to default image if avatar fails to load
+                const target = e.target as HTMLImageElement;
+                target.src = `/reviewers/reviewer-${review.id}.png`;
+              }}
+            />
+          ) : (
+            <Image
+              src={`/reviewers/reviewer-${review.id}.png`}
+              alt={`${review.name} avatar`}
+              fill
+              className="object-cover"
+            />
+          )}
         </div>
         <div>
           <span className="font-semibold text-neutral-900 block">

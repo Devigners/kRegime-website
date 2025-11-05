@@ -627,7 +627,7 @@ function RegimeFormContent() {
               </span>
             </div>
             <h2 className="text-xl md:text-2xl font-bold text-black">
-              Are you familiar with korean skincare routines?
+              Are you familiar with Korean skincare routines?
             </h2>
             <div className="space-y-4">
               {[
@@ -666,7 +666,7 @@ function RegimeFormContent() {
               </span>
             </div>
             <h2 className="text-xl md:text-2xl font-bold text-black">
-              What attracts you to korean skincare?
+              What attracts you to Korean skincare?
             </h2>
             <p className="text-black">Select all that apply</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
