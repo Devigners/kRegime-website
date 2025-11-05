@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sendGiftNotificationEmail } from '@/emails';
+import { sendGiftNotificationEmail } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {

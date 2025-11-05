@@ -7,6 +7,7 @@ import {
   generateNewsletterSubscriptionEmail,
   generateGiftClaimedEmail,
   generateGiftRecipientOrderEmail,
+  generateGiftNotificationEmail,
 } from '@/emails/templates';
 import { Order, Regime } from '@/models/database';
 
@@ -393,6 +394,61 @@ export async function sendGiftClaimedEmail({
     };
   } catch (error) {
     console.error('Error in sendGiftClaimedEmail:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    };
+  }
+}
+
+/**
+ * Send gift notification email to recipient
+ */
+export async function sendGiftNotificationEmail({
+  recipientEmail,
+  recipientName,
+  senderName,
+  giftMessage,
+  giftUrl,
+}: {
+  recipientEmail: string;
+  recipientName: string;
+  senderName: string;
+  giftMessage?: string;
+  giftUrl: string;
+}): Promise<EmailResponse> {
+  try {
+    // Generate the email HTML
+    const emailHtml = generateGiftNotificationEmail({
+      recipientName,
+      senderName,
+      giftMessage,
+      giftUrl,
+    });
+
+    // Send email using Resend
+    const { data, error } = await resend.emails.send({
+      from: 'KREGIME <no-reply@kregime.com>',
+      to: [recipientEmail],
+      subject: `${senderName} sent you a special skincare gift! 🎁`,
+      html: emailHtml,
+    });
+
+    if (error) {
+      console.error('Failed to send gift notification email:', error);
+      return {
+        success: false,
+        error: error.message || 'Failed to send email',
+      };
+    }
+
+    console.log('Gift notification email sent successfully:', data?.id);
+    return {
+      success: true,
+      id: data?.id,
+    };
+  } catch (error) {
+    console.error('Error in sendGiftNotificationEmail:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error occurred',

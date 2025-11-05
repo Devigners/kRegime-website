@@ -1,26 +1,24 @@
-// Legacy React Email components (kept for backwards compatibility if needed)
-export { OrderReceivedEmail } from './OrderReceivedEmail';
-export { OrderReceivedGiftEmail } from './OrderReceivedGiftEmail';
-export { OrderStatusUpdateEmail } from './OrderStatusUpdateEmail';
-export { NewOrderAdminEmail } from './NewOrderAdminEmail';
-export { BaseEmailLayout } from './components/BaseEmailLayout';
-export { GiftNotificationEmail, sendGiftNotificationEmail } from './GiftNotificationEmail';
-
-// New HTML template generators
+// HTML template generators
 export {
   generateEmailTemplate,
   generateOrderReceivedEmail,
+  generateOrderReceivedGiftEmail,
   generateNewOrderAdminEmail,
   generateOrderStatusUpdateEmail,
   generateGiftNotificationEmail,
+  generateGiftClaimedEmail,
+  generateGiftRecipientOrderEmail,
   generateNewsletterSubscriptionEmail,
 } from './templates';
 
 export type {
   EmailTemplateOptions,
   OrderReceivedTemplateProps,
+  OrderReceivedGiftTemplateProps,
   NewOrderAdminTemplateProps,
   OrderStatusUpdateTemplateProps,
   GiftNotificationTemplateProps,
+  GiftClaimedTemplateProps,
+  GiftRecipientOrderTemplateProps,
   NewsletterSubscriptionTemplateProps,
 } from './templates';
