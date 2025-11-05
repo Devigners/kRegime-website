@@ -40,6 +40,7 @@ interface CartData {
     id: string;
     code: string;
     percentageOff: number;
+    stripeCouponId?: string;
   };
   isGift?: boolean;
   giftRecipient?: boolean;
@@ -243,6 +244,7 @@ function PaymentContent() {
         customerName: `${formData.firstName} ${formData.lastName}`.trim(),
         checkoutSessionKey,
         discountCodeId: cartData.discountCode?.id,
+        stripeCouponId: cartData.discountCode?.stripeCouponId,
         isGift: isGiftOrder,
         ...(isGiftOrder ? {} : {
           shippingAddress: {

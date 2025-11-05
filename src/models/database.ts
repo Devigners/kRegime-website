@@ -96,6 +96,7 @@ export interface DiscountCode {
   isActive: boolean;
   isRecurring: boolean;
   usageCount: number;
+  stripeCouponId?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -323,6 +324,7 @@ export function convertDiscountCodeRowToDiscountCode(row: DiscountCodeRow): Disc
     isActive: row.is_active,
     isRecurring: row.is_recurring,
     usageCount: row.usage_count,
+    stripeCouponId: row.stripe_coupon_id,
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
   };
@@ -338,5 +340,6 @@ export function convertDiscountCodeToDiscountCodeInsert(
     is_active: discountCode.isActive,
     is_recurring: discountCode.isRecurring,
     usage_count: discountCode.usageCount,
+    stripe_coupon_id: discountCode.stripeCouponId,
   };
 }

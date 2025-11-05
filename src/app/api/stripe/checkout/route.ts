@@ -43,6 +43,7 @@ interface CheckoutRequestBody {
   };
   checkoutSessionKey: string; // Key to retrieve data from localStorage
   discountCodeId?: string; // Optional discount code ID
+  stripeCouponId?: string; // Stripe coupon ID to apply discount
   isGift?: boolean; // Whether this is a gift order
 }
 
@@ -57,6 +58,7 @@ export async function POST(request: NextRequest) {
       shippingAddress,
       checkoutSessionKey,
       discountCodeId,
+      stripeCouponId,
       isGift,
     } = body;
 
@@ -113,8 +115,19 @@ export async function POST(request: NextRequest) {
       client_reference_id: checkoutSessionKey,
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment?cancelled=true`,
-      allow_promotion_codes: false, // Disable promotion code field on Stripe Checkout
     };
+
+    // Apply Stripe coupon if provided, otherwise allow manual promotion codes
+    if (stripeCouponId) {
+      sessionConfig.discounts = [
+        {
+          coupon: stripeCouponId,
+        },
+      ];
+    } else {
+      // Only set allow_promotion_codes when NOT using discounts array
+      sessionConfig.allow_promotion_codes = false;
+    }
 
     // Only add shipping_options for one-time payments (payment mode)
     if (!isSubscription) {

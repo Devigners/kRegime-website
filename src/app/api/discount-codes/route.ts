@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseClient } from '@/lib/supabase';
 import { convertDiscountCodeRowToDiscountCode, convertDiscountCodeToDiscountCodeInsert, DiscountCodeRow } from '@/models/database';
+import { stripe } from '@/lib/stripe';
 
 // GET /api/discount-codes - List all discount codes
 export async function GET() {
@@ -65,6 +66,45 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Create Stripe coupon first
+    let stripeCouponId: string | null = null;
+    try {
+      const couponConfig: {
+        name: string;
+        percent_off: number;
+        duration: 'forever';
+        currency: string;
+        max_redemptions?: number;
+        metadata: {
+          source: string;
+          is_recurring: string;
+        };
+      } = {
+        name: code.toUpperCase(),
+        percent_off: parseInt(percentageOff),
+        duration: 'forever',
+        currency: 'aed',
+        metadata: {
+          source: 'kregime_admin',
+          is_recurring: isRecurring !== undefined ? isRecurring.toString() : 'true',
+        }
+      };
+
+      // For one-time codes, add max_redemptions limit
+      if (isRecurring === false) {
+        couponConfig.max_redemptions = 1;
+      }
+
+      const stripeCoupon = await stripe.coupons.create(couponConfig);
+      stripeCouponId = stripeCoupon.id;
+    } catch (stripeError) {
+      console.error('Error creating Stripe coupon:', stripeError);
+      return NextResponse.json(
+        { success: false, error: 'Failed to create Stripe coupon' },
+        { status: 500 }
+      );
+    }
+
     const discountCode = {
       id: `discount_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       code: code.toUpperCase(),
@@ -72,6 +112,7 @@ export async function POST(request: NextRequest) {
       isActive: true,
       isRecurring: isRecurring !== undefined ? isRecurring : true,
       usageCount: 0,
+      stripeCouponId,
     };
 
     const discountCodeInsert = convertDiscountCodeToDiscountCodeInsert(discountCode);
@@ -82,6 +123,12 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Error creating discount code:', error);
+      // If database insert fails, delete the Stripe coupon
+      try {
+        await stripe.coupons.del(stripeCouponId);
+      } catch (cleanupError) {
+        console.error('Error cleaning up Stripe coupon:', cleanupError);
+      }
       return NextResponse.json(
         { success: false, error: 'Failed to create discount code' },
         { status: 500 }

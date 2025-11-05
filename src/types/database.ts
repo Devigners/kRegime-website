@@ -42,6 +42,7 @@ export type Database = {
           is_active: boolean
           is_recurring: boolean
           percentage_off: number
+          stripe_coupon_id: string | null
           updated_at: string
           usage_count: number
         }
@@ -52,6 +53,7 @@ export type Database = {
           is_active?: boolean
           is_recurring?: boolean
           percentage_off: number
+          stripe_coupon_id?: string | null
           updated_at?: string
           usage_count?: number
         }
@@ -62,6 +64,7 @@ export type Database = {
           is_active?: boolean
           is_recurring?: boolean
           percentage_off?: number
+          stripe_coupon_id?: string | null
           updated_at?: string
           usage_count?: number
         }

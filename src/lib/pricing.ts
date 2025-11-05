@@ -14,6 +14,7 @@ export interface DiscountCodeInfo {
   id: string;
   code: string;
   percentageOff: number;
+  stripeCouponId?: string;
 }
 
 export interface PriceWithDiscountCode extends PriceInfo {

@@ -54,6 +54,7 @@ export async function POST(request: NextRequest) {
         code: discountCode.code,
         percentageOff: discountCode.percentageOff,
         isRecurring: discountCode.isRecurring,
+        stripeCouponId: discountCode.stripeCouponId,
       },
     });
   } catch (error) {
