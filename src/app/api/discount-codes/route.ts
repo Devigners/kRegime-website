@@ -34,7 +34,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { code, percentageOff } = body;
+    const { code, percentageOff, isRecurring } = body;
 
     if (!code || !percentageOff) {
       return NextResponse.json(
@@ -70,6 +70,8 @@ export async function POST(request: NextRequest) {
       code: code.toUpperCase(),
       percentageOff: parseInt(percentageOff),
       isActive: true,
+      isRecurring: isRecurring !== undefined ? isRecurring : true,
+      usageCount: 0,
     };
 
     const discountCodeInsert = convertDiscountCodeToDiscountCodeInsert(discountCode);

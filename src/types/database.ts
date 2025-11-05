@@ -40,24 +40,30 @@ export type Database = {
           created_at: string
           id: string
           is_active: boolean
+          is_recurring: boolean
           percentage_off: number
           updated_at: string
+          usage_count: number
         }
         Insert: {
           code: string
           created_at?: string
           id: string
           is_active?: boolean
+          is_recurring?: boolean
           percentage_off: number
           updated_at?: string
+          usage_count?: number
         }
         Update: {
           code?: string
           created_at?: string
           id?: string
           is_active?: boolean
+          is_recurring?: boolean
           percentage_off?: number
           updated_at?: string
+          usage_count?: number
         }
         Relationships: []
       }

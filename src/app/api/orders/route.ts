@@ -90,6 +90,41 @@ export async function POST(request: NextRequest) {
 
     const convertedOrder = convertOrderRowToOrder(data);
 
+    // Handle discount code usage tracking
+    if (convertedOrder.discountCodeId) {
+      try {
+        // Fetch the discount code
+        const { data: discountCodeData, error: dcError } = await supabaseClient
+          .from('discount_codes')
+          .select('*')
+          .eq('id', convertedOrder.discountCodeId)
+          .single();
+
+        if (!dcError && discountCodeData) {
+          // Increment usage count
+          const newUsageCount = (discountCodeData.usage_count || 0) + 1;
+          
+          // For one-time codes, also set is_active to false after first use
+          const updateData: { usage_count: number; is_active?: boolean } = {
+            usage_count: newUsageCount
+          };
+          
+          if (!discountCodeData.is_recurring && newUsageCount >= 1) {
+            updateData.is_active = false;
+          }
+
+          // Update the discount code
+          await supabaseClient
+            .from('discount_codes')
+            .update(updateData)
+            .eq('id', convertedOrder.discountCodeId);
+        }
+      } catch (dcUpdateError) {
+        console.error('Error updating discount code usage:', dcUpdateError);
+        // Don't fail the order creation if discount code update fails
+      }
+    }
+
     // Send order completion email immediately after order creation
     try {
       // Fetch regime details for the email

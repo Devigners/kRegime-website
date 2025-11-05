@@ -18,6 +18,7 @@ interface DiscountCodeFormData {
   code: string;
   percentageOff: number;
   isActive: boolean;
+  isRecurring: boolean;
 }
 
 export default function DiscountCodesAdmin() {
@@ -31,6 +32,7 @@ export default function DiscountCodesAdmin() {
     code: '',
     percentageOff: 0,
     isActive: true,
+    isRecurring: true,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
@@ -64,21 +66,50 @@ export default function DiscountCodesAdmin() {
       code: '',
       percentageOff: 0,
       isActive: true,
+      isRecurring: true,
     });
     setShowForm(true);
   };
 
   const handleEdit = (discountCode: DiscountCode) => {
+    // Prevent editing of used one-time codes
+    if (!discountCode.isRecurring && discountCode.usageCount > 0) {
+      alert('Cannot edit a one-time discount code that has already been used');
+      return;
+    }
+
     setSelectedDiscountCode(discountCode);
     setFormData({
       code: discountCode.code,
       percentageOff: discountCode.percentageOff,
       isActive: discountCode.isActive,
+      isRecurring: discountCode.isRecurring,
     });
     setShowForm(true);
   };
 
   const handleDelete = async (discountCodeId: string) => {
+    const discountCode = discountCodes.find(dc => dc.id === discountCodeId);
+    
+    if (!discountCode) {
+      alert('Discount code not found');
+      return;
+    }
+
+    // Prevent deletion of used one-time codes
+    if (!discountCode.isRecurring && discountCode.usageCount > 0) {
+      alert('Cannot delete a one-time discount code that has already been used. It is already inactive.');
+      setDeleteConfirm(null);
+      return;
+    }
+
+    // Prevent deletion of used recurring codes
+    if (discountCode.isRecurring && discountCode.usageCount > 0) {
+      alert('Cannot delete a recurring discount code that has been used. Please deactivate it instead.');
+      setDeleteConfirm(null);
+      return;
+    }
+
     try {
       const response = await fetch(`/api/discount-codes/${discountCodeId}`, {
         method: 'DELETE',
@@ -118,7 +149,14 @@ export default function DiscountCodesAdmin() {
         if (result.success) {
           setDiscountCodes(discountCodes.map(dc => 
             dc.id === selectedDiscountCode.id 
-              ? { ...dc, ...formData, updatedAt: new Date() } 
+              ? { 
+                  ...dc, 
+                  code: formData.code,
+                  percentageOff: formData.percentageOff,
+                  isActive: formData.isActive,
+                  isRecurring: formData.isRecurring,
+                  updatedAt: new Date() 
+                } 
               : dc
           ));
         } else {
@@ -158,6 +196,12 @@ export default function DiscountCodesAdmin() {
   };
 
   const toggleStatus = async (discountCode: DiscountCode) => {
+    // Prevent reactivation of one-time codes that have been used
+    if (!discountCode.isRecurring && discountCode.usageCount > 0 && !discountCode.isActive) {
+      alert('Cannot reactivate a one-time discount code that has already been used');
+      return;
+    }
+
     try {
       const response = await fetch(`/api/discount-codes/${discountCode.id}`, {
         method: 'PUT',
@@ -349,12 +393,40 @@ export default function DiscountCodesAdmin() {
                       </button>
                     </div>
 
-                    <div className="text-xs text-neutral-500 font-bold">
-                      Created {new Date(discountCode.createdAt).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
-                      })}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={`text-xs font-bold px-2 py-1 rounded-lg ${
+                          discountCode.isRecurring 
+                            ? 'bg-blue-100 text-blue-800' 
+                            : 'bg-purple-100 text-purple-800'
+                        }`}>
+                          {discountCode.isRecurring ? 'Recurring' : 'One-time'}
+                        </span>
+                        {discountCode.isRecurring && (
+                          <span className="text-xs text-neutral-600 font-semibold">
+                            Used {discountCode.usageCount} {discountCode.usageCount === 1 ? 'time' : 'times'}
+                          </span>
+                        )}
+                        {!discountCode.isRecurring && discountCode.usageCount > 0 && (
+                          <span className="text-xs text-red-600 font-semibold">
+                            Already used
+                          </span>
+                        )}
+                      </div>
+                      {discountCode.usageCount > 0 && (
+                        <div className="text-xs text-amber-600 font-semibold bg-amber-50 px-2 py-1 rounded">
+                          {discountCode.isRecurring 
+                            ? 'Used code - can only deactivate, not delete' 
+                            : 'Used one-time code - locked'}
+                        </div>
+                      )}
+                      <div className="text-xs text-neutral-500 font-bold">
+                        Created {new Date(discountCode.createdAt).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}
+                      </div>
                     </div>
 
                     {/* Actions */}
@@ -368,15 +440,31 @@ export default function DiscountCodesAdmin() {
                       <div className="flex items-center space-x-2">
                         <button
                           onClick={() => handleEdit(discountCode)}
-                          className="p-2 text-[#EF7E71] hover:bg-[#EF7E71]/10 rounded-lg border border-[#EF7E71]/20 hover:border-[#EF7E71]/40 transition-all duration-300 shadow-sm hover:shadow-md"
-                          title="Edit Discount Code"
+                          disabled={!discountCode.isRecurring && discountCode.usageCount > 0}
+                          className={`p-2 rounded-lg border transition-all duration-300 shadow-sm ${
+                            !discountCode.isRecurring && discountCode.usageCount > 0
+                              ? 'text-neutral-400 bg-neutral-100 border-neutral-200 cursor-not-allowed opacity-50'
+                              : 'text-[#EF7E71] hover:bg-[#EF7E71]/10 border-[#EF7E71]/20 hover:border-[#EF7E71]/40 hover:shadow-md'
+                          }`}
+                          title={!discountCode.isRecurring && discountCode.usageCount > 0 
+                            ? 'Cannot edit used one-time code' 
+                            : 'Edit Discount Code'}
                         >
                           <Edit className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => setDeleteConfirm(discountCode.id)}
-                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg border border-red-200 hover:border-red-300 transition-all duration-300 shadow-sm hover:shadow-md"
-                          title="Delete Discount Code"
+                          disabled={discountCode.usageCount > 0}
+                          className={`p-2 rounded-lg border transition-all duration-300 shadow-sm ${
+                            discountCode.usageCount > 0
+                              ? 'text-neutral-400 bg-neutral-100 border-neutral-200 cursor-not-allowed opacity-50'
+                              : 'text-red-500 hover:bg-red-50 border-red-200 hover:border-red-300 hover:shadow-md'
+                          }`}
+                          title={discountCode.usageCount > 0 
+                            ? discountCode.isRecurring 
+                              ? 'Cannot delete used recurring code - deactivate instead' 
+                              : 'Cannot delete used one-time code'
+                            : 'Delete Discount Code'}
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -439,6 +527,26 @@ export default function DiscountCodesAdmin() {
                     required
                   />
                   <p className="text-sm text-neutral-600 mt-2">Enter discount percentage (1-100)</p>
+                </div>
+
+                <div className="flex items-center p-6 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl border-2 border-primary/20">
+                  <input
+                    type="checkbox"
+                    id="isRecurring"
+                    checked={formData.isRecurring}
+                    onChange={(e) => setFormData({...formData, isRecurring: e.target.checked})}
+                    className="w-6 h-6 text-primary bg-white border-2 border-primary rounded focus:ring-primary focus:ring-2 mr-4"
+                  />
+                  <div>
+                    <label htmlFor="isRecurring" className="text-lg font-black text-neutral-900">
+                      Recurring Discount Code
+                    </label>
+                    <p className="text-sm text-neutral-600 mt-1">
+                      {formData.isRecurring 
+                        ? 'Can be used multiple times until manually deactivated' 
+                        : 'Can only be used once - will automatically deactivate after first use'}
+                    </p>
+                  </div>
                 </div>
 
                 <div className="flex items-center p-6 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl border-2 border-primary/20">

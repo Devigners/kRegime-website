@@ -94,6 +94,8 @@ export interface DiscountCode {
   code: string;
   percentageOff: number;
   isActive: boolean;
+  isRecurring: boolean;
+  usageCount: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -319,6 +321,8 @@ export function convertDiscountCodeRowToDiscountCode(row: DiscountCodeRow): Disc
     code: row.code,
     percentageOff: row.percentage_off,
     isActive: row.is_active,
+    isRecurring: row.is_recurring,
+    usageCount: row.usage_count,
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
   };
@@ -332,5 +336,7 @@ export function convertDiscountCodeToDiscountCodeInsert(
     code: discountCode.code,
     percentage_off: discountCode.percentageOff,
     is_active: discountCode.isActive,
+    is_recurring: discountCode.isRecurring,
+    usage_count: discountCode.usageCount,
   };
 }

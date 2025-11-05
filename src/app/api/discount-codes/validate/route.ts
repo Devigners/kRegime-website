@@ -39,12 +39,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // For one-time codes, check if already used
+    if (!discountCode.isRecurring && discountCode.usageCount > 0) {
+      return NextResponse.json(
+        { success: false, error: 'This discount code has already been used' },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json({
       success: true,
       discountCode: {
         id: discountCode.id,
         code: discountCode.code,
         percentageOff: discountCode.percentageOff,
+        isRecurring: discountCode.isRecurring,
       },
     });
   } catch (error) {

@@ -8,13 +8,14 @@ export async function PUT(
 ) {
   try {
     const body = await request.json();
-    const { code, percentageOff, isActive } = body;
+    const { code, percentageOff, isActive, isRecurring } = body;
     const { id } = await params;
 
     const updateData: {
       code?: string;
       percentage_off?: number;
       is_active?: boolean;
+      is_recurring?: boolean;
       updated_at?: string;
     } = {
       updated_at: new Date().toISOString(),
@@ -51,6 +52,10 @@ export async function PUT(
 
     if (isActive !== undefined) {
       updateData.is_active = isActive;
+    }
+
+    if (isRecurring !== undefined) {
+      updateData.is_recurring = isRecurring;
     }
 
     const { error } = await supabaseClient
