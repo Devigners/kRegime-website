@@ -47,29 +47,33 @@ const TEST_CONFIG: StripeProductConfig = {
 };
 
 // Production Products and Prices
+// Note: These are monthly recurring subscriptions in Stripe
+// The prices correspond to different commitment periods:
+// - 3-months: Higher monthly price (shorter commitment)
+// - 6-months: Lower monthly price (longer commitment)
 const PRODUCTION_CONFIG: StripeProductConfig = {
   tribox: {
     productId: 'prod_TM9wgCfSL48Jcj',
     prices: {
-      'one-time': 'price_1SPRcoPHcfaTMcXV1HGoq256',
-      '3-months': 'price_1SPRcoPHcfaTMcXVpGTDHowZ',
-      '6-months': 'price_1SPRcoPHcfaTMcXVLjhUj2FL',
+      'one-time': 'price_1SPRcoPHcfaTMcXV1HGoq256', // 349.00 AED one-time
+      '3-months': 'price_1SPRcoPHcfaTMcXVpGTDHowZ', // 319.00 AED/month (3-month commitment)
+      '6-months': 'price_1SPRcoPHcfaTMcXVLjhUj2FL', // 299.00 AED/month (6-month commitment)
     },
   },
   pentabox: {
     productId: 'prod_TM9wyhIJJTBgOU',
     prices: {
-      'one-time': 'price_1SPRcmPHcfaTMcXVwGVCXcHd',
-      '3-months': 'price_1SPRcmPHcfaTMcXVN6PKQkIT',
-      '6-months': 'price_1SPRcmPHcfaTMcXVYmbw6pW8',
+      'one-time': 'price_1SPRcmPHcfaTMcXVwGVCXcHd', // 549.00 AED one-time
+      '3-months': 'price_1SPRcmPHcfaTMcXVN6PKQkIT', // 519.00 AED/month (3-month commitment)
+      '6-months': 'price_1SPRcmPHcfaTMcXVYmbw6pW8', // 499.00 AED/month (6-month commitment)
     },
   },
   septabox: {
     productId: 'prod_TM9w4ihHR06Spv',
     prices: {
-      'one-time': 'price_1SPRchPHcfaTMcXV9Dd9J5PR',
-      '3-months': 'price_1SPRchPHcfaTMcXVm9uH7qtk',
-      '6-months': 'price_1SPRchPHcfaTMcXV4mpb5FFO',
+      'one-time': 'price_1SPRchPHcfaTMcXV9Dd9J5PR', // 749.00 AED one-time
+      '3-months': 'price_1SPRchPHcfaTMcXVm9uH7qtk', // 719.00 AED/month (3-month commitment)
+      '6-months': 'price_1SPRchPHcfaTMcXV4mpb5FFO', // 699.00 AED/month (6-month commitment)
     },
   },
 };
