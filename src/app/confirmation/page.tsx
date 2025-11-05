@@ -499,8 +499,8 @@ function ConfirmationContent() {
                 
                 return (
                   <div className={`relative overflow-hidden rounded-xl border-2 ${statusConfig.color} bg-gradient-to-r ${statusConfig.bgGradient} p-6`}>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
+                    <div className="flex flex-col gap-4 md:flex-row items-center justify-between">
+                      <div className="w-full flex flex-col md:flex-row items-start md:items-center gap-4">
                         <div className={`w-12 h-12 ${statusConfig.iconBg} rounded-full flex items-center justify-center`}>
                           <StatusIcon size={24} className={statusConfig.iconColor} />
                         </div>
@@ -516,9 +516,9 @@ function ConfirmationContent() {
                           </p>
                         </div>
                       </div>
-                      <div className="text-right">
+                      <div className="w-full md:w-fit text-left md:text-right">
                         <p className="text-sm text-gray-600">Last updated</p>
-                        <p className="text-sm font-semibold text-gray-800">
+                        <p className="text-sm font-semibold text-nowrap text-gray-800">
                           {new Date(order.updatedAt).toLocaleDateString('en-US', {
                             month: 'short',
                             day: 'numeric',
@@ -547,7 +547,7 @@ function ConfirmationContent() {
 
             {order && regime ? (
               <div className="space-y-4">
-                <div className="flex items-start space-x-4 pb-4">
+                <div className="flex flex-col gap-4 items-start space-x-4 pb-4">
                   <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
                     {regime.images && regime.images.length > 0 ? (
                       <Image
@@ -681,7 +681,7 @@ function ConfirmationContent() {
               <div className="space-y-4">
                 {/* Pending Status */}
                 <div className="flex items-start space-x-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  <div className={`w-10 h-10 aspect-square rounded-full flex items-center justify-center ${
                     order?.status === 'pending' 
                       ? 'bg-primary/10' 
                       : ['processing', 'shipped', 'completed'].includes(order?.status || '')
@@ -723,7 +723,7 @@ function ConfirmationContent() {
 
                 {/* Processing Status */}
                 <div className="flex items-start space-x-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  <div className={`w-10 h-10 aspect-square rounded-full flex items-center justify-center ${
                     order?.status === 'processing' 
                       ? 'bg-primary/10' 
                       : ['shipped', 'completed'].includes(order?.status || '')
@@ -765,7 +765,7 @@ function ConfirmationContent() {
 
                 {/* Shipped Status */}
                 <div className="flex items-start space-x-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  <div className={`w-10 h-10 aspect-square rounded-full flex items-center justify-center ${
                     order?.status === 'shipped' 
                       ? 'bg-primary/10' 
                       : order?.status === 'completed'
@@ -809,7 +809,7 @@ function ConfirmationContent() {
 
                 {/* Completed Status */}
                 <div className="flex items-start space-x-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  <div className={`w-10 h-10 aspect-square rounded-full flex items-center justify-center ${
                     order?.status === 'completed' 
                       ? 'bg-primary/10' 
                       : 'bg-gray-100'
@@ -846,7 +846,7 @@ function ConfirmationContent() {
               {order?.status === 'cancelled' && (
                 <div className="border-t border-gray-200 pt-6">
                   <div className="flex items-start space-x-4">
-                    <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                    <div className="w-10 h-10 aspect-square bg-red-100 rounded-full flex items-center justify-center">
                       <X size={20} className="text-red-500" />
                     </div>
                     <div>

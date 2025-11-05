@@ -115,7 +115,7 @@ function PaymentSuccessContent() {
           <Loader2 className="w-16 h-16 animate-spin text-primary mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-black mb-2">Processing Your Order</h2>
           <p className="text-neutral-600">Please wait while we confirm your payment and create your order...</p>
-          <p className="text-sm text-neutral-500 mt-4">You will be redirected automatically</p>
+          <p className="text-sm text-neutral-500 mt-4">You will be redirected automatically, please do not refresh or close the page.</p>
         </div>
       </div>
     );

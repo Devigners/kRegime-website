@@ -409,7 +409,7 @@ function CartContent() {
                 <h3 className="text-lg font-semibold text-black">
                   Your Regime Answers
                 </h3>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col md:flex-row items-center gap-2">
                   <button
                     onClick={handleEditAnswers}
                     className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary border border-primary rounded-lg hover:bg-primary hover:text-white transition-all"

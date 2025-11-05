@@ -342,7 +342,7 @@ function PaymentContent() {
             )}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 md:gap-12">
             {/* Checkout Form */}
             <div className="space-y-8">
               {/* Contact Information */}
@@ -493,7 +493,7 @@ function PaymentContent() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg shadow-md p-6 border-2 border-primary/20"
+                className="hidden md:block bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg shadow-md p-6 border-2 border-primary/20"
               >
                 <div className="flex items-center justify-center mb-4">
                   <Lock size={24} className="text-primary mr-2" />
@@ -536,7 +536,7 @@ function PaymentContent() {
             </div>
 
             {/* Order Summary */}
-            <div className="space-y-8">
+            <div className="flex flex-col gap-8">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -710,6 +710,50 @@ function PaymentContent() {
                   By completing your order, you agree to our Terms of Service
                   and Privacy Policy.
                 </p>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="block md:hidden bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg shadow-md p-6 border-2 border-primary/20"
+              >
+                <div className="flex flex-col items-center justify-center gap-2 mb-4">
+                  <Lock size={24} className="text-primary mr-2" />
+                  <h2 className="text-xl font-semibold text-black">
+                    Secure Payment with Stripe
+                  </h2>
+                </div>
+
+                <div className="text-center space-y-3">
+                  <p className="text-black">
+                    You&apos;ll be redirected to Stripe&apos;s secure checkout
+                    page to complete your payment.
+                  </p>
+                  <div className="flex items-center justify-center gap-2 text-sm text-neutral-600">
+                    <Lock size={14} />
+                    <span>256-bit SSL encrypted</span>
+                  </div>
+                  <div className="flex items-center justify-center gap-4 mt-4">
+                    <Image
+                      src="https://js.stripe.com/v3/fingerprinted/img/visa-729c05c240c4bdb47b03ac81d9945bfe.svg"
+                      alt="Visa"
+                      width={40}
+                      height={25}
+                    />
+                    <Image
+                      src="https://js.stripe.com/v3/fingerprinted/img/mastercard-4d8844094130711885b5e41b28c9848f.svg"
+                      alt="Mastercard"
+                      width={40}
+                      height={25}
+                    />
+                    <Image
+                      src="https://js.stripe.com/v3/fingerprinted/img/amex-a49b82f46c5cd6a96a6e418a6ca1717c.svg"
+                      alt="Amex"
+                      width={40}
+                      height={25}
+                    />
+                  </div>
+                </div>
               </motion.div>
             </div>
           </div>
