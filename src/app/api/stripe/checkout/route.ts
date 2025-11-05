@@ -1,32 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { SubscriptionType } from '@/types';
-
-// Map regime IDs to Stripe product IDs
-const REGIME_TO_PRODUCT_MAP: Record<string, string> = {
-  tribox: 'prod_TM6BuovMVYmvOi',
-  pentabox: 'prod_TM6Ewd4IodwK7K',
-  septabox: 'prod_TM6FUZBVFo0n6E',
-};
-
-// Map subscription types to price IDs for each regime
-const PRICE_MAP: Record<string, Record<SubscriptionType, string>> = {
-  tribox: {
-    'one-time': 'price_1SPNylPHcfaTMcXVYNdZmwyr',
-    '3-months': 'price_1SPNylPHcfaTMcXVuBDzNisv',
-    '6-months': 'price_1SPNylPHcfaTMcXVjwG96huA',
-  },
-  pentabox: {
-    'one-time': 'price_1SPO1rPHcfaTMcXVED4Qh7Ke',
-    '3-months': 'price_1SPO1rPHcfaTMcXV2beAl1mz',
-    '6-months': 'price_1SPO1rPHcfaTMcXVRln9vxEb',
-  },
-  septabox: {
-    'one-time': 'price_1SPO34PHcfaTMcXVLcVfXEOB',
-    '3-months': 'price_1SPO34PHcfaTMcXV94kgC5mV',
-    '6-months': 'price_1SPO34PHcfaTMcXVMmsLx6rM',
-  },
-};
+import { getProductMap, getStripePriceId } from '@/lib/stripeProducts';
 
 interface CheckoutRequestBody {
   regimeId: string;
@@ -63,6 +38,7 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // Validate regime ID
+    const REGIME_TO_PRODUCT_MAP = getProductMap();
     if (!REGIME_TO_PRODUCT_MAP[regimeId]) {
       return NextResponse.json(
         { error: 'Invalid regime ID' },
@@ -95,7 +71,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get the price ID for this regime and subscription type
-    const priceId = PRICE_MAP[regimeId]?.[subscriptionType];
+    const priceId = getStripePriceId(regimeId, subscriptionType);
     if (!priceId) {
       return NextResponse.json(
         { error: 'Invalid subscription type for this regime' },
