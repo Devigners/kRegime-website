@@ -413,7 +413,7 @@ function ConfirmationContent() {
             transition={{ duration: 0.5 }}
             className="text-center mb-12"
           >
-            <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 ${
+            <div className={`w-20 h-20 rounded-full flex items-center justify-center shadow-sm mx-auto mb-6 ${
               order?.status === 'cancelled' 
                 ? 'bg-red-100' 
                 : order?.status === 'completed' 
@@ -550,15 +550,11 @@ function ConfirmationContent() {
             >
               {(() => {
                 const statusConfig = getOrderStatusConfig(order.status, order.isGift, order.giftClaimed);
-                const StatusIcon = statusConfig.icon;
                 
                 return (
-                  <div className={`relative overflow-hidden rounded-xl border-2 bg-primary/2 border-primary p-6`}>
+                  <div className={`relative overflow-hidden rounded-xl border-2 bg-white border-primary p-6`}>
                     <div className="flex flex-col gap-4 items-center justify-between">
                       <div className="w-full flex flex-col items-start gap-4">
-                        <div className={`w-12 h-12 bg-primary rounded-full aspect-square flex items-center justify-center`}>
-                          <StatusIcon size={24} className="text-white" />
-                        </div>
                         <div>
                           <h2 className="text-xl font-bold text-gray-800">
                             {statusConfig.label}

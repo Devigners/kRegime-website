@@ -569,18 +569,11 @@ function PaymentContent() {
                       {currentPriceInfo &&
                         currentPriceInfo.hasDiscount &&
                         currentPriceInfo.discountReason && (
-                          <div className="mt-2 bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-lg p-2">
-                            <div className="flex items-center gap-2 mb-1">
-                              <div className="bg-primary text-white px-2 py-0.5 rounded-full text-xs font-bold flex items-center gap-1">
+                          <div className="w-fit mt-4 bg-primary text-white px-2 py-0.5 rounded-full text-xs font-bold flex items-center gap-1">
                                 <Tag className="w-3 h-3" />
                                 {currentPriceInfo.discountReason}{' '}
                                 {currentPriceInfo.discount}% Off
                               </div>
-                            </div>
-                            <p className="text-xs text-green-700 font-semibold">
-                              Save {currentPriceInfo.savingsAmount} AED!
-                            </p>
-                          </div>
                         )}
 
                       {/* Discount Code Badge */}
@@ -601,25 +594,25 @@ function PaymentContent() {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="flex flex-col gap-2">
                     {currentPriceInfo && currentPriceInfo.hasDiscount && (
-                      <div className="bg-green-50 border border-green-200 rounded-lg p-2 mb-3">
+                      <div className="border-b border-gray-200 pb-2">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-bold text-green-800">
+                          <span className="text-black">
                             Original Price
                           </span>
-                          <span className="text-xs text-green-700 line-through flex items-center gap-1">
-                            <DirhamIcon size={10} className="text-green-700" />
+                          <span className="text-black flex items-center gap-1">
+                            <DirhamIcon size={10} />
                             {currentPriceInfo.originalPrice}
                           </span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-green-800">
+                          <span className="text-black">
                             Discount ({currentPriceInfo.discount}%)
                           </span>
-                          <span className="text-xs font-bold text-green-700 flex items-center gap-1">
+                          <span className="font-bold text-primary flex items-center gap-1">
                             -{' '}
-                            <DirhamIcon size={10} className="text-green-700" />
+                            <DirhamIcon size={10} className="text-primary" />
                             {currentPriceInfo.savingsAmount}
                           </span>
                         </div>

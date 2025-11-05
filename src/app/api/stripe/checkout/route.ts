@@ -70,6 +70,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Fetch regime data to get regime discount coupon
+    const { supabaseClient } = await import('@/lib/supabase');
+    const { data: regimeData } = await supabaseClient
+      .from('regimes')
+      .select('stripe_coupon_id_one_time, stripe_coupon_id_3_months, stripe_coupon_id_6_months')
+      .eq('id', regimeId)
+      .single();
+
+    // Determine regime discount coupon based on subscription type
+    let regimeCouponId: string | null = null;
+    if (regimeData) {
+      switch (subscriptionType) {
+        case 'one-time':
+          regimeCouponId = regimeData.stripe_coupon_id_one_time;
+          break;
+        case '3-months':
+          regimeCouponId = regimeData.stripe_coupon_id_3_months;
+          break;
+        case '6-months':
+          regimeCouponId = regimeData.stripe_coupon_id_6_months;
+          break;
+      }
+    }
+
     // Get the price ID for this regime and subscription type
     const priceId = PRICE_MAP[regimeId]?.[subscriptionType];
     if (!priceId) {
@@ -117,11 +141,13 @@ export async function POST(request: NextRequest) {
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment?cancelled=true`,
     };
 
-    // Apply Stripe coupon if provided, otherwise allow manual promotion codes
-    if (stripeCouponId) {
+    // Apply Stripe coupons: prioritize discount code, then regime discount
+    const appliedCouponId = stripeCouponId || regimeCouponId;
+    
+    if (appliedCouponId) {
       sessionConfig.discounts = [
         {
-          coupon: stripeCouponId,
+          coupon: appliedCouponId,
         },
       ];
     } else {

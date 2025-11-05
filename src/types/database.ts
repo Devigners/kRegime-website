@@ -168,6 +168,9 @@ export type Database = {
           price_one_time: number
           step_count: number
           steps: string[]
+          stripe_coupon_id_one_time: string | null
+          stripe_coupon_id_3_months: string | null
+          stripe_coupon_id_6_months: string | null
           updated_at: string
         }
         Insert: {
@@ -189,6 +192,9 @@ export type Database = {
           price_one_time?: number
           step_count: number
           steps: string[]
+          stripe_coupon_id_one_time?: string | null
+          stripe_coupon_id_3_months?: string | null
+          stripe_coupon_id_6_months?: string | null
           updated_at?: string
         }
         Update: {
@@ -210,6 +216,9 @@ export type Database = {
           price_one_time?: number
           step_count?: number
           steps?: string[]
+          stripe_coupon_id_one_time?: string | null
+          stripe_coupon_id_3_months?: string | null
+          stripe_coupon_id_6_months?: string | null
           updated_at?: string
         }
         Relationships: []

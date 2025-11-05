@@ -35,6 +35,9 @@ export interface Regime {
   discountReasonOneTime: string | null;
   discountReason3Months: string | null;
   discountReason6Months: string | null;
+  stripeCouponIdOneTime?: string | null;
+  stripeCouponId3Months?: string | null;
+  stripeCouponId6Months?: string | null;
   steps: string[];
   images: string[];
   stepCount: 3 | 5 | 7;
@@ -143,6 +146,9 @@ export function convertRegimeRowToRegime(row: RegimeRow): Regime {
     discountReasonOneTime: row.discount_reason_one_time || null,
     discountReason3Months: row.discount_reason_3_months || null,
     discountReason6Months: row.discount_reason_6_months || null,
+    stripeCouponIdOneTime: row.stripe_coupon_id_one_time || null,
+    stripeCouponId3Months: row.stripe_coupon_id_3_months || null,
+    stripeCouponId6Months: row.stripe_coupon_id_6_months || null,
     steps: row.steps,
     images: Array.isArray(row.image) ? row.image : (row.image ? [row.image] : []),
     stepCount: row.step_count as 3 | 5 | 7,
@@ -169,6 +175,9 @@ export function convertRegimeToRegimeInsert(
     discount_reason_one_time: regime.discountReasonOneTime || null,
     discount_reason_3_months: regime.discountReason3Months || null,
     discount_reason_6_months: regime.discountReason6Months || null,
+    stripe_coupon_id_one_time: regime.stripeCouponIdOneTime || null,
+    stripe_coupon_id_3_months: regime.stripeCouponId3Months || null,
+    stripe_coupon_id_6_months: regime.stripeCouponId6Months || null,
     steps: regime.steps,
     image: regime.images,
     step_count: regime.stepCount,

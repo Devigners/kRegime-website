@@ -226,6 +226,48 @@ function RegimeFormContent() {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
+  // Helper function to calculate discounted price
+  const calculatePrice = (subscriptionType: SubscriptionType) => {
+    if (!product) return 0;
+    if (isGiftRecipient) return 0;
+
+    let price = 0;
+    let discount = 0;
+
+    switch (subscriptionType) {
+      case '3-months':
+        price = product.price3Months;
+        discount = product.discount3Months || 0;
+        break;
+      case '6-months':
+        price = product.price6Months;
+        discount = product.discount6Months || 0;
+        break;
+      default:
+        price = product.priceOneTime;
+        discount = product.discountOneTime || 0;
+    }
+
+    if (discount > 0) {
+      return price - (price * discount) / 100;
+    }
+    return price;
+  };
+
+  // Helper function to check if there's a discount
+  const hasDiscount = (subscriptionType: SubscriptionType) => {
+    if (!product) return false;
+
+    switch (subscriptionType) {
+      case '3-months':
+        return (product.discount3Months || 0) > 0;
+      case '6-months':
+        return (product.discount6Months || 0) > 0;
+      default:
+        return (product.discountOneTime || 0) > 0;
+    }
+  };
+
   const handleSubmit = async () => {
     if (!product || !productId) return;
 
@@ -234,20 +276,7 @@ function RegimeFormContent() {
       const existingCartData = localStorageUtils.getCartData();
       
       // Calculate price based on subscription type (0 for gift recipients)
-      const getPrice = () => {
-        if (isGiftRecipient) return 0;
-        
-        switch (subscriptionParam) {
-          case '3-months':
-            return product.price3Months;
-          case '6-months':
-            return product.price6Months;
-          default:
-            return product.priceOneTime;
-        }
-      };
-
-      const selectedPrice = getPrice();
+      const selectedPrice = calculatePrice(subscriptionParam);
 
       // Save cart data to localStorage, preserving gift information
       const cartData = {
@@ -865,6 +894,33 @@ function RegimeFormContent() {
             <p className="text-sm md:text-base text-black">
               Help us create the perfect skincare routine for you
             </p>
+            {/* Show discount badge if applicable */}
+            {!isGiftRecipient && hasDiscount(subscriptionParam) && (
+              <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-full text-sm font-medium">
+                <span>
+                  {(() => {
+                    switch (subscriptionParam) {
+                      case '3-months':
+                        return `${product.discount3Months}% OFF`;
+                      case '6-months':
+                        return `${product.discount6Months}% OFF`;
+                      default:
+                        return `${product.discountOneTime}% OFF`;
+                    }
+                  })()}
+                  {(() => {
+                    switch (subscriptionParam) {
+                      case '3-months':
+                        return product.discountReason3Months ? ` - ${product.discountReason3Months}` : '';
+                      case '6-months':
+                        return product.discountReason6Months ? ` - ${product.discountReason6Months}` : '';
+                      default:
+                        return product.discountReasonOneTime ? ` - ${product.discountReasonOneTime}` : '';
+                    }
+                  })()}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Progress Bar */}
@@ -951,17 +1007,10 @@ function RegimeFormContent() {
                     Add to Cart{isGiftRecipient ? '' : ' - '}
                     {!isGiftRecipient && (
                       <>
-                        <DirhamIcon size={16} className="!text-white" />{' '}
-                        {(() => {
-                          switch (subscriptionParam) {
-                            case '3-months':
-                              return product.price3Months;
-                            case '6-months':
-                              return product.price6Months;
-                            default:
-                              return product.priceOneTime;
-                          }
-                        })()}
+                        <span className="flex items-center gap-1">
+                          <DirhamIcon size={16} className="!text-white" />{' '}
+                          {calculatePrice(subscriptionParam).toFixed(2)}
+                        </span>
                       </>
                     )}
                   </button>
@@ -1030,17 +1079,11 @@ function RegimeFormContent() {
                           Add to Cart{' '}
                           {!isGiftRecipient && (
                             <span className="hidden md:flex items-center gap-2">
-                              - <DirhamIcon size={16} className="!text-white" />{' '}
-                              {(() => {
-                                switch (subscriptionParam) {
-                                  case '3-months':
-                                    return product.price3Months;
-                                  case '6-months':
-                                    return product.price6Months;
-                                  default:
-                                    return product.priceOneTime;
-                                }
-                              })()}
+                              -{' '}
+                              <span className="flex items-center gap-1">
+                                <DirhamIcon size={16} className="!text-white" />{' '}
+                                {calculatePrice(subscriptionParam).toFixed(2)}
+                              </span>
                             </span>
                           )}
                         </button>
