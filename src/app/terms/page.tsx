@@ -1,8 +1,12 @@
 import React from 'react';
+import type { Metadata } from 'next';
 
-export const metadata = {
-  title: 'Terms of Service - KREGIME',
-  description: 'KREGIME Terms of Service - effective November 2025',
+export const metadata: Metadata = {
+  title: 'Terms of Service',
+  description: 'KREGIME Terms of Service - Read our terms and conditions for using our Korean skincare regime service.',
+  alternates: {
+    canonical: 'https://kregime.com/terms',
+  },
 };
 
 const TermsPage: React.FC = () => {

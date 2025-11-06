@@ -1,7 +1,11 @@
 User-agent: *
 Allow: /
 Disallow: /admin
+Disallow: /admin/
 Disallow: /api/
 Disallow: /_next/
+Disallow: /cart
+Disallow: /payment
+Disallow: /confirmation
 
 Sitemap: https://kregime.com/sitemap.xml

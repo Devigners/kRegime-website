@@ -1,8 +1,12 @@
 import React from 'react';
+import type { Metadata } from 'next';
 
-export const metadata = {
-  title: 'Privacy Policy - KREGIME',
-  description: 'KREGIME Privacy Policy - effective November 2025',
+export const metadata: Metadata = {
+  title: 'Privacy Policy',
+  description: 'KREGIME Privacy Policy - Learn how we protect your personal information and skincare quiz data.',
+  alternates: {
+    canonical: 'https://kregime.com/privacy',
+  },
 };
 
 const PrivacyPage: React.FC = () => {

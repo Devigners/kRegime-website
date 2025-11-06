@@ -19,9 +19,13 @@ const playfairDisplay = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: 'KREGIME - Handpicked Korean Skincare Regimes Simplified',
+  metadataBase: new URL('https://kregime.com'),
+  title: {
+    default: 'KREGIME - Handpicked Korean Skincare Regimes Simplified',
+    template: '%s | KREGIME',
+  },
   description:
-    'Discover your perfect Korean skincare routine with our expertly curated 3, 5, or 7 steps regime boxes featuring premium Korean skincare products.',
+    'Discover your perfect Korean skincare routine with our expertly curated 3, 5, or 7 steps regime boxes featuring premium Korean skincare products. Free delivery across UAE within 2 days.',
   keywords: [
     'Korean skincare',
     'Korean skin care',
@@ -31,13 +35,26 @@ export const metadata: Metadata = {
     'Korean beauty products',
     'skincare regime',
     'beauty subscription',
+    'K-beauty UAE',
+    'Korean skincare Dubai',
+    'Korean beauty box',
+    'customized skincare',
+    'skincare delivery UAE',
   ],
-  authors: [{ name: 'KREGIME' }],
+  authors: [{ name: 'KREGIME', url: 'https://kregime.com' }],
+  creator: 'KREGIME',
+  publisher: 'KREGIME',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   icons: {
     icon: '/favicon.ico',
     shortcut: '/favicon.ico',
     apple: '/favicon.ico',
   },
+  manifest: '/manifest.json',
   openGraph: {
     title: 'KREGIME - Handpicked Korean Skincare Regimes Simplified',
     description:
@@ -61,6 +78,7 @@ export const metadata: Metadata = {
     description:
       'Discover your perfect Korean skincare routine with Handpicked regime boxes.',
     images: ['/logo.svg'],
+    creator: '@kregime',
   },
   robots: {
     index: true,
@@ -73,6 +91,10 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  alternates: {
+    canonical: 'https://kregime.com',
+  },
+  category: 'Beauty & Personal Care',
 };
 
 export const viewport = {
@@ -86,16 +108,64 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'KREGIME',
+    url: 'https://kregime.com',
+    logo: 'https://kregime.com/logo.svg',
+    description: 'Handpicked Korean Skincare Regimes Simplified',
+    sameAs: [
+      // Add your social media links here when available
+      // 'https://www.instagram.com/kregime',
+      // 'https://www.facebook.com/kregime',
+    ],
+    contactPoint: {
+      '@type': 'ContactPoint',
+      email: 'care@kregime.com',
+      contactType: 'Customer Service',
+      areaServed: 'AE',
+      availableLanguage: ['English'],
+    },
+    address: {
+      '@type': 'PostalAddress',
+      addressCountry: 'AE',
+      addressRegion: 'Dubai',
+    },
+  };
+
+  const websiteJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'KREGIME',
+    url: 'https://kregime.com',
+    description: 'Discover your perfect Korean skincare routine with our expertly curated regime boxes',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: 'https://kregime.com/?s={search_term_string}',
+      'query-input': 'required name=search_term_string',
+    },
+  };
+
   return (
     <html lang="en" className="scroll-smooth">
       <head>
         <meta name="apple-mobile-web-app-title" content="KREGIME" />
         <meta name="theme-color" content="#EF7E71" />
+        <meta name="google-site-verification" content="" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
       </head>
       <body
