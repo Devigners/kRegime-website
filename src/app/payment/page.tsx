@@ -111,11 +111,11 @@ function PaymentContent() {
         const isGift = data.isGift === true;
         const isRecipient = data.giftRecipient === true;
         const token = data.giftToken;
-        
+
         setIsGiftOrder(isGift);
         setIsGiftRecipient(isRecipient);
         if (token) setGiftToken(token);
-        
+
         // For gift orders or recipients, form data is not required
         if (isGift || isRecipient) {
           setCartData(data);
@@ -220,23 +220,25 @@ function PaymentContent() {
           finalAmount: cartData.finalAmount,
           discountCodeId: cartData.discountCode?.id,
           isGift: isGiftOrder,
-          ...(isGiftOrder ? {
-            giftGiverInfo: {
-              firstName: formData.firstName,
-              lastName: formData.lastName || undefined,
-              email: formData.email,
-              phoneNumber: formData.phoneNumber || undefined,
-            }
-          } : {
-            userDetails: cartData.formData,
-            shippingAddress: {
-              firstName: formData.firstName,
-              lastName: formData.lastName || undefined,
-              apartmentNumber: formData.apartmentNumber,
-              address: formData.address,
-              city: formData.city,
-            }
-          })
+          ...(isGiftOrder
+            ? {
+                giftGiverInfo: {
+                  firstName: formData.firstName,
+                  lastName: formData.lastName || undefined,
+                  email: formData.email,
+                  phoneNumber: formData.phoneNumber || undefined,
+                },
+              }
+            : {
+                userDetails: cartData.formData,
+                shippingAddress: {
+                  firstName: formData.firstName,
+                  lastName: formData.lastName || undefined,
+                  apartmentNumber: formData.apartmentNumber,
+                  address: formData.address,
+                  city: formData.city,
+                },
+              }),
         };
 
         localStorage.setItem(checkoutSessionKey, JSON.stringify(orderData));
@@ -253,15 +255,17 @@ function PaymentContent() {
         discountCodeId: cartData.discountCode?.id,
         stripeCouponId: cartData.discountCode?.stripeCouponId,
         isGift: isGiftOrder,
-        ...(isGiftOrder ? {} : {
-          shippingAddress: {
-            firstName: formData.firstName,
-            lastName: formData.lastName || undefined,
-            apartmentNumber: formData.apartmentNumber,
-            address: formData.address,
-            city: formData.city,
-          }
-        })
+        ...(isGiftOrder
+          ? {}
+          : {
+              shippingAddress: {
+                firstName: formData.firstName,
+                lastName: formData.lastName || undefined,
+                apartmentNumber: formData.apartmentNumber,
+                address: formData.address,
+                city: formData.city,
+              },
+            }),
       };
 
       const response = await fetch('/api/stripe/checkout', {
@@ -282,8 +286,8 @@ function PaymentContent() {
       window.location.href = url;
     } catch (error) {
       console.error('Error processing order:', error);
-      const errorMessage = isGiftRecipient 
-        ? 'Failed to complete your gift order. Please try again.' 
+      const errorMessage = isGiftRecipient
+        ? 'Failed to complete your gift order. Please try again.'
         : 'Failed to initiate payment. Please try again.';
       alert(errorMessage);
       setIsProcessing(false);
@@ -318,27 +322,24 @@ function PaymentContent() {
             </Link>
             {isGiftRecipient ? (
               <>
-                <div className="flex items-center gap-3 mb-2">
-                  <Gift className="w-8 h-8 text-primary" />
-                  <h1 className="text-3xl font-bold text-black">Complete Your Gift Order</h1>
-                </div>
+                <h1 className="text-3xl font-bold text-black">Gift Checkout</h1>
                 <p className="text-sm text-black mt-2">
-                  Just provide your contact details and shipping address to complete your order. No payment required!
+                  Just provide your contact details and shipping address to
+                  complete your order. No payment required!
                 </p>
               </>
             ) : isGiftOrder ? (
               <>
-                <div className="flex items-center gap-3 mb-2">
-                  <Gift className="w-8 h-8 text-primary" />
-                  <h1 className="text-3xl font-bold text-black">Gift Checkout</h1>
-                </div>
+                <h1 className="text-3xl font-bold text-black">Gift Checkout</h1>
                 <p className="text-sm text-black mt-2">
-                  Enter your contact information to complete the gift purchase. The recipient will provide their details and shipping address later.
+                  Enter your contact information to complete the gift purchase.
+                  The gift recipient will provide their details and shipping address
+                  later.
                 </p>
               </>
             ) : (
               <>
-                <h1 className="text-3xl font-bold text-black">Checkout</h1>
+                <h1 className="text-3xl font-bold text-black">Order Checkout</h1>
                 <p className="text-sm text-black mt-2">
                   Fields marked with * are required
                 </p>
@@ -359,32 +360,33 @@ function PaymentContent() {
                   Contact Information
                 </h2>
                 <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <input
-                    type="text"
-                    placeholder="First name *"
-                    value={formData.firstName}
-                    onChange={(e) =>
-                      handleInputChange('firstName', e.target.value)
-                    }
-                    className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    required
-                  />
-                  <input
-                    type="text"
-                    placeholder="Last name (optional)"
-                    value={formData.lastName}
-                    onChange={(e) =>
-                      handleInputChange('lastName', e.target.value)
-                    }
-                    className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                  />
-                </div>
-                {isGiftOrder && !isGiftRecipient && (
-                  <p className="text-sm text-gray-600 mt-4">
-                    Your name will appear on the gift notification sent to the recipient.
-                  </p>
-                )}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input
+                      type="text"
+                      placeholder="First name *"
+                      value={formData.firstName}
+                      onChange={(e) =>
+                        handleInputChange('firstName', e.target.value)
+                      }
+                      className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      required
+                    />
+                    <input
+                      type="text"
+                      placeholder="Last name (optional)"
+                      value={formData.lastName}
+                      onChange={(e) =>
+                        handleInputChange('lastName', e.target.value)
+                      }
+                      className="focus:outline-none p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+                  {isGiftOrder && !isGiftRecipient && (
+                    <p className="text-sm text-gray-600 mt-4">
+                      Your name will appear on the gift notification sent to the
+                      recipient.
+                    </p>
+                  )}
                   <input
                     type="email"
                     placeholder="Email address *"
@@ -446,7 +448,9 @@ function PaymentContent() {
                     />
                     <select
                       value={formData.city}
-                      onChange={(e) => handleInputChange('city', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange('city', e.target.value)
+                      }
                       className="focus:outline-none md:col-span-2 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
                       required
                     >
@@ -484,37 +488,37 @@ function PaymentContent() {
                     </h2>
                   </div>
 
-                <div className="text-center space-y-3">
-                  <p className="text-black">
-                    You&apos;ll be redirected to Stripe&apos;s secure checkout
-                    page to complete your payment.
-                  </p>
-                  <div className="flex items-center justify-center gap-2 text-sm text-neutral-600">
-                    <Lock size={14} />
-                    <span>256-bit SSL encrypted</span>
+                  <div className="text-center space-y-3">
+                    <p className="text-black">
+                      You&apos;ll be redirected to Stripe&apos;s secure checkout
+                      page to complete your payment.
+                    </p>
+                    <div className="flex items-center justify-center gap-2 text-sm text-neutral-600">
+                      <Lock size={14} />
+                      <span>256-bit SSL encrypted</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-4 mt-4">
+                      <Image
+                        src="https://js.stripe.com/v3/fingerprinted/img/visa-729c05c240c4bdb47b03ac81d9945bfe.svg"
+                        alt="Visa"
+                        width={40}
+                        height={25}
+                      />
+                      <Image
+                        src="https://js.stripe.com/v3/fingerprinted/img/mastercard-4d8844094130711885b5e41b28c9848f.svg"
+                        alt="Mastercard"
+                        width={40}
+                        height={25}
+                      />
+                      <Image
+                        src="https://js.stripe.com/v3/fingerprinted/img/amex-a49b82f46c5cd6a96a6e418a6ca1717c.svg"
+                        alt="Amex"
+                        width={40}
+                        height={25}
+                      />
+                    </div>
                   </div>
-                  <div className="flex items-center justify-center gap-4 mt-4">
-                    <Image
-                      src="https://js.stripe.com/v3/fingerprinted/img/visa-729c05c240c4bdb47b03ac81d9945bfe.svg"
-                      alt="Visa"
-                      width={40}
-                      height={25}
-                    />
-                    <Image
-                      src="https://js.stripe.com/v3/fingerprinted/img/mastercard-4d8844094130711885b5e41b28c9848f.svg"
-                      alt="Mastercard"
-                      width={40}
-                      height={25}
-                    />
-                    <Image
-                      src="https://js.stripe.com/v3/fingerprinted/img/amex-a49b82f46c5cd6a96a6e418a6ca1717c.svg"
-                      alt="Amex"
-                      width={40}
-                      height={25}
-                    />
-                  </div>
-                </div>
-              </motion.div>
+                </motion.div>
               )}
             </div>
 
@@ -570,10 +574,10 @@ function PaymentContent() {
                         currentPriceInfo.hasDiscount &&
                         currentPriceInfo.discountReason && (
                           <div className="w-fit mt-4 bg-primary text-white px-2 py-0.5 rounded-full text-xs font-bold flex items-center gap-1">
-                                <Tag className="w-3 h-3" />
-                                {currentPriceInfo.discountReason}{' '}
-                                {currentPriceInfo.discount}% Off
-                              </div>
+                            <Tag className="w-3 h-3" />
+                            {currentPriceInfo.discountReason}{' '}
+                            {currentPriceInfo.discount}% Off
+                          </div>
                         )}
 
                       {/* Discount Code Badge */}
@@ -598,9 +602,7 @@ function PaymentContent() {
                     {currentPriceInfo && currentPriceInfo.hasDiscount && (
                       <div className="border-b border-gray-200 pb-2">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-black">
-                            Original Price
-                          </span>
+                          <span className="text-black">Original Price</span>
                           <span className="text-black flex items-center gap-1">
                             <DirhamIcon size={10} />
                             {currentPriceInfo.originalPrice}
@@ -611,8 +613,7 @@ function PaymentContent() {
                             Discount ({currentPriceInfo.discount}%)
                           </span>
                           <span className="font-bold text-primary flex items-center gap-1">
-                            -{' '}
-                            <DirhamIcon size={10} className="text-primary" />
+                            - <DirhamIcon size={10} className="text-primary" />
                             {currentPriceInfo.savingsAmount}
                           </span>
                         </div>
@@ -701,37 +702,37 @@ function PaymentContent() {
                     </h2>
                   </div>
 
-                <div className="text-center space-y-3">
-                  <p className="text-black">
-                    You&apos;ll be redirected to Stripe&apos;s secure checkout
-                    page to complete your payment.
-                  </p>
-                  <div className="flex items-center justify-center gap-2 text-sm text-neutral-600">
-                    <Lock size={14} />
-                    <span>256-bit SSL encrypted</span>
+                  <div className="text-center space-y-3">
+                    <p className="text-black">
+                      You&apos;ll be redirected to Stripe&apos;s secure checkout
+                      page to complete your payment.
+                    </p>
+                    <div className="flex items-center justify-center gap-2 text-sm text-neutral-600">
+                      <Lock size={14} />
+                      <span>256-bit SSL encrypted</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-4 mt-4">
+                      <Image
+                        src="https://js.stripe.com/v3/fingerprinted/img/visa-729c05c240c4bdb47b03ac81d9945bfe.svg"
+                        alt="Visa"
+                        width={40}
+                        height={25}
+                      />
+                      <Image
+                        src="https://js.stripe.com/v3/fingerprinted/img/mastercard-4d8844094130711885b5e41b28c9848f.svg"
+                        alt="Mastercard"
+                        width={40}
+                        height={25}
+                      />
+                      <Image
+                        src="https://js.stripe.com/v3/fingerprinted/img/amex-a49b82f46c5cd6a96a6e418a6ca1717c.svg"
+                        alt="Amex"
+                        width={40}
+                        height={25}
+                      />
+                    </div>
                   </div>
-                  <div className="flex items-center justify-center gap-4 mt-4">
-                    <Image
-                      src="https://js.stripe.com/v3/fingerprinted/img/visa-729c05c240c4bdb47b03ac81d9945bfe.svg"
-                      alt="Visa"
-                      width={40}
-                      height={25}
-                    />
-                    <Image
-                      src="https://js.stripe.com/v3/fingerprinted/img/mastercard-4d8844094130711885b5e41b28c9848f.svg"
-                      alt="Mastercard"
-                      width={40}
-                      height={25}
-                    />
-                    <Image
-                      src="https://js.stripe.com/v3/fingerprinted/img/amex-a49b82f46c5cd6a96a6e418a6ca1717c.svg"
-                      alt="Amex"
-                      width={40}
-                      height={25}
-                    />
-                  </div>
-                </div>
-              </motion.div>
+                </motion.div>
               )}
             </div>
           </div>
