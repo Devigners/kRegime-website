@@ -58,28 +58,3 @@ jobs:
           echo "✅ Environment: ${{ github.ref == 'refs/heads/main' && 'Production' || 'Staging' }}"
           echo "✅ Vercel deployment: ${{ needs.wait-for-vercel.outputs.deployment-url }}"
           echo "✅ Supabase migrations pushed successfully to ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }} project"
-
-  # Post a comment on the PR with the deployment URL (only for PRs)
-  comment-on-pr:
-    runs-on: ubuntu-latest
-    needs: wait-for-vercel
-    if: github.event_name == 'pull_request'
-    steps:
-      - name: Comment on PR with Vercel URL
-        uses: actions/github-script@v6
-        env:
-          DEPLOY_URL: ${{ needs.wait-for-vercel.outputs.deployment-url }}
-        with:
-          script: |
-            const pr = context.payload.pull_request && context.payload.pull_request.number
-            const url = process.env.DEPLOY_URL || '(no url returned)'
-            if (!pr) {
-              core.info('No pull request number available in the event payload. Skipping comment.')
-            } else {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: pr,
-                body: `✅ Deployment finished. Vercel preview: ${url}`
-              })
-            }
