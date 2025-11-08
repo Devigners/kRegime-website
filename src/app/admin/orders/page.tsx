@@ -52,6 +52,7 @@ export default function OrdersAdmin() {
     orderId: string;
     newStatus: 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled';
   } | null>(null);
+  const [trackingNumber, setTrackingNumber] = useState<string>('');
 
   useEffect(() => {
     fetchOrders();
@@ -140,15 +141,23 @@ export default function OrdersAdmin() {
     const { orderId, newStatus } = statusUpdateConfirm;
     
     try {
+      // Prepare the update body
+      const updateBody: { status: string; trackingNumber?: string } = { 
+        status: newStatus,
+      };
+      
+      // Only include tracking number if status is 'shipped' and tracking number is provided
+      if (newStatus === 'shipped' && trackingNumber.trim()) {
+        updateBody.trackingNumber = trackingNumber.trim();
+      }
+      
       // Use API route instead of direct Supabase update to trigger emails
       const response = await fetch(`/api/orders/${orderId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          status: newStatus,
-        }),
+        body: JSON.stringify(updateBody),
       });
 
       if (!response.ok) {
@@ -161,7 +170,7 @@ export default function OrdersAdmin() {
         // Update local state with the updated order
         setOrders(orders.map(o => 
           o.id === orderId 
-            ? { ...o, status: newStatus, updatedAt: new Date() } 
+            ? { ...o, status: newStatus, trackingNumber: trackingNumber.trim() || o.trackingNumber, updatedAt: new Date() } 
             : o
         ));
         console.log(`Order ${orderId} status updated to ${newStatus}. Email notification sent.`);
@@ -172,6 +181,7 @@ export default function OrdersAdmin() {
       console.error('Error updating order status:', error);
     } finally {
       setStatusUpdateConfirm(null);
+      setTrackingNumber(''); // Reset tracking number
     }
   };
 
@@ -444,7 +454,7 @@ export default function OrdersAdmin() {
                       {/* Status Badge */}
                       <span className={`inline-flex items-center space-x-2 px-3 py-1.5 rounded-lg font-bold border ${getStatusBadge(order.status)}`}>
                         {getStatusIcon(order.status)}
-                        <span className="capitalize text-sm">{order.status}</span>
+                        <span className="capitalize text-sm">{order.status} {order.trackingNumber && `(${order.trackingNumber})`}</span>
                       </span>
 
                       {/* Subscription Type Badge */}
@@ -475,9 +485,19 @@ export default function OrdersAdmin() {
 
                       {/* Actions */}
                       <div className="flex items-center space-x-2">
+                        {/* Track Shipment - Only show for shipped orders with tracking number */}
+                        {order.status === 'shipped' && order.trackingNumber && (
+                          <button
+                            onClick={() => window.open(`https://myjeebly.jeebly.com/shipment-tracking/?uae=uae&service_type=Scheduled&awb=${order.trackingNumber}`, '_blank')}
+                            className="cursor-pointer p-2 text-purple-500 hover:bg-purple-50 rounded-lg border border-purple-200 hover:border-purple-300 transition-all duration-300 shadow-sm hover:shadow-md"
+                            title={`Track Shipment: ${order.trackingNumber}`}
+                          >
+                            <Truck className="h-4 w-4" /> 
+                          </button>
+                        )}
                         <button
                           onClick={() => toggleOrderExpansion(order.id)}
-                          className="p-2 text-[#EF7E71] hover:bg-[#EF7E71]/10 rounded-lg border border-[#EF7E71]/20 hover:border-[#EF7E71]/40 transition-all duration-300 shadow-sm hover:shadow-md"
+                          className="cursor-pointer p-2 text-[#EF7E71] hover:bg-[#EF7E71]/10 rounded-lg border border-[#EF7E71]/20 hover:border-[#EF7E71]/40 transition-all duration-300 shadow-sm hover:shadow-md"
                           title="View Details"
                         >
                           {expandedOrders.has(order.id) ? 
@@ -487,7 +507,7 @@ export default function OrdersAdmin() {
                         </button>
                         <button
                           onClick={() => setDeleteConfirm(order.id)}
-                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg border border-red-200 hover:border-red-300 transition-all duration-300 shadow-sm hover:shadow-md"
+                          className="cursor-pointer p-2 text-red-500 hover:bg-red-50 rounded-lg border border-red-200 hover:border-red-300 transition-all duration-300 shadow-sm hover:shadow-md"
                           title="Delete"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -925,17 +945,41 @@ export default function OrdersAdmin() {
               <p className="text-neutral-500 text-sm mt-2">
                 The customer will receive an email notification about this status change.
               </p>
+              
+              {/* Tracking Number Input - Only show when status is 'shipped' */}
+              {statusUpdateConfirm.newStatus === 'shipped' && (
+                <div className="mt-6 text-left">
+                  <label className="block text-sm font-bold text-neutral-700 mb-2">
+                    Tracking Number <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={trackingNumber}
+                    onChange={(e) => setTrackingNumber(e.target.value)}
+                    placeholder="Enter tracking number"
+                    className="w-full px-4 py-3 border-2 border-neutral-300 rounded-xl focus:border-[#EF7E71] focus:outline-none bg-white text-neutral-900 placeholder-neutral-400 font-medium transition-all duration-200"
+                    autoFocus
+                  />
+                  <p className="text-xs text-neutral-500 mt-2">
+                    This will be used to generate the tracking link for the customer.
+                  </p>
+                </div>
+              )}
             </div>
             <div className="flex space-x-4">
               <button
-                onClick={() => setStatusUpdateConfirm(null)}
+                onClick={() => {
+                  setStatusUpdateConfirm(null);
+                  setTrackingNumber('');
+                }}
                 className="cursor-pointer flex-1 px-6 py-4 text-neutral-600 border-2 border-neutral-300 rounded-2xl hover:bg-neutral-50 font-bold text-lg transition-all duration-300"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmStatusUpdate}
-                className="cursor-pointer flex-1 px-6 py-4 bg-gradient-to-r from-[#EF7E71] to-[#D4654F] text-white rounded-2xl hover:shadow-xl font-bold text-lg transition-all duration-300 shadow-lg"
+                disabled={statusUpdateConfirm.newStatus === 'shipped' && !trackingNumber.trim()}
+                className="cursor-pointer flex-1 px-6 py-4 bg-gradient-to-r from-[#EF7E71] to-[#D4654F] text-white rounded-2xl hover:shadow-xl font-bold text-lg transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Update Status
               </button>

@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { CheckCircle, Mail, Package, Truck, Clock, ShoppingBag, X, CheckCircle2, Copy, Edit } from 'lucide-react';
+import { CheckCircle, Mail, Package, Truck, Clock, ShoppingBag, X, CheckCircle2, Copy } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useState, useEffect, Suspense } from 'react';
@@ -127,49 +127,6 @@ function ConfirmationContent() {
     const url = `${window.location.origin}/gift/${order.giftToken}`;
     const text = `Hey, I've got a special gift for you! Enjoy a personalized Korean skincare regime from KREGIME. Click the link to claim your gift:`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text + '\n\n' + url)}`, '_blank');
-  };
-
-  const openStripeCustomerPortal = async () => {
-    if (!order) {
-      toast.error('Order information not available');
-      return;
-    }
-
-    if (!orderId) {
-      toast.error('Order ID not available');
-      return;
-    }
-
-    toast.info('Redirecting to Stripe Customer Portal...');
-
-    try {
-      const response = await fetch('/api/stripe/create-portal-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          orderId: orderId,
-          returnUrl: `${window.location.origin}/confirmation?orderId=${orderId}`,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create portal session');
-      }
-
-      const data = await response.json();
-      
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error('No portal URL returned');
-      }
-    } catch (error) {
-      console.error('Error opening customer portal:', error);
-      toast.error('Unable to access customer portal. Please contact support at care@kregime.com');
-    }
   };
 
   const getOrderStatusConfig = (status: Order['status'], isGift?: boolean, giftClaimed?: boolean) => {
@@ -481,14 +438,14 @@ function ConfirmationContent() {
                   </svg>
                 </button>
 
-                {/* Manage Subscription - Only show for subscription orders */}
-                {order && order.subscriptionType !== 'one-time' && order.status !== 'cancelled' && order.status !== "pending" && (
+                {/* Track Parcel - Only show for shipped orders with tracking number */}
+                {order && order.status === 'shipped' && order.trackingNumber && (
                   <button
-                    onClick={openStripeCustomerPortal}
+                    onClick={() => window.open(`https://myjeebly.jeebly.com/shipment-tracking/?uae=uae&service_type=Scheduled&awb=${order.trackingNumber}`, '_blank')}
                     className="flex cursor-pointer items-center justify-center w-12 h-12 bg-primary hover:bg-primary-dark text-white rounded-full transition-colors shadow-sm hover:shadow-md"
-                    title="Manage subscription"
+                    title="Track your parcel"
                   >
-                    <Edit size={20} />
+                    <Truck size={20} />
                   </button>
                 )}
               </div>

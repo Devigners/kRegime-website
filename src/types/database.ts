@@ -93,6 +93,7 @@ export type Database = {
           stripe_session_id: string | null
           subscription_type: string | null
           total_amount: number
+          tracking_number: string | null
           updated_at: string
           user_details: Json
         }
@@ -118,6 +119,7 @@ export type Database = {
           stripe_session_id?: string | null
           subscription_type?: string | null
           total_amount: number
+          tracking_number?: string | null
           updated_at?: string
           user_details: Json
         }
@@ -143,6 +145,7 @@ export type Database = {
           stripe_session_id?: string | null
           subscription_type?: string | null
           total_amount?: number
+          tracking_number?: string | null
           updated_at?: string
           user_details?: Json
         }

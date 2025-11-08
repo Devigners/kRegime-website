@@ -69,11 +69,18 @@ export async function PUT(
     const currentOrder = convertOrderRowToOrder(currentOrderData);
     const isStatusChanging = updateData.status && updateData.status !== currentOrder.status;
 
-    // Add updated_at timestamp
-    const finalUpdateData = {
-      ...updateData,
+    // Convert camelCase fields to snake_case for database
+    const finalUpdateData: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
     };
+
+    // Map fields from camelCase to snake_case
+    if (updateData.status !== undefined) {
+      finalUpdateData.status = updateData.status;
+    }
+    if (updateData.trackingNumber !== undefined) {
+      finalUpdateData.tracking_number = updateData.trackingNumber;
+    }
 
     // Use raw supabase query without strict typing for update
     const { data, error } = await supabaseClient

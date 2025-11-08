@@ -86,6 +86,7 @@ export interface Order {
   stripeSessionId?: string | null;
   discountCodeId?: string | null;
   status: 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled';
+  trackingNumber?: string;
   isGift?: boolean;
   giftToken?: string;
   giftGiverName?: string;
@@ -233,6 +234,7 @@ export function convertOrderRowToOrder(row: OrderRow): Order {
     stripeSessionId: row.stripe_session_id,
     discountCodeId: row.discount_code_id,
     status: row.status as 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled',
+    trackingNumber: row.tracking_number || undefined,
     isGift: row.is_gift || false,
     giftToken: row.gift_token || undefined,
     giftGiverName: row.gift_giver_name || undefined,
@@ -290,6 +292,7 @@ export function convertOrderToOrderInsert(
     stripe_session_id: order.stripeSessionId,
     discount_code_id: order.discountCodeId,
     status: order.status,
+    tracking_number: order.trackingNumber,
     is_gift: order.isGift,
     gift_token: order.giftToken,
     gift_giver_name: order.giftGiverName,
