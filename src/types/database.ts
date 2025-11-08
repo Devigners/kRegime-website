@@ -34,6 +34,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_settings: {
+        Row: {
+          id: string
+          account_holder_name: string | null
+          bank_name: string | null
+          account_number: string | null
+          iban: string | null
+          password_hash: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          account_holder_name?: string | null
+          bank_name?: string | null
+          account_number?: string | null
+          iban?: string | null
+          password_hash?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          account_holder_name?: string | null
+          bank_name?: string | null
+          account_number?: string | null
+          iban?: string | null
+          password_hash?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       discount_codes: {
         Row: {
           code: string
