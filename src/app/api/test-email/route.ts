@@ -34,9 +34,9 @@ const mockOrder = {
   shippingAddress: {
     firstName: 'Jane',
     lastName: 'Doe',
+    apartmentNumber: 'Apt 101',
     address: '123 Test Street',
     city: 'Test City',
-    postalCode: '12345',
   },
   quantity: 1,
   totalAmount: 229,

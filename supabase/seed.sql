@@ -88,9 +88,9 @@ INSERT INTO orders (
   '{
     "first_name": "Test",
     "last_name": "User",
+    "apartment_number": "Apt 101",
     "address": "123 Test Street",
-    "city": "Dubai",
-    "postal_code": "12345"
+    "city": "Dubai"
   }',
   1,
   269,

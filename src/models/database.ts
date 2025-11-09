@@ -75,9 +75,9 @@ export interface Order {
   shippingAddress?: {
     firstName: string;
     lastName?: string;
+    apartmentNumber?: string;
     address: string;
     city: string;
-    postalCode: string;
   };
   quantity: number;
   totalAmount: number;
@@ -85,8 +85,10 @@ export interface Order {
   subscriptionType: 'one-time' | '3-months' | '6-months';
   stripeSessionId?: string | null;
   discountCodeId?: string | null;
-  status: 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled';
+  status: 'pending' | 'payment_verified' | 'processing' | 'shipped' | 'completed' | 'cancelled';
   trackingNumber?: string;
+  paymentMethod?: 'stripe' | 'bank_transfer';
+  bankReferenceId?: string;
   isGift?: boolean;
   giftToken?: string;
   giftGiverName?: string;
@@ -223,9 +225,9 @@ export function convertOrderRowToOrder(row: OrderRow): Order {
     shippingAddress: {
       firstName: shippingAddress?.first_name || '',
       lastName: shippingAddress?.last_name,
+      apartmentNumber: shippingAddress?.apartment_number,
       address: shippingAddress?.address || '',
       city: shippingAddress?.city || '',
-      postalCode: shippingAddress?.postal_code || '',
     },
     quantity: row.quantity,
     totalAmount: row.total_amount,
@@ -233,8 +235,10 @@ export function convertOrderRowToOrder(row: OrderRow): Order {
     subscriptionType: (row.subscription_type || 'one-time') as 'one-time' | '3-months' | '6-months',
     stripeSessionId: row.stripe_session_id,
     discountCodeId: row.discount_code_id,
-    status: row.status as 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled',
+    status: row.status as 'pending' | 'payment_verified' | 'processing' | 'shipped' | 'completed' | 'cancelled',
     trackingNumber: row.tracking_number || undefined,
+    paymentMethod: (row.payment_method || 'stripe') as 'stripe' | 'bank_transfer',
+    bankReferenceId: row.bank_reference_id || undefined,
     isGift: row.is_gift || false,
     giftToken: row.gift_token || undefined,
     giftGiverName: row.gift_giver_name || undefined,
@@ -281,9 +285,9 @@ export function convertOrderToOrderInsert(
     shipping_address: {
       first_name: order.shippingAddress?.firstName || '',
       last_name: order.shippingAddress?.lastName,
+      apartment_number: order.shippingAddress?.apartmentNumber,
       address: order.shippingAddress?.address || '',
       city: order.shippingAddress?.city || '',
-      postal_code: order.shippingAddress?.postalCode || '',
     },
     quantity: order.quantity,
     total_amount: order.totalAmount,
@@ -293,6 +297,8 @@ export function convertOrderToOrderInsert(
     discount_code_id: order.discountCodeId,
     status: order.status,
     tracking_number: order.trackingNumber,
+    payment_method: order.paymentMethod,
+    bank_reference_id: order.bankReferenceId,
     is_gift: order.isGift,
     gift_token: order.giftToken,
     gift_giver_name: order.giftGiverName,

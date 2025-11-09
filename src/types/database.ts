@@ -129,6 +129,8 @@ export type Database = {
           tracking_number: string | null
           updated_at: string
           user_details: Json
+          payment_method: string | null
+          bank_reference_id: string | null
         }
         Insert: {
           contact_info: Json
@@ -155,6 +157,8 @@ export type Database = {
           tracking_number?: string | null
           updated_at?: string
           user_details: Json
+          payment_method?: string | null
+          bank_reference_id?: string | null
         }
         Update: {
           contact_info?: Json
@@ -181,6 +185,8 @@ export type Database = {
           tracking_number?: string | null
           updated_at?: string
           user_details?: Json
+          payment_method?: string | null
+          bank_reference_id?: string | null
         }
         Relationships: []
       }
