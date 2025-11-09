@@ -35,18 +35,20 @@ export default function AdminLogin() {
     setIsLoading(true);
     setError('');
 
-    // Simulate loading for better UX
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    const isValid = adminAuth.login(username, password);
-    
-    if (isValid) {
-      router.push('/admin/dashboard');
-    } else {
-      setError('Invalid credentials. Please try again.');
+    try {
+      const isValid = await adminAuth.login(username, password);
+      
+      if (isValid) {
+        router.push('/admin/dashboard');
+      } else {
+        setError('Invalid credentials. Please try again.');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError('An error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
 
   // Show loading screen while checking existing authentication

@@ -30,8 +30,8 @@ jobs:
   deploy-supabase:
     runs-on: ubuntu-latest
     needs: wait-for-vercel
-    # Only run on sandbox or main branches
-    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/sandbox')
+    # Only run on push events to sandbox or main branches
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/sandbox')
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       # Use different credentials based on branch

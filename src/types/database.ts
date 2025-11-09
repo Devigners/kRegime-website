@@ -34,6 +34,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_settings: {
+        Row: {
+          id: string
+          account_holder_name: string | null
+          bank_name: string | null
+          account_number: string | null
+          iban: string | null
+          password_hash: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          account_holder_name?: string | null
+          bank_name?: string | null
+          account_number?: string | null
+          iban?: string | null
+          password_hash?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          account_holder_name?: string | null
+          bank_name?: string | null
+          account_number?: string | null
+          iban?: string | null
+          password_hash?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       discount_codes: {
         Row: {
           code: string
@@ -93,8 +126,11 @@ export type Database = {
           stripe_session_id: string | null
           subscription_type: string | null
           total_amount: number
+          tracking_number: string | null
           updated_at: string
           user_details: Json
+          payment_method: string | null
+          bank_reference_id: string | null
         }
         Insert: {
           contact_info: Json
@@ -118,8 +154,11 @@ export type Database = {
           stripe_session_id?: string | null
           subscription_type?: string | null
           total_amount: number
+          tracking_number?: string | null
           updated_at?: string
           user_details: Json
+          payment_method?: string | null
+          bank_reference_id?: string | null
         }
         Update: {
           contact_info?: Json
@@ -143,8 +182,11 @@ export type Database = {
           stripe_session_id?: string | null
           subscription_type?: string | null
           total_amount?: number
+          tracking_number?: string | null
           updated_at?: string
           user_details?: Json
+          payment_method?: string | null
+          bank_reference_id?: string | null
         }
         Relationships: []
       }

@@ -12,9 +12,9 @@ interface CheckoutRequestBody {
   shippingAddress?: {
     firstName: string;
     lastName?: string;
+    apartmentNumber?: string;
     address: string;
     city: string;
-    postalCode: string;
   };
   checkoutSessionKey: string; // Key to retrieve data from localStorage
   discountCodeId?: string; // Optional discount code ID

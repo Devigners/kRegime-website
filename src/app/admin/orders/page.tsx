@@ -5,20 +5,20 @@ import { supabaseClient } from '@/lib/supabase';
 import { Order, convertOrderRowToOrder } from '@/models/database';
 import {
   Activity,
+  Building2,
   CheckCircle,
   ChevronDown,
   ChevronUp,
   Clock,
+  Coins,
   Filter,
   Mail,
-  MapPin,
   Package,
-  Phone,
   ShoppingCart,
   Tag,
   Trash2,
   Truck,
-  XCircle
+  XCircle,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -50,8 +50,15 @@ export default function OrdersAdmin() {
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
   const [statusUpdateConfirm, setStatusUpdateConfirm] = useState<{
     orderId: string;
-    newStatus: 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled';
+    newStatus:
+      | 'pending'
+      | 'payment_verified'
+      | 'processing'
+      | 'shipped'
+      | 'completed'
+      | 'cancelled';
   } | null>(null);
+  const [trackingNumber, setTrackingNumber] = useState<string>('');
 
   useEffect(() => {
     fetchOrders();
@@ -60,20 +67,21 @@ export default function OrdersAdmin() {
   const fetchOrders = async () => {
     try {
       setIsLoading(true);
-      
+
       // Fetch orders, regimes, and discount codes separately, then join manually
-      const [ordersResult, regimesResult, discountCodesResult] = await Promise.all([
-        supabaseClient
-          .from('orders')
-          .select('*')
-          .order('created_at', { ascending: false }),
-        supabaseClient
-          .from('regimes')
-          .select('id, name, description, price, image, step_count'),
-        supabaseClient
-          .from('discount_codes')
-          .select('id, code, percentage_off')
-      ]);
+      const [ordersResult, regimesResult, discountCodesResult] =
+        await Promise.all([
+          supabaseClient
+            .from('orders')
+            .select('*')
+            .order('created_at', { ascending: false }),
+          supabaseClient
+            .from('regimes')
+            .select('id, name, description, price, image, step_count'),
+          supabaseClient
+            .from('discount_codes')
+            .select('id, code, percentage_off'),
+        ]);
 
       if (ordersResult.error) throw ordersResult.error;
       if (regimesResult.error) throw regimesResult.error;
@@ -81,30 +89,32 @@ export default function OrdersAdmin() {
 
       // Create lookup maps for regimes and discount codes
       const regimesMap = new Map();
-      regimesResult.data?.forEach(regime => {
+      regimesResult.data?.forEach((regime) => {
         regimesMap.set(regime.id, regime);
       });
 
       const discountCodesMap = new Map();
-      discountCodesResult.data?.forEach(discountCode => {
+      discountCodesResult.data?.forEach((discountCode) => {
         discountCodesMap.set(discountCode.id, {
           id: discountCode.id,
           code: discountCode.code,
-          percentageOff: discountCode.percentage_off
+          percentageOff: discountCode.percentage_off,
         });
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const convertedOrders = ordersResult.data?.map((row: any) => {
-        const regime = regimesMap.get(row.regime_id);
-        const discountCode = row.discount_code_id ? discountCodesMap.get(row.discount_code_id) : null;
-        return {
-          ...convertOrderRowToOrder(row),
-          regime: regime || null,
-          discountCode: discountCode || undefined
-        };
-      }) || [];
-      
+      const convertedOrders =
+        ordersResult.data?.map((row) => {
+          const regime = regimesMap.get(row.regime_id);
+          const discountCode = row.discount_code_id
+            ? discountCodesMap.get(row.discount_code_id)
+            : null;
+          return {
+            ...convertOrderRowToOrder(row),
+            regime: regime || null,
+            discountCode: discountCode || undefined,
+          };
+        }) || [];
+
       setOrders(convertedOrders);
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -121,15 +131,24 @@ export default function OrdersAdmin() {
         .eq('id', orderId);
 
       if (error) throw error;
-      
-      setOrders(orders.filter(o => o.id !== orderId));
+
+      setOrders(orders.filter((o) => o.id !== orderId));
       setDeleteConfirm(null);
     } catch (error) {
       console.error('Error deleting order:', error);
     }
   };
 
-  const handleStatusChange = (orderId: string, newStatus: 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled') => {
+  const handleStatusChange = (
+    orderId: string,
+    newStatus:
+      | 'pending'
+      | 'payment_verified'
+      | 'processing'
+      | 'shipped'
+      | 'completed'
+      | 'cancelled'
+  ) => {
     // Show confirmation dialog
     setStatusUpdateConfirm({ orderId, newStatus });
   };
@@ -138,17 +157,25 @@ export default function OrdersAdmin() {
     if (!statusUpdateConfirm) return;
 
     const { orderId, newStatus } = statusUpdateConfirm;
-    
+
     try {
+      // Prepare the update body
+      const updateBody: { status: string; trackingNumber?: string } = {
+        status: newStatus,
+      };
+
+      // Only include tracking number if status is 'shipped' and tracking number is provided
+      if (newStatus === 'shipped' && trackingNumber.trim()) {
+        updateBody.trackingNumber = trackingNumber.trim();
+      }
+
       // Use API route instead of direct Supabase update to trigger emails
       const response = await fetch(`/api/orders/${orderId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          status: newStatus,
-        }),
+        body: JSON.stringify(updateBody),
       });
 
       if (!response.ok) {
@@ -156,15 +183,24 @@ export default function OrdersAdmin() {
       }
 
       const result = await response.json();
-      
+
       if (result.success) {
         // Update local state with the updated order
-        setOrders(orders.map(o => 
-          o.id === orderId 
-            ? { ...o, status: newStatus, updatedAt: new Date() } 
-            : o
-        ));
-        console.log(`Order ${orderId} status updated to ${newStatus}. Email notification sent.`);
+        setOrders(
+          orders.map((o) =>
+            o.id === orderId
+              ? {
+                  ...o,
+                  status: newStatus,
+                  trackingNumber: trackingNumber.trim() || o.trackingNumber,
+                  updatedAt: new Date(),
+                }
+              : o
+          )
+        );
+        console.log(
+          `Order ${orderId} status updated to ${newStatus}. Email notification sent.`
+        );
       } else {
         throw new Error(result.error || 'Failed to update order status');
       }
@@ -172,6 +208,7 @@ export default function OrdersAdmin() {
       console.error('Error updating order status:', error);
     } finally {
       setStatusUpdateConfirm(null);
+      setTrackingNumber(''); // Reset tracking number
     }
   };
 
@@ -179,6 +216,8 @@ export default function OrdersAdmin() {
     switch (status) {
       case 'pending':
         return <Clock className="h-5 w-5" />;
+      case 'payment_verified':
+        return <CheckCircle className="h-5 w-5" />;
       case 'processing':
         return <Package className="h-5 w-5" />;
       case 'shipped':
@@ -200,10 +239,15 @@ export default function OrdersAdmin() {
       completed: 'bg-green-100 text-green-800 border-green-200',
       cancelled: 'bg-red-100 text-red-800 border-red-200',
     };
-    return statusMap[status as keyof typeof statusMap] || 'bg-gray-100 text-gray-800 border-gray-200';
+    return (
+      statusMap[status as keyof typeof statusMap] ||
+      'bg-gray-100 text-gray-800 border-gray-200'
+    );
   };
 
-  const getSubscriptionTypeDisplay = (subscriptionType: 'one-time' | '3-months' | '6-months') => {
+  const getSubscriptionTypeDisplay = (
+    subscriptionType: 'one-time' | '3-months' | '6-months'
+  ) => {
     switch (subscriptionType) {
       case 'one-time':
         return 'One-time Purchase';
@@ -216,7 +260,9 @@ export default function OrdersAdmin() {
     }
   };
 
-  const getSubscriptionTypeBadge = (subscriptionType: 'one-time' | '3-months' | '6-months') => {
+  const getSubscriptionTypeBadge = (
+    subscriptionType: 'one-time' | '3-months' | '6-months'
+  ) => {
     switch (subscriptionType) {
       case 'one-time':
         return 'bg-gray-100 text-gray-800 border-gray-200';
@@ -239,15 +285,21 @@ export default function OrdersAdmin() {
     setExpandedOrders(newExpanded);
   };
 
-  const filteredOrders = orders.filter(order => {
-    const matchesSearch = order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.contactInfo.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.shippingAddress?.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.giftGiverName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.giftGiverEmail?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatusFilter = filterStatus === 'all' || order.status === filterStatus;
-    const matchesGiftFilter = 
-      filterGift === 'all' || 
+  const filteredOrders = orders.filter((order) => {
+    const matchesSearch =
+      order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.contactInfo.email
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      order.shippingAddress?.firstName
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      order.giftGiverName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.giftGiverEmail?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatusFilter =
+      filterStatus === 'all' || order.status === filterStatus;
+    const matchesGiftFilter =
+      filterGift === 'all' ||
       (filterGift === 'gift-only' && order.isGift) ||
       (filterGift === 'non-gift' && !order.isGift) ||
       (filterGift === 'gift-redeemed' && order.isGift && order.giftClaimed) ||
@@ -255,7 +307,7 @@ export default function OrdersAdmin() {
     return matchesSearch && matchesStatusFilter && matchesGiftFilter;
   });
 
-  const pendingOrders = orders.filter(o => o.status === 'pending').length;
+  const pendingOrders = orders.filter((o) => o.status === 'pending').length;
 
   return (
     <div className="space-y-4 max-w-7xl mx-auto px-4">
@@ -269,18 +321,18 @@ export default function OrdersAdmin() {
 
         <div className="relative z-10 grid lg:grid-cols-2 gap-4 items-center">
           <div className="flex flex-col gap-3">
-              <h1 className="text-2xl font-black bg-gradient-to-r from-[#EF7E71] via-[#D4654F] to-[#FFE066] bg-clip-text text-transparent leading-tight">
-                Orders
-              </h1>
-              <p className="text-neutral-600 text-sm">
-                Track and manage customer orders in real-time
-              </p>
-              <button
-                onClick={fetchOrders}
-                className="w-fit group bg-gradient-to-r from-[#EF7E71] to-[#D4654F] text-white p-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 border border-white/30"
-              >
-                <Activity className="w-4 h-4 transition-transform duration-300" />
-              </button>
+            <h1 className="text-2xl font-black bg-gradient-to-r from-[#EF7E71] via-[#D4654F] to-[#FFE066] bg-clip-text text-transparent leading-tight">
+              Orders
+            </h1>
+            <p className="text-neutral-600 text-sm">
+              Track and manage customer orders in real-time
+            </p>
+            <button
+              onClick={fetchOrders}
+              className="w-fit group bg-gradient-to-r from-[#EF7E71] to-[#D4654F] text-white p-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 border border-white/30"
+            >
+              <Activity className="w-4 h-4 transition-transform duration-300" />
+            </button>
           </div>
 
           <div className="flex flex-col sm:flex-row lg:flex-col gap-2 items-center lg:items-end">
@@ -292,13 +344,17 @@ export default function OrdersAdmin() {
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-center">
                   <div className="space-y-0.5">
-                    <p className="text-xs font-bold text-neutral-600 uppercase tracking-wider">Total</p>
+                    <p className="text-xs font-bold text-neutral-600 uppercase tracking-wider">
+                      Total
+                    </p>
                     <p className="text-lg font-black bg-gradient-to-r from-[#EF7E71] to-[#D4654F] bg-clip-text text-transparent">
                       {orders.length}
                     </p>
                   </div>
                   <div className="space-y-0.5">
-                    <p className="text-xs font-bold text-neutral-600 uppercase tracking-wider">Pending</p>
+                    <p className="text-xs font-bold text-neutral-600 uppercase tracking-wider">
+                      Pending
+                    </p>
                     <p className="text-lg font-black text-yellow-600">
                       {pendingOrders}
                     </p>
@@ -306,8 +362,6 @@ export default function OrdersAdmin() {
                 </div>
               </div>
             </div>
-            
-            
           </div>
         </div>
       </section>
@@ -316,7 +370,7 @@ export default function OrdersAdmin() {
       <section className="relative overflow-hidden rounded-xl">
         <div className="absolute inset-0 bg-gradient-to-br from-white/95 via-neutral-50/90 to-white/95 backdrop-blur-xl"></div>
         <div className="absolute inset-0 rounded-xl border border-white/60 shadow-lg"></div>
-        
+
         <div className="relative z-10 p-4">
           <div className="flex flex-col lg:flex-row gap-3">
             {/* Search */}
@@ -336,7 +390,9 @@ export default function OrdersAdmin() {
               <div className="flex items-center space-x-2">
                 <div className="flex items-center space-x-2 px-3 py-2 bg-white/70 backdrop-blur-sm rounded-lg border border-neutral-300/50">
                   <Filter className="h-4 w-4 text-[#EF7E71]" />
-                  <span className="text-sm font-bold text-neutral-700">Status:</span>
+                  <span className="text-sm font-bold text-neutral-700">
+                    Status:
+                  </span>
                 </div>
                 <select
                   value={filterStatus}
@@ -345,6 +401,7 @@ export default function OrdersAdmin() {
                 >
                   <option value="all">All Status</option>
                   <option value="pending">Pending</option>
+                  <option value="payment_verified">Payment Verified</option>
                   <option value="processing">Processing</option>
                   <option value="shipped">Shipped</option>
                   <option value="completed">Completed</option>
@@ -375,7 +432,7 @@ export default function OrdersAdmin() {
       <section className="relative overflow-hidden rounded-xl">
         <div className="absolute inset-0 bg-gradient-to-br from-white/95 via-neutral-50/90 to-white/95 backdrop-blur-xl"></div>
         <div className="absolute inset-0 rounded-xl border border-white/60 shadow-lg"></div>
-        
+
         <div className="relative z-10">
           {isLoading ? (
             <div className="flex items-center justify-center py-16">
@@ -392,10 +449,12 @@ export default function OrdersAdmin() {
                 </div>
               </div>
               <div className="space-y-3">
-                <h3 className="text-lg font-black text-neutral-900">No orders found</h3>
+                <h3 className="text-lg font-black text-neutral-900">
+                  No orders found
+                </h3>
                 <p className="text-neutral-600 text-sm max-w-md mx-auto">
-                  {searchTerm || filterStatus !== 'all' 
-                    ? 'Try adjusting your search or filter criteria' 
+                  {searchTerm || filterStatus !== 'all'
+                    ? 'Try adjusting your search or filter criteria'
                     : 'Orders will appear here once customers start purchasing'}
                 </p>
               </div>
@@ -410,131 +469,155 @@ export default function OrdersAdmin() {
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-3 lg:space-y-0">
                     <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
                       <div className="flex items-start space-x-3">
-                        <div className={`mt-1 w-10 h-10 rounded-xl flex font-semibold items-center justify-center shadow-md ${
-                          order.status === 'pending' 
-                            ? 'bg-transparent border-2 border-neutral-300 text-neutral-600' 
-                            : 'bg-gradient-to-br from-[#EF7E71] to-[#D4654F] text-white'
-                        }`}>
+                        <div
+                          className={`mt-1 w-10 h-10 rounded-xl flex font-semibold items-center justify-center shadow-md ${
+                            order.status === 'pending'
+                              ? 'bg-transparent border-2 border-neutral-300 text-neutral-600'
+                              : 'bg-gradient-to-br from-[#EF7E71] to-[#D4654F] text-white'
+                          }`}
+                        >
                           {filteredOrders.length - index}
                         </div>
-                        <div className="space-y-1">
-                          <h3 className="font-black text-neutral-900 text-lg">#{order.id.slice(-8)}</h3>
-                          <p className="text-[#EF7E71] font-bold text-sm">
-                            {order.regime?.name || 'Regime Not Found'}
-                          </p>
-                          <p className="text-neutral-500 font-bold text-xs">
-                            {new Date(order.createdAt).toLocaleDateString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                              year: 'numeric'
-                            })} at {new Date(order.createdAt).toLocaleTimeString([], { 
-                              hour: '2-digit', 
-                              minute: '2-digit' 
+                        <div className="flex flex-col gap-0.5">
+                          <h3 className="font-black text-neutral-900 text-lg">
+                            #{order.id.slice(-8)}
+                          </h3>
+                          <p className="text-neutral-500 font-semibold text-xs">
+                            {new Date(order.createdAt).toLocaleDateString(
+                              'en-US',
+                              {
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric',
+                              }
+                            )}{' '}
+                            at{' '}
+                            {new Date(order.createdAt).toLocaleTimeString([], {
+                              hour: '2-digit',
+                              minute: '2-digit',
                             })}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2 px-3 py-1.5 bg-gradient-to-r from-[#EF7E71]/10 to-[#D4654F]/10 rounded-lg border border-[#EF7E71]/20">
                         <DirhamIcon className="h-4 w-4 text-[#EF7E71]" />
-                        <span className="font-black text-lg text-[#EF7E71]">{order.finalAmount}</span>
+                        <span className="font-black text-lg text-[#EF7E71]">
+                          {order.finalAmount}
+                        </span>
                       </div>
                     </div>
 
                     <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
                       {/* Status Badge */}
-                      <span className={`inline-flex items-center space-x-2 px-3 py-1.5 rounded-lg font-bold border ${getStatusBadge(order.status)}`}>
+                      <span
+                        className={`inline-flex items-center space-x-2 px-3 py-1.5 rounded-lg font-bold border ${getStatusBadge(order.status)}`}
+                      >
                         {getStatusIcon(order.status)}
-                        <span className="capitalize text-sm">{order.status}</span>
+                        <span className="capitalize text-sm">
+                          {order.status}{' '}
+                          {order.trackingNumber && `(${order.trackingNumber})`}
+                        </span>
                       </span>
 
                       {/* Subscription Type Badge */}
-                      <span className={`inline-flex items-center px-3 py-1.5 rounded-lg font-bold border ${getSubscriptionTypeBadge(order.subscriptionType || 'one-time')}`}>
-                        <span className="text-sm">{getSubscriptionTypeDisplay(order.subscriptionType || 'one-time')}</span>
+                      <span
+                        className={`inline-flex items-center px-3 py-1.5 rounded-lg font-bold border ${getSubscriptionTypeBadge(order.subscriptionType || 'one-time')}`}
+                      >
+                        <span className="text-sm">
+                          {order.regime?.name || 'Regime Not Found'} | {getSubscriptionTypeDisplay(
+                            order.subscriptionType || 'one-time'
+                          )}
+                        </span>
                       </span>
 
                       {/* Gift Badge */}
                       {order.isGift && (
-                        <span className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-bold border ${
-                          order.giftClaimed 
-                            ? 'bg-green-100 text-green-800 border-green-200' 
-                            : 'bg-purple-100 text-purple-800 border-purple-200'
-                        }`}>
+                        <span
+                          className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-bold border ${
+                            order.giftClaimed
+                              ? 'bg-green-100 text-green-800 border-green-200'
+                              : 'bg-purple-100 text-purple-800 border-purple-200'
+                          }`}
+                        >
                           <span className="text-sm">
-                            {order.giftClaimed ? 'Redeemed' : 'Awaiting Redemption'}
+                            {order.giftClaimed
+                              ? 'Redeemed'
+                              : 'Awaiting Redemption'}
                           </span>
                         </span>
                       )}
+
+                      {/* Payment Method Badge */}
+                      <span
+                        className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-bold border bg-gray-100 text-gray-800 border-gray-200`}
+                        title={
+                          order.paymentMethod === 'bank_transfer'
+                            ? 'Bank Transfer'
+                            : 'Stripe Payment'
+                        }
+                      >
+                        {order.paymentMethod === 'bank_transfer' ? (
+                          <>
+                            <Building2 className="w-4 h-4" />
+                            <span className="text-sm">Bank Transfer</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-sm">Stripe</span>
+                          </>
+                        )}
+                      </span>
 
                       {/* Discount Code Badge */}
                       {order.discountCode && (
                         <span className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-bold border bg-emerald-100 text-emerald-800 border-emerald-200">
                           <Tag className="w-3 h-3" />
-                          <span className="text-sm">{order.discountCode.code} ({order.discountCode.percentageOff}% off)</span>
+                          <span className="text-sm">
+                            {order.discountCode.code} (
+                            {order.discountCode.percentageOff}% off)
+                          </span>
                         </span>
                       )}
 
+                      <div className="h-6 w-0.5 bg-gray-200"></div>
+
                       {/* Actions */}
                       <div className="flex items-center space-x-2">
+                        {/* Track Shipment - Only show for shipped orders with tracking number */}
+                        {order.status === 'shipped' && order.trackingNumber && (
+                          <button
+                            onClick={() =>
+                              window.open(
+                                `https://myjeebly.jeebly.com/shipment-tracking/?uae=uae&service_type=Scheduled&awb=${order.trackingNumber}`,
+                                '_blank'
+                              )
+                            }
+                            className="cursor-pointer p-2 text-purple-500 hover:bg-purple-50 rounded-lg border border-purple-200 hover:border-purple-300 transition-all duration-300 shadow-sm hover:shadow-md"
+                            title={`Track Shipment: ${order.trackingNumber}`}
+                          >
+                            <Truck className="h-4 w-4" />
+                          </button>
+                        )}
                         <button
                           onClick={() => toggleOrderExpansion(order.id)}
-                          className="p-2 text-[#EF7E71] hover:bg-[#EF7E71]/10 rounded-lg border border-[#EF7E71]/20 hover:border-[#EF7E71]/40 transition-all duration-300 shadow-sm hover:shadow-md"
+                          className="cursor-pointer p-2 text-[#EF7E71] hover:bg-[#EF7E71]/10 rounded-lg border border-[#EF7E71]/20 hover:border-[#EF7E71]/40 transition-all duration-300 shadow-sm hover:shadow-md"
                           title="View Details"
                         >
-                          {expandedOrders.has(order.id) ? 
-                            <ChevronUp className="h-4 w-4" /> : 
+                          {expandedOrders.has(order.id) ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
                             <ChevronDown className="h-4 w-4" />
-                          }
+                          )}
                         </button>
                         <button
                           onClick={() => setDeleteConfirm(order.id)}
-                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg border border-red-200 hover:border-red-300 transition-all duration-300 shadow-sm hover:shadow-md"
+                          className="cursor-pointer p-2 text-red-500 hover:bg-red-50 rounded-lg border border-red-200 hover:border-red-300 transition-all duration-300 shadow-sm hover:shadow-md"
                           title="Delete"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Basic Order Info */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 my-4">
-                    <div className="flex items-center space-x-2 p-3 bg-white rounded-lg border border-gray-200">
-                      <Mail className="h-4 w-4 text-blue-600" />
-                      <span className="font-bold text-neutral-700 text-sm">{order.contactInfo.email}</span>
-                    </div>
-                    {order.contactInfo.phoneNumber && (
-                      <div className="flex items-center space-x-2 p-3 bg-white rounded-lg border border-gray-200">
-                        <Phone className="h-4 w-4 text-green-600" />
-                        <span className="font-bold text-neutral-700 text-sm">{order.contactInfo.phoneNumber}</span>
-                      </div>
-                    )}
-                    {order.shippingAddress && (
-                      <div className="flex items-center space-x-2 p-3 bg-white rounded-lg border border-gray-200">
-                        <MapPin className="h-4 w-4 text-purple-600" />
-                        <span className="font-bold text-neutral-700 text-sm">
-                          {order.shippingAddress.city}, {order.shippingAddress.postalCode}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Status Update */}
-                  <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 mb-4">
-                    <span className="font-black text-neutral-700 flex items-center space-x-2 text-sm">
-                      <Activity className="w-4 h-4 text-[#EF7E71]" />
-                      <span>Update Status:</span>
-                    </span>
-                    <select
-                      value={order.status}
-                      onChange={(e) => handleStatusChange(order.id, e.target.value as 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled')}
-                      className="font-bold border border-[#EF7E71]/20 rounded-lg px-3 py-1.5 focus:ring-1 focus:ring-[#EF7E71] focus:border-[#EF7E71] bg-white/70 backdrop-blur-sm min-w-[120px] text-sm"
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="processing">Processing</option>
-                      <option value="shipped">Shipped</option>
-                      <option value="completed">Completed</option>
-                      <option value="cancelled">Cancelled</option>
-                    </select>
                   </div>
 
                   {/* Expanded Details */}
@@ -550,12 +633,22 @@ export default function OrdersAdmin() {
                             </h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div>
-                                <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Regime Name:</span>
-                                <div className="font-black text-sm text-neutral-900">{order.regime?.name || 'Regime Not Found'}</div>
+                                <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">
+                                  Regime Name:
+                                </span>
+                                <div className="font-black text-sm text-neutral-900">
+                                  {order.regime?.name || 'Regime Not Found'}
+                                </div>
                               </div>
                               <div>
-                                <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Subscription Type:</span>
-                                <div className="font-black text-sm text-neutral-900">{getSubscriptionTypeDisplay(order.subscriptionType || 'one-time')}</div>
+                                <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">
+                                  Subscription Type:
+                                </span>
+                                <div className="font-black text-sm text-neutral-900">
+                                  {getSubscriptionTypeDisplay(
+                                    order.subscriptionType || 'one-time'
+                                  )}
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -571,26 +664,42 @@ export default function OrdersAdmin() {
                                 <div className="space-y-2">
                                   {order.giftGiverName && (
                                     <div className="flex justify-between items-center">
-                                      <span className="text-neutral-600 font-bold text-sm">Name:</span>
-                                      <span className="font-black text-sm">{order.giftGiverName}</span>
+                                      <span className="text-neutral-600 font-bold text-sm">
+                                        Name:
+                                      </span>
+                                      <span className="font-black text-sm">
+                                        {order.giftGiverName}
+                                      </span>
                                     </div>
                                   )}
                                   {order.giftGiverEmail && (
                                     <div className="flex justify-between items-center">
-                                      <span className="text-neutral-600 font-bold text-sm">Email:</span>
-                                      <span className="font-black text-sm">{order.giftGiverEmail}</span>
+                                      <span className="text-neutral-600 font-bold text-sm">
+                                        Email:
+                                      </span>
+                                      <span className="font-black text-sm">
+                                        {order.giftGiverEmail}
+                                      </span>
                                     </div>
                                   )}
                                   {order.giftGiverPhone && (
                                     <div className="flex justify-between items-center">
-                                      <span className="text-neutral-600 font-bold text-sm">Phone:</span>
-                                      <span className="font-black text-sm">{order.giftGiverPhone}</span>
+                                      <span className="text-neutral-600 font-bold text-sm">
+                                        Phone:
+                                      </span>
+                                      <span className="font-black text-sm">
+                                        {order.giftGiverPhone}
+                                      </span>
                                     </div>
                                   )}
                                   {order.giftToken && (
                                     <div className="flex justify-between items-start pt-2 border-t border-purple-200">
-                                      <span className="text-neutral-600 font-bold text-sm">Gift Token:</span>
-                                      <span className="font-mono font-black text-xs text-purple-700 break-all text-right max-w-[200px]">{order.giftToken}</span>
+                                      <span className="text-neutral-600 font-bold text-sm">
+                                        Gift Token:
+                                      </span>
+                                      <span className="font-mono font-black text-xs text-purple-700 break-all text-right max-w-[200px]">
+                                        {order.giftToken}
+                                      </span>
                                     </div>
                                   )}
                                 </div>
@@ -602,44 +711,68 @@ export default function OrdersAdmin() {
                                   <h4 className="font-black text-neutral-900 mb-3 flex items-center space-x-2 text-base">
                                     <Mail className="h-4 w-4 text-green-600" />
                                     <span>Gift Recipient Information</span>
-                                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">Redeemed</span>
+                                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">
+                                      Redeemed
+                                    </span>
                                   </h4>
                                   <div className="space-y-2">
                                     {order.shippingAddress && (
                                       <div className="flex justify-between items-center">
-                                        <span className="text-neutral-600 font-bold text-sm">Name:</span>
-                                        <span className="font-black text-sm">{order.shippingAddress.firstName} {order.shippingAddress.lastName || ''}</span>
+                                        <span className="text-neutral-600 font-bold text-sm">
+                                          Name:
+                                        </span>
+                                        <span className="font-black text-sm">
+                                          {order.shippingAddress.firstName}{' '}
+                                          {order.shippingAddress.lastName || ''}
+                                        </span>
                                       </div>
                                     )}
                                     <div className="flex justify-between items-center">
-                                      <span className="text-neutral-600 font-bold text-sm">Email:</span>
-                                      <span className="font-black text-sm">{order.contactInfo.email}</span>
+                                      <span className="text-neutral-600 font-bold text-sm">
+                                        Email:
+                                      </span>
+                                      <span className="font-black text-sm">
+                                        {order.contactInfo.email}
+                                      </span>
                                     </div>
                                     {order.contactInfo.phoneNumber && (
                                       <div className="flex justify-between items-center">
-                                        <span className="text-neutral-600 font-bold text-sm">Phone:</span>
-                                        <span className="font-black text-sm">{order.contactInfo.phoneNumber}</span>
+                                        <span className="text-neutral-600 font-bold text-sm">
+                                          Phone:
+                                        </span>
+                                        <span className="font-black text-sm">
+                                          {order.contactInfo.phoneNumber}
+                                        </span>
                                       </div>
                                     )}
                                     {order.shippingAddress && (
                                       <div className="flex justify-between text-right pt-2 border-t border-gray-200">
-                                        <span className="text-neutral-600 font-bold text-sm">Address:</span>
+                                        <span className="text-neutral-600 font-bold text-sm">
+                                          Address:
+                                        </span>
                                         <div className="mt-1 font-black text-neutral-900 text-sm leading-relaxed">
-                                          {order.shippingAddress.address}<br />
-                                          {order.shippingAddress.city}, {order.shippingAddress.postalCode}
+                                          {order.shippingAddress
+                                            .apartmentNumber &&
+                                            `${order.shippingAddress.apartmentNumber}, `}
+                                          {order.shippingAddress.address},{' '}
+                                          {order.shippingAddress.city}
                                         </div>
                                       </div>
                                     )}
                                     {order.giftClaimedAt && (
                                       <div className="flex justify-between items-center pt-2 border-t border-gray-200">
-                                        <span className="text-neutral-600 font-bold text-sm">Claimed On:</span>
+                                        <span className="text-neutral-600 font-bold text-sm">
+                                          Claimed On:
+                                        </span>
                                         <span className="font-black text-sm">
-                                          {new Date(order.giftClaimedAt).toLocaleDateString('en-US', {
+                                          {new Date(
+                                            order.giftClaimedAt
+                                          ).toLocaleDateString('en-US', {
                                             month: 'short',
                                             day: 'numeric',
                                             year: 'numeric',
                                             hour: '2-digit',
-                                            minute: '2-digit'
+                                            minute: '2-digit',
                                           })}
                                         </span>
                                       </div>
@@ -653,7 +786,9 @@ export default function OrdersAdmin() {
                                     <span>Awaiting Recipient</span>
                                   </h4>
                                   <p className="text-neutral-600 text-sm">
-                                    Gift has not been redeemed yet. Recipient details will appear once the gift is claimed.
+                                    Gift has not been redeemed yet. Recipient
+                                    details will appear once the gift is
+                                    claimed.
                                   </p>
                                 </div>
                               )}
@@ -667,26 +802,43 @@ export default function OrdersAdmin() {
                               <div className="space-y-2">
                                 {order.shippingAddress && (
                                   <div className="flex justify-between items-center">
-                                    <span className="text-neutral-600 font-bold text-sm">Name:</span>
-                                    <span className="font-black text-sm">{order.shippingAddress.firstName} {order.shippingAddress.lastName || ''}</span>
+                                    <span className="text-neutral-600 font-bold text-sm">
+                                      Name:
+                                    </span>
+                                    <span className="font-black text-sm">
+                                      {order.shippingAddress.firstName}{' '}
+                                      {order.shippingAddress.lastName || ''}
+                                    </span>
                                   </div>
                                 )}
                                 <div className="flex justify-between items-center">
-                                  <span className="text-neutral-600 font-bold text-sm">Email:</span>
-                                  <span className="font-black text-sm">{order.contactInfo.email}</span>
+                                  <span className="text-neutral-600 font-bold text-sm">
+                                    Email:
+                                  </span>
+                                  <span className="font-black text-sm">
+                                    {order.contactInfo.email}
+                                  </span>
                                 </div>
                                 {order.contactInfo.phoneNumber && (
                                   <div className="flex justify-between items-center">
-                                    <span className="text-neutral-600 font-bold text-sm">Phone:</span>
-                                    <span className="font-black text-sm">{order.contactInfo.phoneNumber}</span>
+                                    <span className="text-neutral-600 font-bold text-sm">
+                                      Phone:
+                                    </span>
+                                    <span className="font-black text-sm">
+                                      {order.contactInfo.phoneNumber}
+                                    </span>
                                   </div>
                                 )}
                                 {order.shippingAddress && (
                                   <div className="flex justify-between text-right pt-2 border-t border-blue-200/50">
-                                    <span className="text-neutral-600 font-bold text-sm">Address:</span>
+                                    <span className="text-neutral-600 font-bold text-sm">
+                                      Address:
+                                    </span>
                                     <div className="mt-1 font-black text-neutral-900 text-sm leading-relaxed">
-                                      {order.shippingAddress.address}<br />
-                                      {order.shippingAddress.city}, {order.shippingAddress.postalCode}
+                                      {order.shippingAddress.apartmentNumber &&
+                                        `${order.shippingAddress.apartmentNumber}, `}
+                                      {order.shippingAddress.address},{' '}
+                                      {order.shippingAddress.city}
                                     </div>
                                   </div>
                                 )}
@@ -703,28 +855,45 @@ export default function OrdersAdmin() {
                               </h4>
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                  <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Code:</span>
-                                  <div className="font-black text-sm text-emerald-700">{order.discountCode.code}</div>
-                                </div>
-                                <div>
-                                  <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Discount:</span>
-                                  <div className="font-black text-sm text-emerald-700">{order.discountCode.percentageOff}% off</div>
-                                </div>
-                                <div>
-                                  <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Savings:</span>
+                                  <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">
+                                    Code:
+                                  </span>
                                   <div className="font-black text-sm text-emerald-700">
-                                    AED {Math.round(order.totalAmount * (order.discountCode.percentageOff / 100))}
+                                    {order.discountCode.code}
+                                  </div>
+                                </div>
+                                <div>
+                                  <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">
+                                    Discount:
+                                  </span>
+                                  <div className="font-black text-sm text-emerald-700">
+                                    {order.discountCode.percentageOff}% off
+                                  </div>
+                                </div>
+                                <div>
+                                  <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">
+                                    Savings:
+                                  </span>
+                                  <div className="font-black text-sm text-emerald-700">
+                                    AED{' '}
+                                    {Math.round(
+                                      order.totalAmount *
+                                        (order.discountCode.percentageOff / 100)
+                                    )}
                                   </div>
                                 </div>
                               </div>
                             </div>
                           )}
 
-                          <div className="bg-white rounded-xl p-4 border border-gray-200">
+                          <div className="bg-white rounded-xl mb-4 p-4 border border-gray-200">
                             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
                               <div className="space-y-2">
                                 <div className="flex items-center space-x-3">
-                                  <span className="text-neutral-600 font-bold text-sm">Final Amount:</span>
+                                <Coins className="w-4 h-4 text-[#EF7E71]" />
+                                  <span className="text-neutral-600 font-bold text-sm">
+                                    Final Amount:
+                                  </span>
                                 </div>
                               </div>
                               <div className="text-right">
@@ -732,6 +901,43 @@ export default function OrdersAdmin() {
                                   AED {order.finalAmount}
                                 </p>
                               </div>
+                            </div>
+                          </div>
+
+                          {/* Status Update */}
+                          <div className="bg-white rounded-xl p-4 border border-gray-200">
+                            <div className="flex flex-col justify-between sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
+                              <span className="font-black text-neutral-700 flex items-center space-x-2 text-sm">
+                                <Activity className="w-4 h-4 text-[#EF7E71]" />
+                                <span>Update Status:</span>
+                              </span>
+                              <select
+                                value={order.status}
+                                onChange={(e) =>
+                                  handleStatusChange(
+                                    order.id,
+                                    e.target.value as
+                                      | 'pending'
+                                      | 'processing'
+                                      | 'shipped'
+                                      | 'completed'
+                                      | 'cancelled'
+                                  )
+                                }
+                                className="font-bold border border-[#EF7E71]/20 rounded-lg px-3 py-1.5 focus:ring-1 focus:ring-[#EF7E71] focus:border-[#EF7E71] bg-white/70 backdrop-blur-sm min-w-[120px] text-sm"
+                              >
+                                <option value="pending">Pending</option>
+                                {/* Only show payment_verified option for bank transfer orders */}
+                                {order.paymentMethod === 'bank_transfer' && (
+                                  <option value="payment_verified">
+                                    Payment Verified
+                                  </option>
+                                )}
+                                <option value="processing">Processing</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
+                              </select>
                             </div>
                           </div>
                         </div>
@@ -743,127 +949,210 @@ export default function OrdersAdmin() {
                               <span>Complete Skincare Profile</span>
                             </h4>
                             <div className="space-y-3">
-                            {/* Basic Info */}
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Age:</span>
-                                <div className="font-black text-sm text-neutral-900">{order.userDetails.age}</div>
+                              {/* Basic Info */}
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">
+                                    Age:
+                                  </span>
+                                  <div className="font-black text-sm text-neutral-900">
+                                    {order.userDetails.age}
+                                  </div>
+                                </div>
+                                <div>
+                                  <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">
+                                    Gender:
+                                  </span>
+                                  <div className="font-black text-sm text-neutral-900 capitalize">
+                                    {order.userDetails.gender}
+                                  </div>
+                                </div>
                               </div>
-                              <div>
-                                <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Gender:</span>
-                                <div className="font-black text-sm text-neutral-900 capitalize">{order.userDetails.gender}</div>
-                              </div>
-                            </div>
 
-                            {/* Skin Details */}
-                            <div className="pt-2 border-t border-gray-200">
-                              <div className="grid grid-cols-2 gap-4 mb-2">
-                                <div>
-                                  <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Skin Type:</span>
-                                  <div className="font-black text-sm text-neutral-900">{order.userDetails.skinType}</div>
-                                </div>
-                                <div>
-                                  <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Complexion:</span>
-                                  <div className="font-black text-sm text-neutral-900">{order.userDetails.complexion}</div>
-                                </div>
-                              </div>
-                              <div className="mb-2">
-                                <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Primary Concerns:</span>
-                                <div className="font-black text-sm text-neutral-900">{order.userDetails.skinConcerns.join(', ')}</div>
-                              </div>
-                            </div>
-
-                            {/* Skincare Experience */}
-                            <div className="pt-2 border-t border-gray-200">
-                              <div className="mb-2">
-                                <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Korean Skincare Experience:</span>
-                                <div className="font-black text-sm text-neutral-900">{order.userDetails.koreanSkincareExperience}</div>
-                              </div>
-                              <div className="mb-2">
-                                <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Korean Skincare Attraction:</span>
-                                <div className="font-black text-sm text-neutral-900">{order.userDetails.koreanSkincareAttraction.join(', ')}</div>
-                              </div>
-                              <div className="mb-2">
-                                <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Skincare Goals:</span>
-                                <div className="font-black text-sm text-neutral-900">{order.userDetails.skincareGoal.join(', ')}</div>
-                              </div>
-                            </div>
-
-                            {/* Routine Details */}
-                            <div className="pt-2 border-t border-gray-200">
-                              <div className="grid grid-cols-2 gap-4 mb-2">
-                                <div>
-                                  <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Daily Products:</span>
-                                  <div className="font-black text-sm text-neutral-900">{order.userDetails.dailyProductCount}</div>
-                                </div>
-                                <div>
-                                  <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Routine Regularity:</span>
-                                  <div className="font-black text-sm text-neutral-900">{order.userDetails.routineRegularity}</div>
-                                </div>
-                              </div>
-                              <div className="mb-2">
-                                <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Selected Skincare Steps:</span>
-                                <div className="font-black text-sm text-neutral-900">{order.userDetails.skincareSteps.join(', ')}</div>
-                              </div>
-                            </div>
-
-                            {/* Purchase & Budget */}
-                            <div className="pt-2 border-t border-gray-200">
-                              <div className="grid grid-cols-2 gap-4 mb-2">
-                                <div>
-                                  <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Purchase Location:</span>
-                                  <div className="font-black text-sm text-neutral-900">{order.userDetails.purchaseLocation}</div>
-                                </div>
-                                <div>
-                                  <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Budget:</span>
-                                  <div className="font-black text-sm text-neutral-900">{order.userDetails.budget}</div>
-                                </div>
-                              </div>
-                              <div className="mb-2">
-                                <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Wants Customized Recommendations:</span>
-                                <div className="font-black text-sm text-neutral-900">{order.userDetails.customizedRecommendations}</div>
-                              </div>
-                            </div>
-
-                            {/* Additional Info */}
-                            {(order.userDetails.allergies || order.userDetails.brandsUsed || order.userDetails.additionalComments) && (
+                              {/* Skin Details */}
                               <div className="pt-2 border-t border-gray-200">
-                                {order.userDetails.allergies && (
-                                  <div className="mb-2">
-                                    <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Allergies/Sensitivities:</span>
-                                    <div className="font-black text-sm text-neutral-900 leading-relaxed">{order.userDetails.allergies}</div>
-                                  </div>
-                                )}
-                                {order.userDetails.brandsUsed && (
-                                  <div className="mb-2">
-                                    <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Brands Used:</span>
-                                    <div className="font-black text-sm text-neutral-900 leading-relaxed">{order.userDetails.brandsUsed}</div>
-                                  </div>
-                                )}
-                                {order.userDetails.additionalComments && (
+                                <div className="grid grid-cols-2 gap-4 mb-2">
                                   <div>
-                                    <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">Additional Comments:</span>
-                                    <div className="font-black text-sm text-neutral-900 leading-relaxed">{order.userDetails.additionalComments}</div>
+                                    <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">
+                                      Skin Type:
+                                    </span>
+                                    <div className="font-black text-sm text-neutral-900">
+                                      {order.userDetails.skinType}
+                                    </div>
                                   </div>
-                                )}
+                                  <div>
+                                    <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">
+                                      Complexion:
+                                    </span>
+                                    <div className="font-black text-sm text-neutral-900">
+                                      {order.userDetails.complexion}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="mb-2">
+                                  <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">
+                                    Primary Concerns:
+                                  </span>
+                                  <div className="font-black text-sm text-neutral-900">
+                                    {order.userDetails.skinConcerns.join(', ')}
+                                  </div>
+                                </div>
                               </div>
-                            )}
+
+                              {/* Skincare Experience */}
+                              <div className="pt-2 border-t border-gray-200">
+                                <div className="mb-2">
+                                  <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">
+                                    Korean Skincare Experience:
+                                  </span>
+                                  <div className="font-black text-sm text-neutral-900">
+                                    {order.userDetails.koreanSkincareExperience}
+                                  </div>
+                                </div>
+                                <div className="mb-2">
+                                  <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">
+                                    Korean Skincare Attraction:
+                                  </span>
+                                  <div className="font-black text-sm text-neutral-900">
+                                    {order.userDetails.koreanSkincareAttraction.join(
+                                      ', '
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="mb-2">
+                                  <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">
+                                    Skincare Goals:
+                                  </span>
+                                  <div className="font-black text-sm text-neutral-900">
+                                    {order.userDetails.skincareGoal.join(', ')}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Routine Details */}
+                              <div className="pt-2 border-t border-gray-200">
+                                <div className="grid grid-cols-2 gap-4 mb-2">
+                                  <div>
+                                    <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">
+                                      Daily Products:
+                                    </span>
+                                    <div className="font-black text-sm text-neutral-900">
+                                      {order.userDetails.dailyProductCount}
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">
+                                      Routine Regularity:
+                                    </span>
+                                    <div className="font-black text-sm text-neutral-900">
+                                      {order.userDetails.routineRegularity}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="mb-2">
+                                  <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">
+                                    Selected Skincare Steps:
+                                  </span>
+                                  <div className="font-black text-sm text-neutral-900">
+                                    {order.userDetails.skincareSteps.join(', ')}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Purchase & Budget */}
+                              <div className="pt-2 border-t border-gray-200">
+                                <div className="grid grid-cols-2 gap-4 mb-2">
+                                  <div>
+                                    <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">
+                                      Purchase Location:
+                                    </span>
+                                    <div className="font-black text-sm text-neutral-900">
+                                      {order.userDetails.purchaseLocation}
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">
+                                      Budget:
+                                    </span>
+                                    <div className="font-black text-sm text-neutral-900">
+                                      {order.userDetails.budget}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="mb-2">
+                                  <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">
+                                    Wants Customized Recommendations:
+                                  </span>
+                                  <div className="font-black text-sm text-neutral-900">
+                                    {
+                                      order.userDetails
+                                        .customizedRecommendations
+                                    }
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Additional Info */}
+                              {(order.userDetails.allergies ||
+                                order.userDetails.brandsUsed ||
+                                order.userDetails.additionalComments) && (
+                                <div className="pt-2 border-t border-gray-200">
+                                  {order.userDetails.allergies && (
+                                    <div className="mb-2">
+                                      <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">
+                                        Allergies/Sensitivities:
+                                      </span>
+                                      <div className="font-black text-sm text-neutral-900 leading-relaxed">
+                                        {order.userDetails.allergies}
+                                      </div>
+                                    </div>
+                                  )}
+                                  {order.userDetails.brandsUsed && (
+                                    <div className="mb-2">
+                                      <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">
+                                        Brands Used:
+                                      </span>
+                                      <div className="font-black text-sm text-neutral-900 leading-relaxed">
+                                        {order.userDetails.brandsUsed}
+                                      </div>
+                                    </div>
+                                  )}
+                                  {order.userDetails.additionalComments && (
+                                    <div>
+                                      <span className="text-neutral-600 font-bold text-xs uppercase tracking-wider">
+                                        Additional Comments:
+                                      </span>
+                                      <div className="font-black text-sm text-neutral-900 leading-relaxed">
+                                        {order.userDetails.additionalComments}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
                         ) : (
                           <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-200">
                             <div className="text-center">
                               <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                                 <span className="text-3xl">🎁</span>
                               </div>
-                              <h4 className="font-black text-neutral-900 mb-2 text-lg">Gift Order</h4>
+                              <h4 className="font-black text-neutral-900 mb-2 text-lg">
+                                Gift Order
+                              </h4>
                               <p className="text-neutral-600 font-medium text-sm">
-                                This is a gift order. Recipient details and skincare profile will be completed when the gift is redeemed.
+                                This is a gift order. Recipient details and
+                                skincare profile will be completed when the gift
+                                is redeemed.
                               </p>
                               {order.giftToken && (
                                 <div className="mt-4 p-3 bg-white/70 rounded-lg border border-purple-200">
-                                  <span className="text-purple-700 font-bold text-xs uppercase tracking-wider">Gift Token:</span>
-                                  <div className="font-mono font-black text-sm text-purple-800 mt-1">{order.giftToken}</div>
+                                  <span className="text-purple-700 font-bold text-xs uppercase tracking-wider">
+                                    Gift Token:
+                                  </span>
+                                  <div className="font-mono font-black text-sm text-purple-800 mt-1">
+                                    {order.giftToken}
+                                  </div>
                                 </div>
                               )}
                             </div>
@@ -887,9 +1176,12 @@ export default function OrdersAdmin() {
               <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
                 <Trash2 className="h-10 w-10 text-red-600" />
               </div>
-              <h3 className="text-2xl font-black text-neutral-900 mb-4">Confirm Delete</h3>
+              <h3 className="text-2xl font-black text-neutral-900 mb-4">
+                Confirm Delete
+              </h3>
               <p className="text-neutral-600 text-lg leading-relaxed">
-                Are you sure you want to delete this order? This action cannot be undone and will permanently remove all associated data.
+                Are you sure you want to delete this order? This action cannot
+                be undone and will permanently remove all associated data.
               </p>
             </div>
             <div className="flex space-x-4">
@@ -918,24 +1210,59 @@ export default function OrdersAdmin() {
               <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
                 <Activity className="h-10 w-10 text-blue-600" />
               </div>
-              <h3 className="text-2xl font-black text-neutral-900 mb-4">Confirm Status Update</h3>
+              <h3 className="text-2xl font-black text-neutral-900 mb-4">
+                Confirm Status Update
+              </h3>
               <p className="text-neutral-600 text-lg leading-relaxed">
-                Are you sure you want to update this order status to <span className="font-black text-neutral-900 capitalize">{statusUpdateConfirm.newStatus}</span>?
+                Are you sure you want to update this order status to{' '}
+                <span className="font-black text-neutral-900 capitalize">
+                  {statusUpdateConfirm.newStatus}
+                </span>
+                ?
               </p>
               <p className="text-neutral-500 text-sm mt-2">
-                The customer will receive an email notification about this status change.
+                The customer will receive an email notification about this
+                status change.
               </p>
+
+              {/* Tracking Number Input - Only show when status is 'shipped' */}
+              {statusUpdateConfirm.newStatus === 'shipped' && (
+                <div className="mt-6 text-left">
+                  <label className="block text-sm font-bold text-neutral-700 mb-2">
+                    Tracking Number <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={trackingNumber}
+                    onChange={(e) => setTrackingNumber(e.target.value)}
+                    placeholder="Enter tracking number"
+                    className="w-full px-4 py-3 border-2 border-neutral-300 rounded-xl focus:border-[#EF7E71] focus:outline-none bg-white text-neutral-900 placeholder-neutral-400 font-medium transition-all duration-200"
+                    autoFocus
+                  />
+                  <p className="text-xs text-neutral-500 mt-2">
+                    This will be used to generate the tracking link for the
+                    customer.
+                  </p>
+                </div>
+              )}
             </div>
             <div className="flex space-x-4">
               <button
-                onClick={() => setStatusUpdateConfirm(null)}
+                onClick={() => {
+                  setStatusUpdateConfirm(null);
+                  setTrackingNumber('');
+                }}
                 className="cursor-pointer flex-1 px-6 py-4 text-neutral-600 border-2 border-neutral-300 rounded-2xl hover:bg-neutral-50 font-bold text-lg transition-all duration-300"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmStatusUpdate}
-                className="cursor-pointer flex-1 px-6 py-4 bg-gradient-to-r from-[#EF7E71] to-[#D4654F] text-white rounded-2xl hover:shadow-xl font-bold text-lg transition-all duration-300 shadow-lg"
+                disabled={
+                  statusUpdateConfirm.newStatus === 'shipped' &&
+                  !trackingNumber.trim()
+                }
+                className="cursor-pointer flex-1 px-6 py-4 bg-gradient-to-r from-[#EF7E71] to-[#D4654F] text-white rounded-2xl hover:shadow-xl font-bold text-lg transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Update Status
               </button>

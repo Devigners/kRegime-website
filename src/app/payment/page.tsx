@@ -1,11 +1,12 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ArrowLeft, Lock, Tag, Gift } from 'lucide-react';
+import { ArrowLeft, Lock, Tag, Gift, Copy, Check, CreditCard, Building2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { localStorage as localStorageUtils } from '@/lib/localStorage';
 import { SubscriptionType } from '@/types';
 import DirhamIcon from '@/components/icons/DirhamIcon';
@@ -53,6 +54,16 @@ function PaymentContent() {
   const [isGiftOrder, setIsGiftOrder] = useState(false);
   const [isGiftRecipient, setIsGiftRecipient] = useState(false);
   const [giftToken, setGiftToken] = useState<string | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'bank_transfer'>('stripe');
+  const [bankDetails, setBankDetails] = useState<{
+    available: boolean;
+    accountHolderName?: string;
+    bankName?: string;
+    accountNumber?: string;
+    iban?: string;
+  }>({ available: false });
+  const [bankReferenceId, setBankReferenceId] = useState<string>('');
+  const [copiedField, setCopiedField] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     email: '',
     phoneNumber: '+971',
@@ -61,7 +72,6 @@ function PaymentContent() {
     apartmentNumber: '',
     address: '',
     city: '',
-    postalCode: '',
   });
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -135,11 +145,74 @@ function PaymentContent() {
     loadCartData();
   }, [router]);
 
+  // Fetch bank details and generate order ID for bank transfers
+  useEffect(() => {
+    const fetchBankDetailsAndOrderId = async () => {
+      try {
+        // Fetch bank details
+        const bankResponse = await fetch('/api/bank-details');
+        if (bankResponse.ok) {
+          const bankData = await bankResponse.json();
+          // Flatten the structure: API returns { available, bankDetails: {...} }
+          // We need { available, accountHolderName, bankName, accountNumber, iban }
+          if (bankData.available && bankData.bankDetails) {
+            setBankDetails({
+              available: true,
+              accountHolderName: bankData.bankDetails.accountHolderName,
+              bankName: bankData.bankDetails.bankName,
+              accountNumber: bankData.bankDetails.accountNumber,
+              iban: bankData.bankDetails.iban
+            });
+          } else {
+            setBankDetails({ available: false });
+          }
+        }
+
+        // Generate unique order ID for bank transfer
+        const orderIdResponse = await fetch('/api/orders/generate-id', {
+          method: 'POST',
+        });
+        if (orderIdResponse.ok) {
+          const { orderId } = await orderIdResponse.json();
+          setBankReferenceId(orderId);
+        }
+      } catch (error) {
+        console.error('Error fetching bank details or generating order ID:', error);
+      }
+    };
+
+    fetchBankDetailsAndOrderId();
+  }, []);
+
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
+  };
+
+  const copyToClipboard = async (text: string, fieldName: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedField(fieldName);
+      
+      // Show descriptive toast message
+      const fieldLabels: Record<string, string> = {
+        'bankName': 'Bank name',
+        'accountHolder': 'Account holder name',
+        'accountNumber': 'Account number',
+        'iban': 'IBAN',
+        'referenceId': 'Reference ID'
+      };
+      
+      const label = fieldLabels[fieldName] || 'Text';
+      toast.success(`${label} copied!`);
+      
+      setTimeout(() => setCopiedField(null), 2000);
+    } catch (error) {
+      console.error('Failed to copy:', error);
+      toast.error('Failed to copy');
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -166,7 +239,6 @@ function PaymentContent() {
             apartmentNumber: formData.apartmentNumber,
             address: formData.address,
             city: formData.city,
-            postalCode: formData.postalCode,
           },
           totalAmount: 0, // Gift is already paid
           finalAmount: 0,
@@ -202,7 +274,64 @@ function PaymentContent() {
         return;
       }
 
-      // For regular orders and gift givers, proceed with Stripe
+      // Handle bank transfer payment
+      if (paymentMethod === 'bank_transfer') {
+        const orderPayload = {
+          regimeId: cartData.regimeId,
+          subscriptionType: cartData.subscriptionType,
+          quantity: cartData.quantity,
+          contactInfo: {
+            email: formData.email,
+            phoneNumber: formData.phoneNumber || undefined,
+          },
+          totalAmount: cartData.totalAmount,
+          finalAmount: cartData.finalAmount,
+          discountCodeId: cartData.discountCode?.id,
+          isGift: isGiftOrder,
+          paymentMethod: 'bank_transfer',
+          bankReferenceId: bankReferenceId,
+          ...(isGiftOrder
+            ? {
+                giftGiverInfo: {
+                  firstName: formData.firstName,
+                  lastName: formData.lastName || undefined,
+                  email: formData.email,
+                  phoneNumber: formData.phoneNumber || undefined,
+                },
+              }
+            : {
+                userDetails: cartData.formData,
+                shippingAddress: {
+                  firstName: formData.firstName,
+                  lastName: formData.lastName || undefined,
+                  apartmentNumber: formData.apartmentNumber,
+                  address: formData.address,
+                  city: formData.city,
+                },
+              }),
+        };
+
+        const response = await fetch('/api/orders/bank-transfer', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(orderPayload),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to create bank transfer order');
+        }
+
+        const result = await response.json();
+
+        // Clear cart and redirect to confirmation
+        localStorageUtils.clearCartData();
+        router.push(`/confirmation?orderId=${result.orderId}&bankTransfer=true`);
+        return;
+      }
+
+      // For regular orders and gift givers with Stripe, proceed with Stripe
       // Generate a unique session key for this checkout
       const checkoutSessionKey = `checkout_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
@@ -479,44 +608,197 @@ function PaymentContent() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="hidden md:block bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg shadow-md p-6 border-2 border-primary/20"
+                  className="hidden md:block bg-white rounded-lg shadow-md p-6"
                 >
-                  <div className="flex items-center justify-center mb-4">
-                    <Lock size={24} className="text-primary mr-2" />
-                    <h2 className="text-xl font-semibold text-black">
-                      Secure Payment with Stripe
-                    </h2>
-                  </div>
+                  <h2 className="text-xl font-semibold text-black mb-4">
+                    Payment Method
+                  </h2>
 
-                  <div className="text-center space-y-3">
-                    <p className="text-black">
-                      You&apos;ll be redirected to Stripe&apos;s secure checkout
-                      page to complete your payment.
-                    </p>
-                    <div className="flex items-center justify-center gap-2 text-sm text-neutral-600">
-                      <Lock size={14} />
-                      <span>256-bit SSL encrypted</span>
+                  {/* Payment Method Selection */}
+                  <div className="space-y-4 mb-6">
+                    {/* Card Payment Option */}
+                    <div
+                      onClick={() => setPaymentMethod('stripe')}
+                      className={`cursor-pointer border-2 rounded-lg p-4 transition-all ${
+                        paymentMethod === 'stripe'
+                          ? 'border-primary bg-primary/5'
+                          : 'border-gray-200 hover:border-primary/50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                            paymentMethod === 'stripe'
+                              ? 'border-primary bg-primary'
+                              : 'border-gray-300'
+                          }`}>
+                            {paymentMethod === 'stripe' && (
+                              <Check size={12} className="text-white" />
+                            )}
+                          </div>
+                          <CreditCard size={20} className="text-primary" />
+                          <span className="font-semibold text-black">
+                            Card / Apple Pay / Google Pay
+                          </span>
+                        </div>
+                      </div>
+                      {paymentMethod === 'stripe' && (
+                        <div className="ml-8 mt-3 space-y-2">
+                          <div className="flex items-center gap-2 text-sm text-neutral-600">
+                            <Lock size={14} />
+                            <span>256-bit SSL encrypted powered by Stripe</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Image
+                              src="https://js.stripe.com/v3/fingerprinted/img/visa-729c05c240c4bdb47b03ac81d9945bfe.svg"
+                              alt="Visa"
+                              width={35}
+                              height={22}
+                            />
+                            <Image
+                              src="https://js.stripe.com/v3/fingerprinted/img/mastercard-4d8844094130711885b5e41b28c9848f.svg"
+                              alt="Mastercard"
+                              width={35}
+                              height={22}
+                            />
+                            <Image
+                              src="https://js.stripe.com/v3/fingerprinted/img/amex-a49b82f46c5cd6a96a6e418a6ca1717c.svg"
+                              alt="Amex"
+                              width={35}
+                              height={22}
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <div className="flex items-center justify-center gap-4 mt-4">
-                      <Image
-                        src="https://js.stripe.com/v3/fingerprinted/img/visa-729c05c240c4bdb47b03ac81d9945bfe.svg"
-                        alt="Visa"
-                        width={40}
-                        height={25}
-                      />
-                      <Image
-                        src="https://js.stripe.com/v3/fingerprinted/img/mastercard-4d8844094130711885b5e41b28c9848f.svg"
-                        alt="Mastercard"
-                        width={40}
-                        height={25}
-                      />
-                      <Image
-                        src="https://js.stripe.com/v3/fingerprinted/img/amex-a49b82f46c5cd6a96a6e418a6ca1717c.svg"
-                        alt="Amex"
-                        width={40}
-                        height={25}
-                      />
-                    </div>
+
+                    {/* Bank Transfer Option */}
+                    {bankDetails.available && (
+                      <div
+                        onClick={() => setPaymentMethod('bank_transfer')}
+                        className={`cursor-pointer border-2 rounded-lg p-4 transition-all ${
+                          paymentMethod === 'bank_transfer'
+                            ? 'border-primary bg-primary/5'
+                            : 'border-gray-200 hover:border-primary/50'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                              paymentMethod === 'bank_transfer'
+                                ? 'border-primary bg-primary'
+                                : 'border-gray-300'
+                            }`}>
+                              {paymentMethod === 'bank_transfer' && (
+                                <Check size={12} className="text-white" />
+                              )}
+                            </div>
+                            <Building2 size={20} className="text-primary" />
+                            <span className="font-semibold text-black">
+                              Bank Transfer
+                            </span>
+                          </div>
+                        </div>
+                        {paymentMethod === 'bank_transfer' && (
+                          <div className="ml-8 mt-4 space-y-3">
+                            <p className="text-sm text-neutral-600 mb-3">
+                              Transfer to our business account (click to copy):
+                            </p>
+                            
+                            {/* Bank Name */}
+                            {bankDetails.bankName && (
+                              <div
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  copyToClipboard(bankDetails.bankName!, 'bankName');
+                                }}
+                                className="flex items-center justify-between p-3 bg-white rounded cursor-pointer hover:bg-gray-100 transition-colors"
+                              >
+                                <div className="flex-1">
+                                  <p className="text-xs text-neutral-500">Bank Name</p>
+                                  <p className="text-sm font-medium text-black">{bankDetails.bankName}</p>
+                                </div>
+                                <Copy size={16} className='text-neutral-400' />
+                              </div>
+                            )}
+
+                            {/* Account Holder */}
+                            {bankDetails.accountHolderName && (
+                              <div
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  copyToClipboard(bankDetails.accountHolderName!, 'accountHolder');
+                                }}
+                                className="flex items-center justify-between p-3 bg-white rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                              >
+                                <div className="flex-1">
+                                  <p className="text-xs text-neutral-500">Account Holder</p>
+                                  <p className="text-sm font-medium text-black">{bankDetails.accountHolderName}</p>
+                                </div>
+                                <Copy size={16} className='text-neutral-400' />
+                              </div>
+                            )}
+
+                            {/* Account Number */}
+                            {bankDetails.accountNumber && (
+                              <div
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  copyToClipboard(bankDetails.accountNumber!, 'accountNumber');
+                                }}
+                                className="flex items-center justify-between p-3 bg-white rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                              >
+                                <div className="flex-1">
+                                  <p className="text-xs text-neutral-500">Account Number</p>
+                                  <p className="text-sm font-medium text-black">{bankDetails.accountNumber}</p>
+                                </div>
+                                <Copy size={16} className='text-neutral-400' />
+                              </div>
+                            )}
+
+                            {/* IBAN */}
+                            {bankDetails.iban && (
+                              <div
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  copyToClipboard(bankDetails.iban!, 'iban');
+                                }}
+                                className="flex items-center justify-between p-3 bg-white rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                              >
+                                <div className="flex-1">
+                                  <p className="text-xs text-neutral-500">IBAN</p>
+                                  <p className="text-sm font-medium text-black">{bankDetails.iban}</p>
+                                </div>
+                                <Copy size={16} className='text-neutral-400' />
+                              </div>
+                            )}
+
+                            {/* Reference ID */}
+                            <div className="mt-4 p-3 bg-white hover:bg-gray-100 border transition-colors border-gray-200 rounded-lg">
+                              <div
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  copyToClipboard(bankReferenceId, 'referenceId');
+                                }}
+                                className="flex items-center justify-between cursor-pointer rounded transition-colors"
+                              >
+                                <div className="flex-1">
+                                  <p className="text-xs font-semibold mb-1 text-red-500">
+                                    IMPORTANT: Transaction Reference/Comment
+                                  </p>
+                                  <p className="text-lg font-bold">{bankReferenceId}</p>
+                                </div>
+                                <Copy size={16} className='text-neutral-400' />
+                              </div>
+                              <p className="text-xs mt-2">
+                                Please use this exact number in the transaction reference/comment/remarks field when making your bank transfer.
+                                This helps us verify your payment.
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               )}
@@ -693,44 +975,192 @@ function PaymentContent() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="block md:hidden bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg shadow-md p-6 border-2 border-primary/20"
+                  className="block md:hidden bg-white rounded-lg shadow-md p-6"
                 >
-                  <div className="flex flex-col items-center justify-center gap-2 mb-4">
-                    <Lock size={24} className="text-primary mr-2" />
-                    <h2 className="text-xl font-semibold text-black">
-                      Secure Payment with Stripe
-                    </h2>
-                  </div>
+                  <h2 className="text-xl font-semibold text-black mb-4">
+                    Payment Method
+                  </h2>
 
-                  <div className="text-center space-y-3">
-                    <p className="text-black">
-                      You&apos;ll be redirected to Stripe&apos;s secure checkout
-                      page to complete your payment.
-                    </p>
-                    <div className="flex items-center justify-center gap-2 text-sm text-neutral-600">
-                      <Lock size={14} />
-                      <span>256-bit SSL encrypted</span>
+                  {/* Payment Method Selection - Mobile */}
+                  <div className="space-y-4 mb-6">
+                    {/* Card Payment Option */}
+                    <div
+                      onClick={() => setPaymentMethod('stripe')}
+                      className={`cursor-pointer border-2 rounded-lg p-4 transition-all ${
+                        paymentMethod === 'stripe'
+                          ? 'border-primary bg-primary/5'
+                          : 'border-gray-200 hover:border-primary/50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                          paymentMethod === 'stripe'
+                            ? 'border-primary bg-primary'
+                            : 'border-gray-300'
+                        }`}>
+                          {paymentMethod === 'stripe' && (
+                            <Check size={12} className="text-white" />
+                          )}
+                        </div>
+                        <CreditCard size={18} className="text-primary flex-shrink-0" />
+                        <span className="font-semibold text-black text-sm">
+                          Card / Apple Pay / Google Pay
+                        </span>
+                      </div>
+                      {paymentMethod === 'stripe' && (
+                        <div className="ml-8 mt-3 space-y-2">
+                          <div className="flex items-center gap-2 text-xs text-neutral-600">
+                            <Lock size={12} />
+                            <span>256-bit SSL encrypted</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <Image
+                              src="https://js.stripe.com/v3/fingerprinted/img/visa-729c05c240c4bdb47b03ac81d9945bfe.svg"
+                              alt="Visa"
+                              width={30}
+                              height={19}
+                            />
+                            <Image
+                              src="https://js.stripe.com/v3/fingerprinted/img/mastercard-4d8844094130711885b5e41b28c9848f.svg"
+                              alt="Mastercard"
+                              width={30}
+                              height={19}
+                            />
+                            <Image
+                              src="https://js.stripe.com/v3/fingerprinted/img/amex-a49b82f46c5cd6a96a6e418a6ca1717c.svg"
+                              alt="Amex"
+                              width={30}
+                              height={19}
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <div className="flex items-center justify-center gap-4 mt-4">
-                      <Image
-                        src="https://js.stripe.com/v3/fingerprinted/img/visa-729c05c240c4bdb47b03ac81d9945bfe.svg"
-                        alt="Visa"
-                        width={40}
-                        height={25}
-                      />
-                      <Image
-                        src="https://js.stripe.com/v3/fingerprinted/img/mastercard-4d8844094130711885b5e41b28c9848f.svg"
-                        alt="Mastercard"
-                        width={40}
-                        height={25}
-                      />
-                      <Image
-                        src="https://js.stripe.com/v3/fingerprinted/img/amex-a49b82f46c5cd6a96a6e418a6ca1717c.svg"
-                        alt="Amex"
-                        width={40}
-                        height={25}
-                      />
-                    </div>
+
+                    {/* Bank Transfer Option - Mobile */}
+                    {bankDetails.available && (
+                      <div
+                        onClick={() => setPaymentMethod('bank_transfer')}
+                        className={`cursor-pointer border-2 rounded-lg p-4 transition-all ${
+                          paymentMethod === 'bank_transfer'
+                            ? 'border-primary bg-primary/5'
+                            : 'border-gray-200 hover:border-primary/50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                            paymentMethod === 'bank_transfer'
+                              ? 'border-primary bg-primary'
+                              : 'border-gray-300'
+                          }`}>
+                            {paymentMethod === 'bank_transfer' && (
+                              <Check size={12} className="text-white" />
+                            )}
+                          </div>
+                          <Building2 size={18} className="text-primary flex-shrink-0" />
+                          <span className="font-semibold text-black text-sm">
+                            Bank Transfer
+                          </span>
+                        </div>
+                        {paymentMethod === 'bank_transfer' && (
+                          <div className="ml-8 mt-4 space-y-3">
+                            <p className="text-xs text-neutral-600 mb-3">
+                              Transfer to our business account:
+                            </p>
+                            
+                            {/* Bank Name */}
+                            {bankDetails.bankName && (
+                              <div
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  copyToClipboard(bankDetails.bankName!, 'bankName');
+                                }}
+                                className="flex items-center justify-between p-2 bg-gray-50 rounded cursor-pointer active:bg-gray-200 transition-colors"
+                              >
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs text-neutral-500">Bank Name</p>
+                                  <p className="text-xs font-medium text-black truncate">{bankDetails.bankName}</p>
+                                </div>
+                                <Copy size={14} className={`ml-2 flex-shrink-0 ${copiedField === 'bankName' ? 'text-green-600' : 'text-neutral-400'}`} />
+                              </div>
+                            )}
+
+                            {/* Account Holder */}
+                            {bankDetails.accountHolderName && (
+                              <div
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  copyToClipboard(bankDetails.accountHolderName!, 'accountHolder');
+                                }}
+                                className="flex items-center justify-between p-2 bg-gray-50 rounded cursor-pointer active:bg-gray-200 transition-colors"
+                              >
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs text-neutral-500">Account Holder</p>
+                                  <p className="text-xs font-medium text-black truncate">{bankDetails.accountHolderName}</p>
+                                </div>
+                                <Copy size={14} className={`ml-2 flex-shrink-0 ${copiedField === 'accountHolder' ? 'text-green-600' : 'text-neutral-400'}`} />
+                              </div>
+                            )}
+
+                            {/* Account Number */}
+                            {bankDetails.accountNumber && (
+                              <div
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  copyToClipboard(bankDetails.accountNumber!, 'accountNumber');
+                                }}
+                                className="flex items-center justify-between p-2 bg-gray-50 rounded cursor-pointer active:bg-gray-200 transition-colors"
+                              >
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs text-neutral-500">Account Number</p>
+                                  <p className="text-xs font-medium text-black truncate">{bankDetails.accountNumber}</p>
+                                </div>
+                                <Copy size={14} className={`ml-2 flex-shrink-0 ${copiedField === 'accountNumber' ? 'text-green-600' : 'text-neutral-400'}`} />
+                              </div>
+                            )}
+
+                            {/* IBAN */}
+                            {bankDetails.iban && (
+                              <div
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  copyToClipboard(bankDetails.iban!, 'iban');
+                                }}
+                                className="flex items-center justify-between p-2 bg-gray-50 rounded cursor-pointer active:bg-gray-200 transition-colors"
+                              >
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs text-neutral-500">IBAN</p>
+                                  <p className="text-xs font-medium text-black truncate">{bankDetails.iban}</p>
+                                </div>
+                                <Copy size={14} className={`ml-2 flex-shrink-0 ${copiedField === 'iban' ? 'text-green-600' : 'text-neutral-400'}`} />
+                              </div>
+                            )}
+
+                            {/* Reference ID */}
+                            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                              <div
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  copyToClipboard(bankReferenceId, 'referenceId');
+                                }}
+                                className="flex items-center justify-between cursor-pointer active:bg-amber-100 p-2 rounded transition-colors"
+                              >
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-semibold text-amber-900 mb-1">
+                                    Transaction Reference
+                                  </p>
+                                  <p className="text-base font-bold text-amber-900">{bankReferenceId}</p>
+                                </div>
+                                <Copy size={16} className={`ml-2 flex-shrink-0 ${copiedField === 'referenceId' ? 'text-green-600' : 'text-amber-600'}`} />
+                              </div>
+                              <p className="text-xs text-amber-800 mt-2">
+                                Use this number in transaction reference/comment when transferring.
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               )}
