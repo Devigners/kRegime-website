@@ -1,15 +1,11 @@
 'use client';
 import { motion } from 'framer-motion';
-import {
-  Heart,
-  Instagram,
-  Mail,
-  Youtube,
-} from 'lucide-react';
+import { Heart, Instagram, Mail, Youtube } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState } from 'react';
 import { toast } from 'sonner';
+import Tiktok from './icons/Tiktok';
 
 const Footer: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -17,14 +13,14 @@ const Footer: React.FC = () => {
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email) {
       toast.error('Please enter your email address');
       return;
     }
 
     setIsSubmitting(true);
-    
+
     try {
       const response = await fetch('/api/subscribers', {
         method: 'POST',
@@ -33,7 +29,7 @@ const Footer: React.FC = () => {
         },
         body: JSON.stringify({
           email,
-          source: 'footer'
+          source: 'footer',
         }),
       });
 
@@ -85,17 +81,31 @@ const Footer: React.FC = () => {
                 </div>
               </div>
               <p className="text-white leading-relaxed max-w-md">
-                Discover your perfect skincare routine with our expertly curated regime boxes featuring premium Korean products
+                Discover your perfect skincare routine with our expertly curated
+                regime boxes featuring premium Korean products
               </p>
               <div className="flex space-x-4">
                 {[
-                  { icon: Instagram, href: 'https://instagram.com/kregime.official/', label: 'Instagram' },
-                  { icon: Youtube, href: 'https://www.youtube.com/@kregime', label: 'Youtube' },
+                  {
+                    icon: Instagram,
+                    href: 'https://instagram.com/kregime.official/',
+                    label: 'Instagram',
+                  },
+                  {
+                    icon: Youtube,
+                    href: 'https://www.youtube.com/@kregime',
+                    label: 'Youtube',
+                  },
+                  {
+                    icon: Tiktok,
+                    href: 'https://www.tiktok.com/@kregime.official',
+                    label: 'Tiktok',
+                  },
                 ].map((social) => (
                   <motion.a
                     key={social.label}
                     href={social.href}
-                    target='_blank'
+                    target="_blank"
                     className="w-12 h-12 bg-white backdrop-blur-sm rounded-lg flex items-center justify-center hover:bg-primary/20 transition-all duration-300 group"
                     whileHover={{ scale: 1.1, y: -2 }}
                     whileTap={{ scale: 0.95 }}
@@ -183,7 +193,10 @@ const Footer: React.FC = () => {
                 special offers delivered to your inbox
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
-                <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-4 w-full">
+                <form
+                  onSubmit={handleNewsletterSubmit}
+                  className="flex flex-col sm:flex-row gap-4 w-full"
+                >
                   <input
                     type="email"
                     placeholder="Enter your email"
@@ -192,7 +205,7 @@ const Footer: React.FC = () => {
                     disabled={isSubmitting}
                     className="flex-1 px-6 py-4 bg-black/10 backdrop-blur-sm border border-black/10 rounded-lg text-white placeholder-white/90 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all duration-300 disabled:opacity-50"
                   />
-                  <button 
+                  <button
                     type="submit"
                     disabled={isSubmitting}
                     className="btn-secondary !bg-white hover:!text-primary px-8 py-4 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"

@@ -116,9 +116,9 @@ export default function RootLayout({
     logo: 'https://kregime.com/logo.svg',
     description: 'Handpicked Korean Skincare Regimes Simplified',
     sameAs: [
-      // Add your social media links here when available
-      // 'https://www.instagram.com/kregime',
-      // 'https://www.facebook.com/kregime',
+      'https://www.instagram.com/kregime',
+      'https://www.facebook.com/kregime',
+      'https://www.tiktok.com/@kregime.official',
     ],
     contactPoint: {
       '@type': 'ContactPoint',
@@ -139,7 +139,8 @@ export default function RootLayout({
     '@type': 'WebSite',
     name: 'KREGIME',
     url: 'https://kregime.com',
-    description: 'Discover your perfect Korean skincare routine with our expertly curated regime boxes',
+    description:
+      'Discover your perfect Korean skincare routine with our expertly curated regime boxes',
     potentialAction: {
       '@type': 'SearchAction',
       target: 'https://kregime.com/?s={search_term_string}',
@@ -172,12 +173,7 @@ export default function RootLayout({
         className={`${dmSans.variable} ${playfairDisplay.variable} font-sans antialiased`}
       >
         <ConditionalLayout>{children}</ConditionalLayout>
-        <Toaster 
-          position="bottom-right" 
-          richColors 
-          theme="light"
-          closeButton
-        />
+        <Toaster position="bottom-right" richColors theme="light" closeButton />
       </body>
     </html>
   );

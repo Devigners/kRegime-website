@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -14,7 +14,9 @@ import {
   LogOut,
   Clock,
   Menu,
-  X
+  X,
+  Settings,
+  User
 } from 'lucide-react';
 import { adminAuth } from '@/lib/adminAuth';
 
@@ -27,6 +29,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [sessionTime, setSessionTime] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -59,6 +63,18 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
     return () => clearInterval(timer);
   }, [router, pathname]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleLogout = () => {
     adminAuth.logout();
@@ -151,14 +167,40 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>
 
-              {/* Logout Button */}
-              <button
-                onClick={handleLogout}
-                className="flex items-center space-x-1 px-3 py-1.5 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-200"
-              >
-                <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline">Logout</span>
-              </button>
+              {/* User Avatar Dropdown */}
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="flex cursor-pointer items-center justify-center w-9 h-9 rounded-full bg-gradient-to-br from-primary to-red-400 text-white font-semibold text-sm hover:shadow-lg transition-all duration-200"
+                >
+                  <User className="h-5 w-5" />
+                </button>
+
+                {/* Dropdown Menu */}
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-50">
+                    <Link
+                      href="/admin/settings"
+                      onClick={() => setIsDropdownOpen(false)}
+                      className="flex items-center space-x-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                    >
+                      <Settings className="h-4 w-4" />
+                      <span>Settings</span>
+                    </Link>
+                    <div className="border-t border-slate-200 my-1"></div>
+                    <button
+                      onClick={() => {
+                        setIsDropdownOpen(false);
+                        handleLogout();
+                      }}
+                      className="flex items-center space-x-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors w-full text-left"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Logout</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

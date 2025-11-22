@@ -43,9 +43,9 @@ INSERT INTO orders (
   '{
     "first_name": "Sarah",
     "last_name": "Johnson",
+    "apartment_number": "B12-304",
     "address": "Building 12, Palm Jumeirah",
-    "city": "Dubai",
-    "postal_code": "12001"
+    "city": "Dubai"
   }',
   1,
   299,
@@ -83,9 +83,9 @@ INSERT INTO orders (
   '{
     "first_name": "Ahmed",
     "last_name": "Hassan",
+    "apartment_number": "Tower 2-1205",
     "address": "Marina Heights Tower, Dubai Marina",
-    "city": "Dubai",
-    "postal_code": "12002"
+    "city": "Dubai"
   }',
   1,
   449,
@@ -123,9 +123,9 @@ INSERT INTO orders (
   '{
     "first_name": "Fatima",
     "last_name": "Ali",
-    "address": "Emirates Hills Villa 45",
-    "city": "Dubai",
-    "postal_code": "12003"
+    "apartment_number": "Villa 45",
+    "address": "Emirates Hills",
+    "city": "Dubai"
   }',
   2,
   1198,
@@ -163,9 +163,9 @@ INSERT INTO orders (
   '{
     "first_name": "Emma",
     "last_name": "White",
-    "address": "JBR Sadaf Tower 5, Apt 1201",
-    "city": "Dubai",
-    "postal_code": "12004"
+    "apartment_number": "Apt 1201",
+    "address": "JBR Sadaf Tower 5",
+    "city": "Dubai"
   }',
   1,
   269,
@@ -203,9 +203,9 @@ INSERT INTO orders (
   '{
     "first_name": "Maryam",
     "last_name": "Khan",
+    "apartment_number": "Tower 1-903",
     "address": "Downtown Dubai, Boulevard Plaza",
-    "city": "Dubai",
-    "postal_code": "12005"
+    "city": "Dubai"
   }',
   1,
   479,
@@ -243,9 +243,9 @@ INSERT INTO orders (
   '{
     "first_name": "Lisa",
     "last_name": "Anderson",
-    "address": "Arabian Ranches Villa 202",
-    "city": "Dubai",
-    "postal_code": "12006"
+    "apartment_number": "Villa 202",
+    "address": "Arabian Ranches",
+    "city": "Dubai"
   }',
   1,
   619,
@@ -283,9 +283,9 @@ INSERT INTO orders (
   '{
     "first_name": "Omar",
     "last_name": "Malik",
-    "address": "Business Bay Executive Tower B",
-    "city": "Dubai",
-    "postal_code": "12007"
+    "apartment_number": "Tower B-1507",
+    "address": "Business Bay Executive Tower",
+    "city": "Dubai"
   }',
   1,
   299,
@@ -323,9 +323,9 @@ INSERT INTO orders (
   '{
     "first_name": "Priya",
     "last_name": "Sharma",
-    "address": "Jumeirah Beach Residence Walk",
-    "city": "Dubai",
-    "postal_code": "12008"
+    "apartment_number": "Walk 301",
+    "address": "Jumeirah Beach Residence",
+    "city": "Dubai"
   }',
   1,
   419,
@@ -363,9 +363,9 @@ INSERT INTO orders (
   '{
     "first_name": "Natalie",
     "last_name": "Brown",
-    "address": "Dubai Hills Estate, Villa 78",
-    "city": "Dubai",
-    "postal_code": "12009"
+    "apartment_number": "Villa 78",
+    "address": "Dubai Hills Estate",
+    "city": "Dubai"
   }',
   1,
   649,
@@ -403,9 +403,9 @@ INSERT INTO orders (
   '{
     "first_name": "Michael",
     "last_name": "Chen",
+    "apartment_number": "Apt 405",
     "address": "Mirdif City Center Apartments",
-    "city": "Dubai",
-    "postal_code": "12010"
+    "city": "Dubai"
   }',
   1,
   249,

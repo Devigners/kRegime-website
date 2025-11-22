@@ -1,14 +1,14 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { CheckCircle, Mail, Package, Truck, Clock, ShoppingBag, X, CheckCircle2, Copy, Edit } from 'lucide-react';
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { useState, useEffect, Suspense } from 'react';
+import DirhamIcon from '@/components/icons/DirhamIcon';
 import { orderApi, regimeApi } from '@/lib/api';
 import { Order, Regime } from '@/models/database';
+import { motion } from 'framer-motion';
+import { CheckCircle, CheckCircle2, Clock, Copy, Mail, Package, ShoppingBag, Truck, X } from 'lucide-react';
 import Image from 'next/image';
-import DirhamIcon from '@/components/icons/DirhamIcon';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 function ConfirmationContent() {
@@ -129,49 +129,6 @@ function ConfirmationContent() {
     window.open(`https://wa.me/?text=${encodeURIComponent(text + '\n\n' + url)}`, '_blank');
   };
 
-  const openStripeCustomerPortal = async () => {
-    if (!order) {
-      toast.error('Order information not available');
-      return;
-    }
-
-    if (!orderId) {
-      toast.error('Order ID not available');
-      return;
-    }
-
-    toast.info('Redirecting to Stripe Customer Portal...');
-
-    try {
-      const response = await fetch('/api/stripe/create-portal-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          orderId: orderId,
-          returnUrl: `${window.location.origin}/confirmation?orderId=${orderId}`,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create portal session');
-      }
-
-      const data = await response.json();
-      
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error('No portal URL returned');
-      }
-    } catch (error) {
-      console.error('Error opening customer portal:', error);
-      toast.error('Unable to access customer portal. Please contact support at care@kregime.com');
-    }
-  };
-
   const getOrderStatusConfig = (status: Order['status'], isGift?: boolean, giftClaimed?: boolean) => {
     // For gift orders, show different messaging based on claim status
     if (isGift && !giftClaimed) {
@@ -245,6 +202,17 @@ function ConfirmationContent() {
             description: 'This order has been cancelled.',
             nextSteps: 'If you have any questions, please contact our support team.'
           };
+        case 'payment_verified':
+          return {
+            icon: CheckCircle,
+            color: 'bg-green-100 text-green-800 border-green-200',
+            bgGradient: 'from-green-50 to-green-100',
+            iconBg: 'bg-green-100',
+            iconColor: 'text-green-600',
+            label: 'Payment Verified',
+            description: 'Your payment has been successfully verified.',
+            nextSteps: 'We will begin processing your order shortly.'
+          };
         default:
           return {
             icon: ShoppingBag,
@@ -314,6 +282,17 @@ function ConfirmationContent() {
           label: 'Order Cancelled',
           description: 'This order has been cancelled.',
           nextSteps: 'If you have any questions, please contact our support team.'
+        };
+      case 'payment_verified':
+        return {
+          icon: CheckCircle,
+          color: 'bg-green-100 text-green-800 border-green-200',
+          bgGradient: 'from-green-50 to-green-100',
+          iconBg: 'bg-green-100',
+          iconColor: 'text-green-600',
+          label: 'Payment Verified',
+          description: 'Your payment has been successfully verified.',
+          nextSteps: 'We will begin processing your order shortly.'
         };
       default:
         return {
@@ -422,6 +401,8 @@ function ConfirmationContent() {
                 ? 'bg-white'
                 : order?.status === 'processing'
                 ? 'bg-white'
+                : order?.status === 'payment_verified'
+                ? 'bg-white'
                 : order?.status === 'pending'
                 ? 'bg-white'
                 : 'bg-white'
@@ -434,6 +415,8 @@ function ConfirmationContent() {
                 <Truck size={40} className="text-primary" />
               ) : order?.status === 'processing' ? (
                 <Package size={40} className="text-primary" />
+              ) : order?.status === 'payment_verified' ? (
+                <CheckCircle size={40} className="text-primary" />
               ) : order?.status === 'pending' ? (
                 <Clock size={40} className="text-primary" />
               ) : (
@@ -481,14 +464,14 @@ function ConfirmationContent() {
                   </svg>
                 </button>
 
-                {/* Manage Subscription - Only show for subscription orders */}
-                {order && order.subscriptionType !== 'one-time' && order.status !== 'cancelled' && order.status !== "pending" && (
+                {/* Track Parcel - Only show for shipped orders with tracking number */}
+                {order && order.status === 'shipped' && order.trackingNumber && (
                   <button
-                    onClick={openStripeCustomerPortal}
+                    onClick={() => window.open(`https://myjeebly.jeebly.com/shipment-tracking/?uae=uae&service_type=Scheduled&awb=${order.trackingNumber}`, '_blank')}
                     className="flex cursor-pointer items-center justify-center w-12 h-12 bg-primary hover:bg-primary-dark text-white rounded-full transition-colors shadow-sm hover:shadow-md"
-                    title="Manage subscription"
+                    title="Track your parcel"
                   >
-                    <Edit size={20} />
+                    <Truck size={20} />
                   </button>
                 )}
               </div>
@@ -798,13 +781,13 @@ function ConfirmationContent() {
                   <div className={`w-10 h-10 aspect-square rounded-full flex items-center justify-center ${
                     order?.status === 'pending' 
                       ? 'bg-primary/10' 
-                      : ['processing', 'shipped', 'completed'].includes(order?.status || '')
+                      : ['payment_verified', 'processing', 'shipped', 'completed'].includes(order?.status || '')
                       ? 'bg-green-100'
                       : 'bg-gray-100'
                   }`}>
                     {order?.status === 'pending' ? (
                       <Clock size={20} className="text-primary" />
-                    ) : ['processing', 'shipped', 'completed'].includes(order?.status || '') ? (
+                    ) : ['payment_verified', 'processing', 'shipped', 'completed'].includes(order?.status || '') ? (
                       <CheckCircle size={20} className="text-green-500" />
                     ) : (
                       <Clock size={20} className="text-gray-400" />
@@ -814,23 +797,65 @@ function ConfirmationContent() {
                     <h3 className={`font-semibold ${
                       order?.status === 'pending' 
                         ? 'text-black' 
-                        : ['processing', 'shipped', 'completed'].includes(order?.status || '')
+                        : ['payment_verified', 'processing', 'shipped', 'completed'].includes(order?.status || '')
                         ? 'text-black'
                         : 'text-gray-400'
                     }`}>
                       {order?.status === 'pending' ? 'Order Confirmation' : 'Order Confirmed'}
-                      {['processing', 'shipped', 'completed'].includes(order?.status || '') ? ' ✓' : ''}
+                      {['payment_verified', 'processing', 'shipped', 'completed'].includes(order?.status || '') ? ' ✓' : ''}
                     </h3>
                     <p className={`text-sm ${
                       order?.status === 'pending' 
                         ? 'text-black' 
-                        : ['processing', 'shipped', 'completed'].includes(order?.status || '')
+                        : ['payment_verified', 'processing', 'shipped', 'completed'].includes(order?.status || '')
                         ? 'text-black'
                         : 'text-gray-400'
                     }`}>
                       {order?.status === 'pending' 
                         ? "We'll review and confirm your order within 24 hours."
                         : "Your order has been confirmed and verified."}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Payment Verified Status */}
+                <div className="flex items-start space-x-4">
+                  <div className={`w-10 h-10 aspect-square rounded-full flex items-center justify-center ${
+                    order?.status === 'payment_verified' 
+                      ? 'bg-primary/10' 
+                      : ['processing', 'shipped', 'completed'].includes(order?.status || '')
+                      ? 'bg-green-100'
+                      : 'bg-gray-100'
+                  }`}>
+                    {order?.status === 'payment_verified' ? (
+                      <CheckCircle size={20} className="text-primary" />
+                    ) : ['processing', 'shipped', 'completed'].includes(order?.status || '') ? (
+                      <CheckCircle size={20} className="text-green-500" />
+                    ) : (
+                      <CheckCircle size={20} className="text-gray-400" />
+                    )}
+                  </div>
+                  <div>
+                    <h3 className={`font-semibold ${
+                      order?.status === 'payment_verified' 
+                        ? 'text-black' 
+                        : ['processing', 'shipped', 'completed'].includes(order?.status || '')
+                        ? 'text-black'
+                        : 'text-gray-400'
+                    }`}>
+                      {order?.status === 'payment_verified' ? 'Payment Verification' : 'Payment Verified'}
+                      {['processing', 'shipped', 'completed'].includes(order?.status || '') ? ' ✓' : ''}
+                    </h3>
+                    <p className={`text-sm ${
+                      order?.status === 'payment_verified' 
+                        ? 'text-black' 
+                        : ['processing', 'shipped', 'completed'].includes(order?.status || '')
+                        ? 'text-black'
+                        : 'text-gray-400'
+                    }`}>
+                      {order?.status === 'payment_verified' 
+                        ? "Your payment has been successfully verified and we will begin processing your order shortly."
+                        : "Your payment was verified successfully."}
                     </p>
                   </div>
                 </div>

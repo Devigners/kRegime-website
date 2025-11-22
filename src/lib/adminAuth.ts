@@ -1,23 +1,38 @@
 'use client';
 
-// Simple admin authentication using localStorage
-// In production, this should be replaced with proper JWT tokens and server-side sessions
+// Admin authentication using API and localStorage for session management
+// Password is stored in database and checked via API
 
 export const ADMIN_CREDENTIALS = {
   username: 'admin@kregime.com',
-  password: '3WC08Wyu01',
 };
 
 export const adminAuth = {
-  login: (username: string, password: string): boolean => {
-    if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('kregime_admin_session', 'true');
-        localStorage.setItem('kregime_admin_login_time', Date.now().toString());
+  login: async (username: string, password: string): Promise<boolean> => {
+    try {
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('kregime_admin_session', 'true');
+          localStorage.setItem('kregime_admin_login_time', Date.now().toString());
+        }
+        return true;
       }
-      return true;
+
+      return false;
+    } catch (error) {
+      console.error('Login error:', error);
+      return false;
     }
-    return false;
   },
 
   logout: (): void => {

@@ -40,6 +40,12 @@ export function generateOrderStatusUpdateEmail({
           description:
             `Hi ${customerName}, We've processed the cancellation of your order and will refund you shortly.`,
         };
+      case 'payment_verified':
+        return {
+          title: 'Your payment has been verified!',
+          description:
+            `Hi ${customerName}, We've successfully verified your payment. Your order is now being processed.`,
+        };
       default:
         return {
           title: 'Order status updated',
