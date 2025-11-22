@@ -27,24 +27,24 @@ export async function POST() {
           budget: '200-400',
           customized_recommendations: 'yes',
           brands_used: 'Cerave, Neutrogena',
-          additional_comments: 'Looking for oil-control products'
+          additional_comments: 'Looking for oil-control products',
         },
         contact_info: {
           email: 'sarah.johnson@example.com',
-          phone_number: '+971501234001'
+          phone_number: '+971501234001',
         },
         shipping_address: {
           first_name: 'Sarah',
           last_name: 'Johnson',
           apartment_number: 'B12-304',
           address: 'Building 12, Palm Jumeirah',
-          city: 'Dubai'
+          city: 'Dubai',
         },
         quantity: 1,
-        total_amount: 349,
-        final_amount: 349,
+        total_amount: 359,
+        final_amount: 359,
         subscription_type: 'one-time',
-        status: 'pending'
+        status: 'pending',
       },
       {
         id: 'dummy-order-002',
@@ -66,24 +66,24 @@ export async function POST() {
           budget: '400-600',
           customized_recommendations: 'yes',
           brands_used: "Kiehl's, La Roche-Posay",
-          additional_comments: 'Prefer fragrance-free products'
+          additional_comments: 'Prefer fragrance-free products',
         },
         contact_info: {
           email: 'ahmed.hassan@example.com',
-          phone_number: '+971501234002'
+          phone_number: '+971501234002',
         },
         shipping_address: {
           first_name: 'Ahmed',
           last_name: 'Hassan',
           apartment_number: 'Tower 2-1205',
           address: 'Marina Heights Tower, Dubai Marina',
-          city: 'Dubai'
+          city: 'Dubai',
         },
         quantity: 1,
         total_amount: 449,
         final_amount: 449,
         subscription_type: '3-months',
-        status: 'processing'
+        status: 'processing',
       },
       {
         id: 'dummy-order-003',
@@ -95,7 +95,13 @@ export async function POST() {
           skin_concerns: ['pigmentation', 'dullness'],
           complexion: 'dark',
           allergies: 'None',
-          skincare_steps: ['cleanser', 'toner', 'serum', 'moisturizer', 'sunscreen'],
+          skincare_steps: [
+            'cleanser',
+            'toner',
+            'serum',
+            'moisturizer',
+            'sunscreen',
+          ],
           korean_skincare_experience: 'advanced',
           korean_skincare_attraction: ['glass skin', 'brightening'],
           skincare_goal: ['brightening', 'even tone'],
@@ -105,24 +111,25 @@ export async function POST() {
           budget: '600+',
           customized_recommendations: 'yes',
           brands_used: 'SK-II, Sulwhasoo, Innisfree',
-          additional_comments: 'Looking for brightening and anti-pigmentation products'
+          additional_comments:
+            'Looking for brightening and anti-pigmentation products',
         },
         contact_info: {
           email: 'fatima.ali@example.com',
-          phone_number: '+971501234003'
+          phone_number: '+971501234003',
         },
         shipping_address: {
           first_name: 'Fatima',
           last_name: 'Ali',
           apartment_number: 'Villa 45',
           address: 'Emirates Hills',
-          city: 'Dubai'
+          city: 'Dubai',
         },
         quantity: 2,
         total_amount: 1198,
         final_amount: 1198,
         subscription_type: '6-months',
-        status: 'completed'
+        status: 'completed',
       },
       {
         id: 'dummy-order-004',
@@ -144,24 +151,25 @@ export async function POST() {
           budget: '200-400',
           customized_recommendations: 'yes',
           brands_used: 'Avene, Bioderma',
-          additional_comments: 'Very sensitive skin, need hypoallergenic products'
+          additional_comments:
+            'Very sensitive skin, need hypoallergenic products',
         },
         contact_info: {
           email: 'emma.white@example.com',
-          phone_number: '+971501234004'
+          phone_number: '+971501234004',
         },
         shipping_address: {
           first_name: 'Emma',
           last_name: 'White',
           apartment_number: 'Apt 1201',
           address: 'JBR Sadaf Tower 5',
-          city: 'Dubai'
+          city: 'Dubai',
         },
         quantity: 1,
         total_amount: 269,
         final_amount: 269,
         subscription_type: '3-months',
-        status: 'cancelled'
+        status: 'cancelled',
       },
       {
         id: 'dummy-order-005',
@@ -183,24 +191,24 @@ export async function POST() {
           budget: '400-600',
           customized_recommendations: 'yes',
           brands_used: 'Cosrx, Etude House',
-          additional_comments: 'Love Korean skincare!'
+          additional_comments: 'Love Korean skincare!',
         },
         contact_info: {
           email: 'maryam.khan@example.com',
-          phone_number: '+971501234005'
+          phone_number: '+971501234005',
         },
         shipping_address: {
           first_name: 'Maryam',
           last_name: 'Khan',
           apartment_number: 'Tower 1-903',
           address: 'Downtown Dubai, Boulevard Plaza',
-          city: 'Dubai'
+          city: 'Dubai',
         },
         quantity: 1,
         total_amount: 479,
         final_amount: 479,
         subscription_type: 'one-time',
-        status: 'pending'
+        status: 'pending',
       },
       {
         id: 'dummy-order-006',
@@ -212,7 +220,15 @@ export async function POST() {
           skin_concerns: ['wrinkles', 'fine lines', 'sagging'],
           complexion: 'fair',
           allergies: 'None',
-          skincare_steps: ['cleanser', 'toner', 'essence', 'serum', 'eye cream', 'moisturizer', 'sunscreen'],
+          skincare_steps: [
+            'cleanser',
+            'toner',
+            'essence',
+            'serum',
+            'eye cream',
+            'moisturizer',
+            'sunscreen',
+          ],
           korean_skincare_experience: 'advanced',
           korean_skincare_attraction: ['anti-aging', 'luxury ingredients'],
           skincare_goal: ['anti-aging', 'firmness'],
@@ -222,24 +238,24 @@ export async function POST() {
           budget: '600+',
           customized_recommendations: 'yes',
           brands_used: 'Sulwhasoo, The History of Whoo',
-          additional_comments: 'Interested in premium anti-aging products'
+          additional_comments: 'Interested in premium anti-aging products',
         },
         contact_info: {
           email: 'lisa.anderson@example.com',
-          phone_number: '+971501234006'
+          phone_number: '+971501234006',
         },
         shipping_address: {
           first_name: 'Lisa',
           last_name: 'Anderson',
           apartment_number: 'Villa 202',
           address: 'Arabian Ranches',
-          city: 'Dubai'
+          city: 'Dubai',
         },
         quantity: 1,
         total_amount: 619,
         final_amount: 619,
         subscription_type: '3-months',
-        status: 'processing'
+        status: 'processing',
       },
       {
         id: 'dummy-order-007',
@@ -261,24 +277,24 @@ export async function POST() {
           budget: '200-400',
           customized_recommendations: 'yes',
           brands_used: 'None - New to skincare',
-          additional_comments: 'First time trying a skincare routine'
+          additional_comments: 'First time trying a skincare routine',
         },
         contact_info: {
           email: 'omar.malik@example.com',
-          phone_number: '+971501234007'
+          phone_number: '+971501234007',
         },
         shipping_address: {
           first_name: 'Omar',
           last_name: 'Malik',
           apartment_number: 'Tower B-1507',
           address: 'Business Bay Executive Tower',
-          city: 'Dubai'
+          city: 'Dubai',
         },
         quantity: 1,
         total_amount: 299,
         final_amount: 299,
         subscription_type: 'one-time',
-        status: 'completed'
+        status: 'completed',
       },
       {
         id: 'dummy-order-008',
@@ -290,7 +306,13 @@ export async function POST() {
           skin_concerns: ['uneven texture', 'enlarged pores'],
           complexion: 'medium',
           allergies: 'None',
-          skincare_steps: ['cleanser', 'exfoliant', 'toner', 'moisturizer', 'sunscreen'],
+          skincare_steps: [
+            'cleanser',
+            'exfoliant',
+            'toner',
+            'moisturizer',
+            'sunscreen',
+          ],
           korean_skincare_experience: 'intermediate',
           korean_skincare_attraction: ['texture improvement', 'pore care'],
           skincare_goal: ['smooth skin', 'minimize pores'],
@@ -300,24 +322,24 @@ export async function POST() {
           budget: '400-600',
           customized_recommendations: 'yes',
           brands_used: "Paula's Choice, Some By Mi",
-          additional_comments: 'Interested in products with AHA/BHA'
+          additional_comments: 'Interested in products with AHA/BHA',
         },
         contact_info: {
           email: 'priya.sharma@example.com',
-          phone_number: '+971501234008'
+          phone_number: '+971501234008',
         },
         shipping_address: {
           first_name: 'Priya',
           last_name: 'Sharma',
           apartment_number: 'Walk 301',
           address: 'Jumeirah Beach Residence',
-          city: 'Dubai'
+          city: 'Dubai',
         },
         quantity: 1,
         total_amount: 419,
         final_amount: 419,
         subscription_type: '6-months',
-        status: 'completed'
+        status: 'completed',
       },
       {
         id: 'dummy-order-009',
@@ -329,9 +351,18 @@ export async function POST() {
           skin_concerns: ['rosacea', 'redness', 'dryness'],
           complexion: 'fair',
           allergies: 'Retinol, Strong acids',
-          skincare_steps: ['gentle cleanser', 'calming toner', 'serum', 'moisturizer', 'sunscreen'],
+          skincare_steps: [
+            'gentle cleanser',
+            'calming toner',
+            'serum',
+            'moisturizer',
+            'sunscreen',
+          ],
           korean_skincare_experience: 'advanced',
-          korean_skincare_attraction: ['soothing ingredients', 'barrier repair'],
+          korean_skincare_attraction: [
+            'soothing ingredients',
+            'barrier repair',
+          ],
           skincare_goal: ['calm redness', 'strengthen barrier'],
           daily_product_count: '5-7',
           routine_regularity: 'daily',
@@ -339,24 +370,24 @@ export async function POST() {
           budget: '600+',
           customized_recommendations: 'yes',
           brands_used: 'Dr. Jart+, Klairs',
-          additional_comments: 'Need products for rosacea-prone skin'
+          additional_comments: 'Need products for rosacea-prone skin',
         },
         contact_info: {
           email: 'natalie.brown@example.com',
-          phone_number: '+971501234009'
+          phone_number: '+971501234009',
         },
         shipping_address: {
           first_name: 'Natalie',
           last_name: 'Brown',
           apartment_number: 'Villa 78',
           address: 'Dubai Hills Estate',
-          city: 'Dubai'
+          city: 'Dubai',
         },
         quantity: 1,
         total_amount: 649,
         final_amount: 649,
         subscription_type: 'one-time',
-        status: 'pending'
+        status: 'pending',
       },
       {
         id: 'dummy-order-010',
@@ -378,46 +409,40 @@ export async function POST() {
           budget: '200-400',
           customized_recommendations: 'yes',
           brands_used: 'Eucerin',
-          additional_comments: 'Work outdoors, need good sun protection'
+          additional_comments: 'Work outdoors, need good sun protection',
         },
         contact_info: {
           email: 'michael.chen@example.com',
-          phone_number: '+971501234010'
+          phone_number: '+971501234010',
         },
         shipping_address: {
           first_name: 'Michael',
           last_name: 'Chen',
           apartment_number: 'Apt 405',
           address: 'Mirdif City Center Apartments',
-          city: 'Dubai'
+          city: 'Dubai',
         },
         quantity: 1,
         total_amount: 249,
         final_amount: 249,
         subscription_type: '6-months',
-        status: 'processing'
-      }
+        status: 'processing',
+      },
     ];
 
     // Insert all orders
-    const { error } = await supabase
-      .from('orders')
-      .insert(dummyOrders);
+    const { error } = await supabase.from('orders').insert(dummyOrders);
 
     if (error) {
       console.error('Error inserting orders:', error);
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({
       success: true,
       message: '10 dummy orders created successfully',
-      count: dummyOrders.length
+      count: dummyOrders.length,
     });
-
   } catch (error) {
     console.error('Error in seed-orders API:', error);
     return NextResponse.json(
