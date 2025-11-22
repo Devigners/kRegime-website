@@ -2,7 +2,7 @@ import { SubscriptionType } from '@/types';
 
 /**
  * Stripe Product and Price Configuration
- * 
+ *
  * This configuration supports both test (staging) and production environments.
  * The appropriate IDs are selected based on the NODE_ENV or a custom environment variable.
  */
@@ -23,7 +23,7 @@ const TEST_CONFIG: StripeProductConfig = {
   tribox: {
     productId: 'prod_TM6BuovMVYmvOi',
     prices: {
-      'one-time': 'price_1SPNylPHcfaTMcXVYNdZmwyr',
+      'one-time': 'price_1SWO0fPHcfaTMcXVqLx4abTe',
       '3-months': 'price_1SPNylPHcfaTMcXVuBDzNisv',
       '6-months': 'price_1SPNylPHcfaTMcXVjwG96huA',
     },
@@ -55,7 +55,7 @@ const PRODUCTION_CONFIG: StripeProductConfig = {
   tribox: {
     productId: 'prod_TM9wgCfSL48Jcj',
     prices: {
-      'one-time': 'price_1SPRcoPHcfaTMcXV1HGoq256', // 349.00 AED one-time
+      'one-time': 'price_1SWNyLPHcfaTMcXVFZqqqVk1', // 359.00 AED one-time
       '3-months': 'price_1SPRcoPHcfaTMcXVpGTDHowZ', // 319.00 AED/month (3-month commitment)
       '6-months': 'price_1SPRcoPHcfaTMcXVLjhUj2FL', // 299.00 AED/month (6-month commitment)
     },
@@ -88,7 +88,7 @@ function isProduction(): boolean {
   if (process.env.NEXT_PUBLIC_STRIPE_ENV === 'production') {
     return true;
   }
-  
+
   return false;
 }
 
@@ -135,7 +135,10 @@ export function getProductMap(): Record<string, string> {
 /**
  * Get all price IDs mapped by regime ID and subscription type
  */
-export function getPriceMap(): Record<string, Record<SubscriptionType, string>> {
+export function getPriceMap(): Record<
+  string,
+  Record<SubscriptionType, string>
+> {
   const config = getStripeConfig();
   return {
     tribox: config.tribox.prices,

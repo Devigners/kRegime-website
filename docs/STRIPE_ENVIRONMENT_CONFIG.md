@@ -5,6 +5,7 @@ This document explains how to configure Stripe products and prices for different
 ## Overview
 
 The kRegime website now supports environment-based Stripe configuration, allowing you to:
+
 - Use **test products and prices** in staging/development environments
 - Use **production products and prices** in production environments
 - Switch between environments using a simple environment variable
@@ -14,6 +15,7 @@ The kRegime website now supports environment-based Stripe configuration, allowin
 ### 1. `src/lib/stripeProducts.ts`
 
 This is the central configuration file that contains:
+
 - **TEST_CONFIG**: Test/staging Stripe product and price IDs
 - **PRODUCTION_CONFIG**: Production Stripe product and price IDs
 - Helper functions to retrieve the correct IDs based on environment
@@ -48,16 +50,19 @@ The system determines which Stripe configuration to use based on:
 ### Test/Staging Products
 
 **Tribox** (Product ID: `prod_TM6BuovMVYmvOi`)
-- One-Time: `price_1SPNylPHcfaTMcXVYNdZmwyr`
+
+- One-Time: `price_1SWO0fPHcfaTMcXVqLx4abTe`
 - 3-Month: `price_1SPNylPHcfaTMcXVuBDzNisv`
 - 6-Month: `price_1SPNylPHcfaTMcXVjwG96huA`
 
 **Pentabox** (Product ID: `prod_TM6Ewd4IodwK7K`)
+
 - One-Time: `price_1SPO1rPHcfaTMcXVED4Qh7Ke`
 - 3-Month: `price_1SPO1rPHcfaTMcXV2beAl1mz`
 - 6-Month: `price_1SPO1rPHcfaTMcXVRln9vxEb`
 
 **Septabox** (Product ID: `prod_TM6FUZBVFo0n6E`)
+
 - One-Time: `price_1SPO34PHcfaTMcXVLcVfXEOB`
 - 3-Month: `price_1SPO34PHcfaTMcXV94kgC5mV`
 - 6-Month: `price_1SPO34PHcfaTMcXVMmsLx6rM`
@@ -65,16 +70,19 @@ The system determines which Stripe configuration to use based on:
 ### Production Products
 
 **Tribox** (Product ID: `prod_TM9wgCfSL48Jcj`)
-- One-Time: `price_1SPRcoPHcfaTMcXV1HGoq256`
+
+- One-Time: `price_1SWNyLPHcfaTMcXVFZqqqVk1`
 - 3-Month: `price_1SPRcoPHcfaTMcXVpGTDHowZ`
 - 6-Month: `price_1SPRcoPHcfaTMcXVLjhUj2FL`
 
 **Pentabox** (Product ID: `prod_TM9wyhIJJTBgOU`)
+
 - One-Time: `price_1SPRcmPHcfaTMcXVwGVCXcHd`
 - 3-Month: `price_1SPRcmPHcfaTMcXVN6PKQkIT`
 - 6-Month: `price_1SPRcmPHcfaTMcXVYmbw6pW8`
 
 **Septabox** (Product ID: `prod_TM9w4ihHR06Spv`)
+
 - One-Time: `price_1SPRchPHcfaTMcXV9Dd9J5PR`
 - 3-Month: `price_1SPRchPHcfaTMcXVm9uH7qtk`
 - 6-Month: `price_1SPRchPHcfaTMcXV4mpb5FFO`
@@ -84,6 +92,7 @@ The system determines which Stripe configuration to use based on:
 ### Staging Environment
 
 1. Use test Stripe API keys:
+
    ```bash
    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
    STRIPE_SECRET_KEY=sk_test_...
@@ -98,6 +107,7 @@ The system determines which Stripe configuration to use based on:
 ### Production Environment
 
 1. Use production Stripe API keys:
+
    ```bash
    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
    STRIPE_SECRET_KEY=sk_live_...
@@ -112,6 +122,7 @@ The system determines which Stripe configuration to use based on:
 ## Usage in Code
 
 ### Get Product ID
+
 ```typescript
 import { getStripeProductId } from '@/lib/stripeProducts';
 
@@ -120,6 +131,7 @@ const productId = getStripeProductId('tribox');
 ```
 
 ### Get Price ID
+
 ```typescript
 import { getStripePriceId } from '@/lib/stripeProducts';
 
@@ -128,6 +140,7 @@ const priceId = getStripePriceId('tribox', 'one-time');
 ```
 
 ### Get All Product/Price Maps
+
 ```typescript
 import { getProductMap, getPriceMap } from '@/lib/stripeProducts';
 
@@ -136,6 +149,7 @@ const prices = getPriceMap();
 ```
 
 ### Debug Environment Info
+
 ```typescript
 import { getStripeEnvironmentInfo } from '@/lib/stripeProducts';
 
@@ -154,6 +168,7 @@ console.log(info);
 ### Verify Environment Configuration
 
 1. Check which environment is active:
+
    ```typescript
    import { getStripeEnvironmentInfo } from '@/lib/stripeProducts';
    console.log(getStripeEnvironmentInfo());
@@ -206,11 +221,13 @@ const PRODUCTION_CONFIG: StripeProductConfig = {
 ### Wrong Products Being Used
 
 1. Check environment variables:
+
    ```bash
    echo $NEXT_PUBLIC_STRIPE_ENV
    ```
 
 2. Verify in browser console:
+
    ```javascript
    console.log(process.env.NEXT_PUBLIC_STRIPE_ENV);
    ```
