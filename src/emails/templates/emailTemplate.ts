@@ -21,7 +21,6 @@ export function generateEmailTemplate({
   ctaButton,
   footerNote,
 }: EmailTemplateOptions): string {
-
   return `
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en">
@@ -206,8 +205,10 @@ text-decoration: none
 <table class=t74 role=presentation cellpadding=0 cellspacing=0 width=100% style="width:100%;"><tr><td class=t73 style="padding:10px 0 10px 0;"><div class=t71 style="width:100%;text-align:center;"><div class=t70 style="display:inline-block;"><table class=t69 role=presentation cellpadding=0 cellspacing=0 align=center valign=middle>
 <tr class=t68><td></td><td class=t63 width=39 valign=middle>
 <table role=presentation width=100% cellpadding=0 cellspacing=0 class=t62 style="width:100%;"><tr><td class=t60><a href="https://www.instagram.com/kregime.official/" style="font-size:0px;" target=_blank><img class=t59 style="display:block;border:0;height:auto;width:100%;Margin:0;max-width:100%;" width=29 height=29 alt="" src="https://93063cdb-20f1-478b-80bb-d23c78ce6e83.b-cdn.net/e/d5c8454a-8b47-4958-ac81-a249ac49fb61/a2af56af-a10b-408a-a87f-f83ea39315c6.png"/></a></td><td class=t61 style="width:10px;" width=10></td></tr></table>
-</td><td class=t67 width=34 valign=middle>
-<table role=presentation width=100% cellpadding=0 cellspacing=0 class=t66 style="width:100%;"><tr><td class=t65><a href="https://www.youtube.com/@kregime" style="font-size:0px;" target=_blank><img class=t64 style="display:block;border:0;height:auto;width:100%;Margin:0;max-width:100%;" width=34 height=23.735849056603772 alt="" src="https://93063cdb-20f1-478b-80bb-d23c78ce6e83.b-cdn.net/e/d5c8454a-8b47-4958-ac81-a249ac49fb61/5a695934-2747-48d6-912d-db5c76d39ceb.png"/></a></td></tr></table>
+</td><td class=t68 width=42 valign=middle>
+<table role=presentation width=100% cellpadding=0 cellspacing=0 class=t67 style="width:100%;"><tr><td class=t65><a href="https://www.tiktok.com/@kregime.official" style="font-size:0px;" target=_blank><img class=t64 style="display:block;border:0;height:auto;width:100%;Margin:0;max-width:100%;" width=26 height=26 alt="" src="https://93063cdb-20f1-478b-80bb-d23c78ce6e83.b-cdn.net/e/d5c8454a-8b47-4958-ac81-a249ac49fb61/8298c34d-5ee4-4d6c-ac20-e7e51483c032.png"/></a></td><td class=t66 style="width:16px;" width=16></td></tr></table>
+</td><td class=t72 width=34 valign=middle>
+<table role=presentation width=100% cellpadding=0 cellspacing=0 class=t71 style="width:100%;"><tr><td class=t70><a href="https://www.youtube.com/@kregime" style="font-size:0px;" target=_blank><img class=t69 style="display:block;border:0;height:auto;width:100%;Margin:0;max-width:100%;" width=34 height=34 alt="" src="https://93063cdb-20f1-478b-80bb-d23c78ce6e83.b-cdn.net/e/d5c8454a-8b47-4958-ac81-a249ac49fb61/5a695934-2747-48d6-912d-db5c76d39ceb.png"/></a></td></tr></table>
 </td>
 <td></td></tr>
 </table></div></div></td></tr></table>
