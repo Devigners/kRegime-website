@@ -59,8 +59,9 @@ NEXT_PUBLIC_STRIPE_ENV=production
 ### Product IDs
 
 #### Test Environment (Staging)
+
 - **Tribox**: `prod_TM6BuovMVYmvOi`
-  - One-Time: `price_1SPNylPHcfaTMcXVYNdZmwyr`
+  - One-Time: `price_1SWO0fPHcfaTMcXVqLx4abTe`
   - 3-Month: `price_1SPNylPHcfaTMcXVuBDzNisv`
   - 6-Month: `price_1SPNylPHcfaTMcXVjwG96huA`
 
@@ -75,8 +76,9 @@ NEXT_PUBLIC_STRIPE_ENV=production
   - 6-Month: `price_1SPO34PHcfaTMcXVMmsLx6rM`
 
 #### Production Environment
+
 - **Tribox**: `prod_TM9wgCfSL48Jcj`
-  - One-Time: `price_1SPRcoPHcfaTMcXV1HGoq256`
+  - One-Time: `price_1SWNyLPHcfaTMcXVFZqqqVk1`
   - 3-Month: `price_1SPRcoPHcfaTMcXVpGTDHowZ`
   - 6-Month: `price_1SPRcoPHcfaTMcXVLjhUj2FL`
 
@@ -102,11 +104,13 @@ NEXT_PUBLIC_STRIPE_ENV=production
 ### For Staging Environment
 
 1. Add to your `.env.local` or staging environment configuration:
+
    ```bash
    NEXT_PUBLIC_STRIPE_ENV=test
    ```
 
 2. Ensure you're using test Stripe API keys:
+
    ```bash
    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
    STRIPE_SECRET_KEY=sk_test_...
@@ -118,11 +122,13 @@ NEXT_PUBLIC_STRIPE_ENV=production
 ### For Production Environment
 
 1. Add to your `.env.production` or production environment configuration:
+
    ```bash
    NEXT_PUBLIC_STRIPE_ENV=production
    ```
 
 2. Ensure you're using live Stripe API keys:
+
    ```bash
    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
    STRIPE_SECRET_KEY=sk_live_...
@@ -155,6 +161,7 @@ console.log(getStripeEnvironmentInfo());
 ## Build Verification
 
 ✅ **Build Status**: Successful
+
 - No compilation errors
 - All types are valid
 - All imports resolve correctly

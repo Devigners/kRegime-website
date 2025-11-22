@@ -35,7 +35,7 @@ CREATE INDEX IF NOT EXISTS idx_regimes_pricing ON regimes(price_one_time, price_
 
 -- Update the regimes table with the specific pricing requested
 UPDATE regimes SET 
-  price_one_time = 349,
+  price_one_time = 359,
   price_3_months = 319,
   price_6_months = 299
 WHERE id = 'tribox';

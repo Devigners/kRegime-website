@@ -13,7 +13,7 @@ const initialRegimes: Omit<Regime, 'createdAt' | 'updatedAt'>[] = [
     name: 'TRIBOX',
     description:
       "Start with the essentials. This 3 steps Korean skincare routine is designed to cleanse, hydrate and protect, or switch it up based on your needs. Just tell us your skin type and we'll put together the perfect set.",
-    priceOneTime: 349,
+    priceOneTime: 359,
     price3Months: 319,
     price6Months: 299,
     discountOneTime: 0,
