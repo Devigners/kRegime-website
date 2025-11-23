@@ -2,7 +2,14 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Order Confirmation',
-  description: 'Thank you for your order! Your Korean skincare regime is on its way.',
+  description:
+    'Thank you for your order! Your Korean skincare regime is on its way.',
+  openGraph: {
+    images: ['/meta-image.webp'],
+  },
+  twitter: {
+    images: ['/meta-image.webp'],
+  },
   robots: {
     index: false,
     follow: false,
