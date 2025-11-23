@@ -5,10 +5,17 @@ export const metadata: Metadata = {
   description:
     'Thank you for your order! Your Korean skincare regime is on its way.',
   openGraph: {
-    images: ['/meta-image.webp'],
+    images: [
+      {
+        url: '/meta-image.png',
+        width: 1200,
+        height: 628,
+        alt: 'KREGIME - Korean Skincare Made Simple',
+      },
+    ],
   },
   twitter: {
-    images: ['/meta-image.webp'],
+    images: ['/meta-image.png'],
   },
   robots: {
     index: false,
