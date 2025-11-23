@@ -5,6 +5,8 @@ export const metadata: Metadata = {
   description:
     'Answer a few questions to get your personalized Korean skincare regime tailored to your skin type and concerns.',
   openGraph: {
+    type: 'website',
+    url: 'https://kregime.com/regime-form',
     images: [
       {
         url: '/meta-image.png',
