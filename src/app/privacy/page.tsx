@@ -3,7 +3,14 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
-  description: 'KREGIME Privacy Policy - Learn how we protect your personal information and skincare quiz data.',
+  description:
+    'KREGIME Privacy Policy - Learn how we protect your personal information and skincare quiz data.',
+  openGraph: {
+    images: ['/meta-image.webp'],
+  },
+  twitter: {
+    images: ['/meta-image.webp'],
+  },
   alternates: {
     canonical: 'https://kregime.com/privacy',
   },

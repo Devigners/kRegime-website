@@ -2,7 +2,14 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Secure Checkout',
-  description: 'Complete your order securely with our encrypted payment system.',
+  description:
+    'Complete your order securely with our encrypted payment system.',
+  openGraph: {
+    images: ['/meta-image.webp'],
+  },
+  twitter: {
+    images: ['/meta-image.webp'],
+  },
   robots: {
     index: false,
     follow: false,
