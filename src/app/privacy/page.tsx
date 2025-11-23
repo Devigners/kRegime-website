@@ -6,10 +6,17 @@ export const metadata: Metadata = {
   description:
     'KREGIME Privacy Policy - Learn how we protect your personal information and skincare quiz data.',
   openGraph: {
-    images: ['/meta-image.webp'],
+    images: [
+      {
+        url: '/meta-image.png',
+        width: 1200,
+        height: 628,
+        alt: 'KREGIME - Korean Skincare Made Simple',
+      },
+    ],
   },
   twitter: {
-    images: ['/meta-image.webp'],
+    images: ['/meta-image.png'],
   },
   alternates: {
     canonical: 'https://kregime.com/privacy',

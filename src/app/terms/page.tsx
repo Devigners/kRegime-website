@@ -6,10 +6,17 @@ export const metadata: Metadata = {
   description:
     'KREGIME Terms of Service - Read our terms and conditions for using our Korean skincare regime service.',
   openGraph: {
-    images: ['/meta-image.webp'],
+    images: [
+      {
+        url: '/meta-image.png',
+        width: 1200,
+        height: 628,
+        alt: 'KREGIME - Korean Skincare Made Simple',
+      },
+    ],
   },
   twitter: {
-    images: ['/meta-image.webp'],
+    images: ['/meta-image.png'],
   },
   alternates: {
     canonical: 'https://kregime.com/terms',

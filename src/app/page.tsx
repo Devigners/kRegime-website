@@ -19,7 +19,14 @@ export const metadata: Metadata = {
     title: 'KREGIME - Handpicked Korean Skincare Regimes Simplified',
     description:
       'Discover your perfect Korean skincare routine with our expertly curated regime boxes',
-    images: ['/meta-image.webp'],
+    images: [
+      {
+        url: '/meta-image.png',
+        width: 1200,
+        height: 628,
+        alt: 'KREGIME - Korean Skincare Made Simple',
+      },
+    ],
   },
   alternates: {
     canonical: 'https://kregime.com',

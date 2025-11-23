@@ -65,9 +65,9 @@ export const metadata: Metadata = {
     siteName: 'KREGIME',
     images: [
       {
-        url: '/meta-image.webp',
+        url: '/meta-image.png',
         width: 1200,
-        height: 630,
+        height: 628,
         alt: 'KREGIME - Korean Skincare Made Simple',
       },
     ],
@@ -77,7 +77,7 @@ export const metadata: Metadata = {
     title: 'KREGIME - Handpicked Korean Skincare Regimes',
     description:
       'Discover your perfect Korean skincare routine with Handpicked regime boxes.',
-    images: ['/meta-image.webp'],
+    images: ['/meta-image.png'],
     creator: '@kregime',
   },
   robots: {
