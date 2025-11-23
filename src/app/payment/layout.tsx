@@ -5,6 +5,8 @@ export const metadata: Metadata = {
   description:
     'Complete your order securely with our encrypted payment system.',
   openGraph: {
+    type: 'website',
+    url: 'https://kregime.com/payment',
     images: [
       {
         url: '/meta-image.png',

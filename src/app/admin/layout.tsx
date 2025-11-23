@@ -4,6 +4,8 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Admin Panel - KREGIME',
   openGraph: {
+    type: 'website',
+    url: 'https://kregime.com/admin',
     images: [
       {
         url: '/meta-image.png',

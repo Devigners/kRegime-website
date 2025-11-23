@@ -5,6 +5,8 @@ export const metadata: Metadata = {
   description:
     'Review your Korean skincare regime selection and proceed to checkout.',
   openGraph: {
+    type: 'website',
+    url: 'https://kregime.com/cart',
     images: [
       {
         url: '/meta-image.png',

@@ -16,6 +16,8 @@ export const metadata: Metadata = {
   description:
     'Discover your perfect Korean skincare routine with our expertly curated 3, 5, or 7 steps regime boxes featuring premium Korean skincare products. Free delivery across UAE within 2 days.',
   openGraph: {
+    type: 'website',
+    url: 'https://kregime.com',
     title: 'KREGIME - Handpicked Korean Skincare Regimes Simplified',
     description:
       'Discover your perfect Korean skincare routine with our expertly curated regime boxes',
@@ -45,7 +47,7 @@ export default function Home() {
     description: 'Handpicked Korean Skincare Regimes Simplified',
     url: 'https://kregime.com',
     logo: 'https://kregime.com/logo.svg',
-    image: 'https://kregime.com/logo.svg',
+    image: 'https://kregime.com/meta-image.png',
     priceRange: 'AED',
     servesCuisine: 'Korean Beauty Products',
     areaServed: {
