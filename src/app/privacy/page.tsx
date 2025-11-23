@@ -6,6 +6,8 @@ export const metadata: Metadata = {
   description:
     'KREGIME Privacy Policy - Learn how we protect your personal information and skincare quiz data.',
   openGraph: {
+    type: 'website',
+    url: 'https://kregime.com/privacy',
     images: [
       {
         url: '/meta-image.png',
