@@ -13,11 +13,13 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'KREGIME - Handpicked Korean Skincare Regimes Simplified',
-  description: 'Discover your perfect Korean skincare routine with our expertly curated 3, 5, or 7 steps regime boxes featuring premium Korean skincare products. Free delivery across UAE within 2 days.',
+  description:
+    'Discover your perfect Korean skincare routine with our expertly curated 3, 5, or 7 steps regime boxes featuring premium Korean skincare products. Free delivery across UAE within 2 days.',
   openGraph: {
     title: 'KREGIME - Handpicked Korean Skincare Regimes Simplified',
-    description: 'Discover your perfect Korean skincare routine with our expertly curated regime boxes',
-    images: ['/logo.svg'],
+    description:
+      'Discover your perfect Korean skincare routine with our expertly curated regime boxes',
+    images: ['/meta-image.webp'],
   },
   alternates: {
     canonical: 'https://kregime.com',
