@@ -66,6 +66,16 @@ export async function POST(request: NextRequest) {
     let sentCount = 0;
     let failedCount = 0;
 
+    // Get app URL for variable replacement
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+
+    // Function to replace variables in template
+    const replaceVariables = (template: string, email: string): string => {
+      return template
+        .replace(/\{\{\s*email\s*\}\}/g, email)
+        .replace(/\{\{\s*app-url\s*\}\}/g, appUrl);
+    };
+
     for (let i = 0; i < subscribers.length; i += batchSize) {
       const batch = subscribers.slice(i, i + batchSize);
 
@@ -73,24 +83,37 @@ export async function POST(request: NextRequest) {
         await Promise.all(
           batch.map(async (subscriber) => {
             try {
-              // Add unsubscribe link to the email
-              const unsubscribeUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/unsubscribe?email=${encodeURIComponent(subscriber.email)}`;
-              const emailWithUnsubscribe = htmlContent.includes('</body>')
-                ? htmlContent.replace(
-                    '</body>',
-                    `<div style="text-align: center; padding: 20px; font-size: 12px; color: #666;">
+              // Replace variables in the HTML content for this specific subscriber
+              let personalizedContent = replaceVariables(
+                htmlContent,
+                subscriber.email
+              );
+
+              // Add unsubscribe link to the email if not already present
+              const unsubscribeUrl = `${appUrl}/unsubscribe?email=${encodeURIComponent(subscriber.email)}`;
+
+              // Only add default unsubscribe footer if the template doesn't already include unsubscribe functionality
+              if (!personalizedContent.includes('/unsubscribe')) {
+                const emailWithUnsubscribe = personalizedContent.includes(
+                  '</body>'
+                )
+                  ? personalizedContent.replace(
+                      '</body>',
+                      `<div style="text-align: center; padding: 20px; font-size: 12px; color: #666;">
+                        <p>Don't want to receive these emails? <a href="${unsubscribeUrl}" style="color: #EF7E71; text-decoration: underline;">Unsubscribe</a></p>
+                      </div></body>`
+                    )
+                  : `${personalizedContent}<div style="text-align: center; padding: 20px; font-size: 12px; color: #666;">
                       <p>Don't want to receive these emails? <a href="${unsubscribeUrl}" style="color: #EF7E71; text-decoration: underline;">Unsubscribe</a></p>
-                    </div></body>`
-                  )
-                : `${htmlContent}<div style="text-align: center; padding: 20px; font-size: 12px; color: #666;">
-                    <p>Don't want to receive these emails? <a href="${unsubscribeUrl}" style="color: #EF7E71; text-decoration: underline;">Unsubscribe</a></p>
-                  </div>`;
+                    </div>`;
+                personalizedContent = emailWithUnsubscribe;
+              }
 
               await resend.emails.send({
                 from: 'KREGIME <noreply@kregime.com>',
                 to: subscriber.email,
                 subject: title,
-                html: emailWithUnsubscribe,
+                html: personalizedContent,
               });
               sentCount++;
             } catch (error) {

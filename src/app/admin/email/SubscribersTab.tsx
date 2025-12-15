@@ -17,6 +17,7 @@ import {
   Upload,
   X,
   FileText,
+  Copy,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -238,6 +239,18 @@ export default function SubscribersTab() {
         : [...prev, source]
     );
   };
+
+  // Available variables for newsletter templates
+  const availableVariables = [
+    {
+      variable: '{{ email }}',
+      description: "Recipient's email address",
+    },
+    {
+      variable: '{{ app-url }}',
+      description: 'Application URL (e.g., https://kregime.com)',
+    },
+  ];
 
   const handleSendNewsletter = async () => {
     if (!newsletterTitle.trim()) {
@@ -813,6 +826,42 @@ export default function SubscribersTab() {
                       )}
                     </div>
                   </div>
+                </div>
+
+                {/* Available Variables */}
+                <div className="">
+                  <label className="block text-sm font-bold text-gray-900 mb-3">
+                    Available Variables
+                  </label>
+                  <div className="space-y-2">
+                    {availableVariables.map((item, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center gap-2 bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-purple-200/50"
+                      >
+                        <code className="text-sm font-bold text-white bg-primary px-2 py-1 rounded whitespace-nowrap">
+                          {item.variable}
+                        </code>
+                        <span className="text-sm text-neutral-600 font-medium flex-1">
+                          {item.description}
+                        </span>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(item.variable);
+                            toast.success('Variable copied to clipboard!');
+                          }}
+                          className="p-1.5 hover:bg-gray-100 cursor-pointer rounded-lg transition-colors text-primary"
+                          title="Copy variable"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-gray-500 font-semibold mt-3">
+                    Use these variables in your HTML template. They will be
+                    replaced with actual values for each recipient.
+                  </p>
                 </div>
 
                 {/* HTML Preview */}
