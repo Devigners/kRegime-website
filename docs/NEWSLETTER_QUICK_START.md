@@ -51,11 +51,14 @@ CREATE POLICY "Enable all access for newsletters" ON newsletters
 
 ## 2. Verify Environment Variables
 
-Ensure your `.env.local` file has the Resend API key configured:
+Ensure your `.env.local` file has the required environment variables:
 
 ```bash
 RESEND_API_KEY=your_resend_api_key_here
+NEXT_PUBLIC_APP_URL=https://kregime.com  # Or your domain (used for unsubscribe links)
 ```
+
+**Note**: The `NEXT_PUBLIC_APP_URL` is required for generating unsubscribe links in emails.
 
 ## 3. Restart Development Server
 
@@ -82,6 +85,18 @@ npm run dev
 5. Select subscriber sources
 6. Review recipient count
 7. Click "Send Newsletter"
+
+**Note**: All newsletter emails automatically include an unsubscribe link at the bottom.
+
+## 6. Test Unsubscribe Functionality
+
+1. Send a test newsletter to yourself
+2. Click the unsubscribe link at the bottom of the email
+3. Verify you land on the branded unsubscribe page
+4. Complete the unsubscribe process
+5. Check that your subscriber status is now "Inactive"
+
+Direct test URL format: `/unsubscribe?email=your@email.com`
 
 ## Troubleshooting
 

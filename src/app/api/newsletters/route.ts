@@ -73,11 +73,24 @@ export async function POST(request: NextRequest) {
         await Promise.all(
           batch.map(async (subscriber) => {
             try {
+              // Add unsubscribe link to the email
+              const unsubscribeUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/unsubscribe?email=${encodeURIComponent(subscriber.email)}`;
+              const emailWithUnsubscribe = htmlContent.includes('</body>')
+                ? htmlContent.replace(
+                    '</body>',
+                    `<div style="text-align: center; padding: 20px; font-size: 12px; color: #666;">
+                      <p>Don't want to receive these emails? <a href="${unsubscribeUrl}" style="color: #EF7E71; text-decoration: underline;">Unsubscribe</a></p>
+                    </div></body>`
+                  )
+                : `${htmlContent}<div style="text-align: center; padding: 20px; font-size: 12px; color: #666;">
+                    <p>Don't want to receive these emails? <a href="${unsubscribeUrl}" style="color: #EF7E71; text-decoration: underline;">Unsubscribe</a></p>
+                  </div>`;
+
               await resend.emails.send({
                 from: 'KREGIME <noreply@kregime.com>',
                 to: subscriber.email,
                 subject: title,
-                html: htmlContent,
+                html: emailWithUnsubscribe,
               });
               sentCount++;
             } catch (error) {

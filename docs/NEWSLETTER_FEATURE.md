@@ -2,7 +2,7 @@
 
 ## Overview
 
-The newsletter feature allows administrators to create and send HTML email newsletters to subscribers based on their subscription source.
+The newsletter feature allows administrators to create and send HTML email newsletters to subscribers based on their subscription source. All emails automatically include an unsubscribe link for compliance and user preference management.
 
 ## Features
 
@@ -50,11 +50,50 @@ A new "Create Newsletter" button opens a modal with:
 1. Validates all required fields
 2. Fetches active subscribers from selected sources
 3. Creates newsletter record in database
-4. Sends emails in batches of 100 (to avoid rate limits)
-5. Tracks sent/failed counts
-6. Updates newsletter status
+4. **Automatically adds unsubscribe link to each email**
+5. Sends emails in batches of 100 (to avoid rate limits)
+6. Tracks sent/failed counts
+7. Updates newsletter status
 
-### 4. Newsletter History
+### 4. Unsubscribe Functionality
+
+#### Automatic Unsubscribe Link
+
+Every newsletter email automatically includes an unsubscribe link at the bottom with KREGIME branding:
+
+- Text: "Don't want to receive these emails? Unsubscribe"
+- Color: `#EF7E71` (KREGIME brand color)
+- Styled consistently with brand guidelines
+
+#### Unsubscribe URL Format
+
+```
+${NEXT_PUBLIC_APP_URL}/unsubscribe?email=${subscriberEmail}
+```
+
+**Example**: `https://kregime.com/unsubscribe?email=user@example.com`
+
+#### Unsubscribe Page Features (`/unsubscribe`)
+
+- **Brand-consistent design** with KREGIME color palette
+- Displays subscriber's email address
+- Shows current subscription status
+- One-click unsubscribe button
+- Confirmation message after unsubscribing
+- Option to return to homepage
+- Handles edge cases:
+  - Already unsubscribed users
+  - Invalid/missing email parameter
+  - Subscriber not found
+
+#### Unsubscribe API (`/api/unsubscribe`)
+
+- **POST**: Unsubscribe a user (sets `is_active` to `false`)
+- **GET**: Check subscription status
+- Returns appropriate error messages
+- Updates `updated_at` timestamp
+
+### 5. Newsletter History
 
 View all past newsletters with:
 
@@ -97,6 +136,8 @@ Send a new newsletter
 }
 ```
 
+**Note**: Unsubscribe link is automatically appended to all emails.
+
 ### GET /api/newsletters
 
 Fetch newsletters with pagination
@@ -107,15 +148,35 @@ Query params:
 - limit: number (default: 10)
 ```
 
+### POST /api/unsubscribe
+
+Unsubscribe a user from the mailing list
+
+```typescript
+{
+  email: string;
+}
+```
+
+### GET /api/unsubscribe
+
+Check subscription status
+
+```typescript
+Query params:
+- email: string
+```
+
 ## Email Service
 
 Uses Resend API for sending emails:
 
 - From address: `KREGIME <noreply@kregime.com>`
 - Subject: Newsletter title
-- HTML body: Newsletter HTML content
+- HTML body: Newsletter HTML content + **automatic unsubscribe link**
 - Batch processing: 100 emails per batch with 1-second delay
 - Error handling: Tracks individual send failures
+- **Unsubscribe link**: Automatically appended to every email using `NEXT_PUBLIC_APP_URL`
 
 ## Installation & Setup
 
@@ -133,11 +194,14 @@ Or manually apply the migration file:
 
 ### 2. Environment Variables
 
-Ensure `RESEND_API_KEY` is configured in `.env.local`:
+Ensure these variables are configured in `.env.local`:
 
 ```
 RESEND_API_KEY=your_resend_api_key_here
+NEXT_PUBLIC_APP_URL=https://yourdomain.com
 ```
+
+**Important**: The `NEXT_PUBLIC_APP_URL` is used to construct unsubscribe links in emails.
 
 ### 3. Update Navigation
 
@@ -155,9 +219,13 @@ src/
         NewslettersTab.tsx    # Newsletter history
     api/
       newsletters/
-        route.ts             # Newsletter API endpoints
+        route.ts              # Newsletter API endpoints
+      unsubscribe/
+        route.ts              # Unsubscribe API endpoints
+    unsubscribe/
+      page.tsx                # Brand-consistent unsubscribe page
   types/
-    database.ts              # Updated with newsletters type
+    database.ts               # Updated with newsletters type
 supabase/
   migrations/
     20241216000000_add_newsletters_table.sql
@@ -179,6 +247,8 @@ supabase/
 8. Review recipient count
 9. Click "Send Newsletter"
 
+**Note**: Unsubscribe link will be automatically added to all emails.
+
 ### Viewing Newsletter History
 
 1. Navigate to Admin → Email
@@ -186,15 +256,41 @@ supabase/
 3. View all sent newsletters with statistics
 4. Click eye icon to preview newsletter content
 
+### Email Template Best Practices
+
+When creating HTML email templates, you don't need to add an unsubscribe link manually. The system automatically appends:
+
+```html
+<div style="text-align: center; padding: 20px; font-size: 12px; color: #666;">
+  <p>
+    Don't want to receive these emails?
+    <a
+      href="[UNSUBSCRIBE_URL]"
+      style="color: #EF7E71; text-decoration: underline;"
+      >Unsubscribe</a
+    >
+  </p>
+</div>
+```
+
+However, if you want to include your own unsubscribe link in your template, use:
+
+```
+{{UNSUBSCRIBE_URL}}
+```
+
+This will be replaced with the actual unsubscribe URL for each recipient.
+
 ## Best Practices
 
 ### HTML Email Content
 
 - Use inline CSS for styling
 - Test emails in multiple clients
-- Include unsubscribe links
+- **Unsubscribe links are added automatically** - no need to include them manually
 - Use responsive design
 - Keep file size reasonable
+- Use KREGIME brand colors for consistency
 
 ### Sending Strategy
 
@@ -208,6 +304,8 @@ supabase/
 - Admin authentication required
 - RLS policies enabled on newsletters table
 - API validates all inputs
+- Unsubscribe links are secure and user-specific
+- Email addresses are URL-encoded in unsubscribe links
 - HTML content is sanitized on preview
 - Rate limiting through batch processing
 
