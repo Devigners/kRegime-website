@@ -4,459 +4,501 @@ export type Json =
   | boolean
   | null
   | { [key: string]: Json | undefined }
-  | Json[]
+  | Json[];
 
 export type Database = {
   graphql_public: {
     Tables: {
-      [_ in never]: never
-    }
+      [_ in never]: never;
+    };
     Views: {
-      [_ in never]: never
-    }
+      [_ in never]: never;
+    };
     Functions: {
       graphql: {
         Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
+          extensions?: Json;
+          operationName?: string;
+          query?: string;
+          variables?: Json;
+        };
+        Returns: Json;
+      };
+    };
     Enums: {
-      [_ in never]: never
-    }
+      [_ in never]: never;
+    };
     CompositeTypes: {
-      [_ in never]: never
-    }
-  }
+      [_ in never]: never;
+    };
+  };
   public: {
     Tables: {
       admin_settings: {
         Row: {
-          id: string
-          account_holder_name: string | null
-          bank_name: string | null
-          account_number: string | null
-          iban: string | null
-          password_hash: string | null
-          created_at: string
-          updated_at: string
-        }
+          id: string;
+          account_holder_name: string | null;
+          bank_name: string | null;
+          account_number: string | null;
+          iban: string | null;
+          password_hash: string | null;
+          created_at: string;
+          updated_at: string;
+        };
         Insert: {
-          id?: string
-          account_holder_name?: string | null
-          bank_name?: string | null
-          account_number?: string | null
-          iban?: string | null
-          password_hash?: string | null
-          created_at?: string
-          updated_at?: string
-        }
+          id?: string;
+          account_holder_name?: string | null;
+          bank_name?: string | null;
+          account_number?: string | null;
+          iban?: string | null;
+          password_hash?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
         Update: {
-          id?: string
-          account_holder_name?: string | null
-          bank_name?: string | null
-          account_number?: string | null
-          iban?: string | null
-          password_hash?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
+          id?: string;
+          account_holder_name?: string | null;
+          bank_name?: string | null;
+          account_number?: string | null;
+          iban?: string | null;
+          password_hash?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       discount_codes: {
         Row: {
-          code: string
-          created_at: string
-          id: string
-          is_active: boolean
-          is_recurring: boolean
-          percentage_off: number
-          stripe_coupon_id: string | null
-          updated_at: string
-          usage_count: number
-        }
+          code: string;
+          created_at: string;
+          id: string;
+          is_active: boolean;
+          is_recurring: boolean;
+          percentage_off: number;
+          stripe_coupon_id: string | null;
+          updated_at: string;
+          usage_count: number;
+        };
         Insert: {
-          code: string
-          created_at?: string
-          id: string
-          is_active?: boolean
-          is_recurring?: boolean
-          percentage_off: number
-          stripe_coupon_id?: string | null
-          updated_at?: string
-          usage_count?: number
-        }
+          code: string;
+          created_at?: string;
+          id: string;
+          is_active?: boolean;
+          is_recurring?: boolean;
+          percentage_off: number;
+          stripe_coupon_id?: string | null;
+          updated_at?: string;
+          usage_count?: number;
+        };
         Update: {
-          code?: string
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          is_recurring?: boolean
-          percentage_off?: number
-          stripe_coupon_id?: string | null
-          updated_at?: string
-          usage_count?: number
-        }
-        Relationships: []
-      }
+          code?: string;
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          is_recurring?: boolean;
+          percentage_off?: number;
+          stripe_coupon_id?: string | null;
+          updated_at?: string;
+          usage_count?: number;
+        };
+        Relationships: [];
+      };
       orders: {
         Row: {
-          contact_info: Json
-          created_at: string
-          discount_code_id: string | null
-          final_amount: number
-          gift_claimed: boolean | null
-          gift_claimed_at: string | null
-          gift_giver_email: string | null
-          gift_giver_name: string | null
-          gift_giver_phone: string | null
-          gift_recipient_email: string | null
-          gift_recipient_name: string | null
-          gift_token: string | null
-          id: string
-          is_gift: boolean | null
-          quantity: number
-          regime_id: string
-          shipping_address: Json
-          status: string
-          stripe_session_id: string | null
-          subscription_type: string | null
-          total_amount: number
-          tracking_number: string | null
-          updated_at: string
-          user_details: Json
-          payment_method: string | null
-          bank_reference_id: string | null
-        }
+          contact_info: Json;
+          created_at: string;
+          discount_code_id: string | null;
+          final_amount: number;
+          gift_claimed: boolean | null;
+          gift_claimed_at: string | null;
+          gift_giver_email: string | null;
+          gift_giver_name: string | null;
+          gift_giver_phone: string | null;
+          gift_recipient_email: string | null;
+          gift_recipient_name: string | null;
+          gift_token: string | null;
+          id: string;
+          is_gift: boolean | null;
+          quantity: number;
+          regime_id: string;
+          shipping_address: Json;
+          status: string;
+          stripe_session_id: string | null;
+          subscription_type: string | null;
+          total_amount: number;
+          tracking_number: string | null;
+          updated_at: string;
+          user_details: Json;
+          payment_method: string | null;
+          bank_reference_id: string | null;
+        };
         Insert: {
-          contact_info: Json
-          created_at?: string
-          discount_code_id?: string | null
-          final_amount: number
-          gift_claimed?: boolean | null
-          gift_claimed_at?: string | null
-          gift_giver_email?: string | null
-          gift_giver_name?: string | null
-          gift_giver_phone?: string | null
-          gift_recipient_email?: string | null
-          gift_recipient_name?: string | null
-          gift_token?: string | null
-          id: string
-          is_gift?: boolean | null
-          quantity?: number
-          regime_id: string
-          shipping_address: Json
-          status?: string
-          stripe_session_id?: string | null
-          subscription_type?: string | null
-          total_amount: number
-          tracking_number?: string | null
-          updated_at?: string
-          user_details: Json
-          payment_method?: string | null
-          bank_reference_id?: string | null
-        }
+          contact_info: Json;
+          created_at?: string;
+          discount_code_id?: string | null;
+          final_amount: number;
+          gift_claimed?: boolean | null;
+          gift_claimed_at?: string | null;
+          gift_giver_email?: string | null;
+          gift_giver_name?: string | null;
+          gift_giver_phone?: string | null;
+          gift_recipient_email?: string | null;
+          gift_recipient_name?: string | null;
+          gift_token?: string | null;
+          id: string;
+          is_gift?: boolean | null;
+          quantity?: number;
+          regime_id: string;
+          shipping_address: Json;
+          status?: string;
+          stripe_session_id?: string | null;
+          subscription_type?: string | null;
+          total_amount: number;
+          tracking_number?: string | null;
+          updated_at?: string;
+          user_details: Json;
+          payment_method?: string | null;
+          bank_reference_id?: string | null;
+        };
         Update: {
-          contact_info?: Json
-          created_at?: string
-          discount_code_id?: string | null
-          final_amount?: number
-          gift_claimed?: boolean | null
-          gift_claimed_at?: string | null
-          gift_giver_email?: string | null
-          gift_giver_name?: string | null
-          gift_giver_phone?: string | null
-          gift_recipient_email?: string | null
-          gift_recipient_name?: string | null
-          gift_token?: string | null
-          id?: string
-          is_gift?: boolean | null
-          quantity?: number
-          regime_id?: string
-          shipping_address?: Json
-          status?: string
-          stripe_session_id?: string | null
-          subscription_type?: string | null
-          total_amount?: number
-          tracking_number?: string | null
-          updated_at?: string
-          user_details?: Json
-          payment_method?: string | null
-          bank_reference_id?: string | null
-        }
-        Relationships: []
-      }
+          contact_info?: Json;
+          created_at?: string;
+          discount_code_id?: string | null;
+          final_amount?: number;
+          gift_claimed?: boolean | null;
+          gift_claimed_at?: string | null;
+          gift_giver_email?: string | null;
+          gift_giver_name?: string | null;
+          gift_giver_phone?: string | null;
+          gift_recipient_email?: string | null;
+          gift_recipient_name?: string | null;
+          gift_token?: string | null;
+          id?: string;
+          is_gift?: boolean | null;
+          quantity?: number;
+          regime_id?: string;
+          shipping_address?: Json;
+          status?: string;
+          stripe_session_id?: string | null;
+          subscription_type?: string | null;
+          total_amount?: number;
+          tracking_number?: string | null;
+          updated_at?: string;
+          user_details?: Json;
+          payment_method?: string | null;
+          bank_reference_id?: string | null;
+        };
+        Relationships: [];
+      };
       regimes: {
         Row: {
-          created_at: string
-          description: string
-          discount_3_months: number
-          discount_6_months: number
-          discount_one_time: number
-          discount_reason_3_months: string | null
-          discount_reason_6_months: string | null
-          discount_reason_one_time: string | null
-          id: string
-          image: string[]
-          is_active: boolean
-          name: string
-          price: number
-          price_3_months: number
-          price_6_months: number
-          price_one_time: number
-          step_count: number
-          steps: string[]
-          stripe_coupon_id_one_time: string | null
-          stripe_coupon_id_3_months: string | null
-          stripe_coupon_id_6_months: string | null
-          updated_at: string
-        }
+          created_at: string;
+          description: string;
+          discount_3_months: number;
+          discount_6_months: number;
+          discount_one_time: number;
+          discount_reason_3_months: string | null;
+          discount_reason_6_months: string | null;
+          discount_reason_one_time: string | null;
+          id: string;
+          image: string[];
+          is_active: boolean;
+          name: string;
+          price: number;
+          price_3_months: number;
+          price_6_months: number;
+          price_one_time: number;
+          step_count: number;
+          steps: string[];
+          stripe_coupon_id_one_time: string | null;
+          stripe_coupon_id_3_months: string | null;
+          stripe_coupon_id_6_months: string | null;
+          updated_at: string;
+        };
         Insert: {
-          created_at?: string
-          description: string
-          discount_3_months?: number
-          discount_6_months?: number
-          discount_one_time?: number
-          discount_reason_3_months?: string | null
-          discount_reason_6_months?: string | null
-          discount_reason_one_time?: string | null
-          id: string
-          image: string[]
-          is_active?: boolean
-          name: string
-          price: number
-          price_3_months?: number
-          price_6_months?: number
-          price_one_time?: number
-          step_count: number
-          steps: string[]
-          stripe_coupon_id_one_time?: string | null
-          stripe_coupon_id_3_months?: string | null
-          stripe_coupon_id_6_months?: string | null
-          updated_at?: string
-        }
+          created_at?: string;
+          description: string;
+          discount_3_months?: number;
+          discount_6_months?: number;
+          discount_one_time?: number;
+          discount_reason_3_months?: string | null;
+          discount_reason_6_months?: string | null;
+          discount_reason_one_time?: string | null;
+          id: string;
+          image: string[];
+          is_active?: boolean;
+          name: string;
+          price: number;
+          price_3_months?: number;
+          price_6_months?: number;
+          price_one_time?: number;
+          step_count: number;
+          steps: string[];
+          stripe_coupon_id_one_time?: string | null;
+          stripe_coupon_id_3_months?: string | null;
+          stripe_coupon_id_6_months?: string | null;
+          updated_at?: string;
+        };
         Update: {
-          created_at?: string
-          description?: string
-          discount_3_months?: number
-          discount_6_months?: number
-          discount_one_time?: number
-          discount_reason_3_months?: string | null
-          discount_reason_6_months?: string | null
-          discount_reason_one_time?: string | null
-          id?: string
-          image?: string[]
-          is_active?: boolean
-          name?: string
-          price?: number
-          price_3_months?: number
-          price_6_months?: number
-          price_one_time?: number
-          step_count?: number
-          steps?: string[]
-          stripe_coupon_id_one_time?: string | null
-          stripe_coupon_id_3_months?: string | null
-          stripe_coupon_id_6_months?: string | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
+          created_at?: string;
+          description?: string;
+          discount_3_months?: number;
+          discount_6_months?: number;
+          discount_one_time?: number;
+          discount_reason_3_months?: string | null;
+          discount_reason_6_months?: string | null;
+          discount_reason_one_time?: string | null;
+          id?: string;
+          image?: string[];
+          is_active?: boolean;
+          name?: string;
+          price?: number;
+          price_3_months?: number;
+          price_6_months?: number;
+          price_one_time?: number;
+          step_count?: number;
+          steps?: string[];
+          stripe_coupon_id_one_time?: string | null;
+          stripe_coupon_id_3_months?: string | null;
+          stripe_coupon_id_6_months?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       reviews: {
         Row: {
-          avatar: string | null
-          comment: string
-          created_at: string
-          id: string
-          is_approved: boolean
-          name: string
-          rating: number
-          updated_at: string
-        }
+          avatar: string | null;
+          comment: string;
+          created_at: string;
+          id: string;
+          is_approved: boolean;
+          name: string;
+          rating: number;
+          updated_at: string;
+        };
         Insert: {
-          avatar?: string | null
-          comment: string
-          created_at?: string
-          id: string
-          is_approved?: boolean
-          name: string
-          rating: number
-          updated_at?: string
-        }
+          avatar?: string | null;
+          comment: string;
+          created_at?: string;
+          id: string;
+          is_approved?: boolean;
+          name: string;
+          rating: number;
+          updated_at?: string;
+        };
         Update: {
-          avatar?: string | null
-          comment?: string
-          created_at?: string
-          id?: string
-          is_approved?: boolean
-          name?: string
-          rating?: number
-          updated_at?: string
-        }
-        Relationships: []
-      }
+          avatar?: string | null;
+          comment?: string;
+          created_at?: string;
+          id?: string;
+          is_approved?: boolean;
+          name?: string;
+          rating?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       subscribers: {
         Row: {
-          email: string
-          id: string
-          is_active: boolean
-          source: string
-          subscribed_at: string
-          updated_at: string
-        }
+          email: string;
+          id: string;
+          is_active: boolean;
+          source: string;
+          subscribed_at: string;
+          updated_at: string;
+        };
         Insert: {
-          email: string
-          id: string
-          is_active?: boolean
-          source: string
-          subscribed_at?: string
-          updated_at?: string
-        }
+          email: string;
+          id: string;
+          is_active?: boolean;
+          source: string;
+          subscribed_at?: string;
+          updated_at?: string;
+        };
         Update: {
-          email?: string
-          id?: string
-          is_active?: boolean
-          source?: string
-          subscribed_at?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-    }
+          email?: string;
+          id?: string;
+          is_active?: boolean;
+          source?: string;
+          subscribed_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      newsletters: {
+        Row: {
+          id: string;
+          title: string;
+          html_content: string;
+          sources: string[];
+          recipient_count: number;
+          sent_count: number;
+          failed_count: number;
+          status: string;
+          created_at: string;
+          sent_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          html_content: string;
+          sources: string[];
+          recipient_count?: number;
+          sent_count?: number;
+          failed_count?: number;
+          status?: string;
+          created_at?: string;
+          sent_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          title?: string;
+          html_content?: string;
+          sources?: string[];
+          recipient_count?: number;
+          sent_count?: number;
+          failed_count?: number;
+          status?: string;
+          created_at?: string;
+          sent_at?: string | null;
+        };
+        Relationships: [];
+      };
+    };
     Views: {
-      [_ in never]: never
-    }
+      [_ in never]: never;
+    };
     Functions: {
-      [_ in never]: never
-    }
+      [_ in never]: never;
+    };
     Enums: {
-      [_ in never]: never
-    }
+      [_ in never]: never;
+    };
     CompositeTypes: {
-      [_ in never]: never
-    }
-  }
-}
+      [_ in never]: never;
+    };
+  };
+};
 
-type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+type DatabaseWithoutInternals = Omit<Database, '__InternalSupabase'>;
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+type DefaultSchema = DatabaseWithoutInternals[Extract<
+  keyof Database,
+  'public'
+>];
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
-      Row: infer R
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])[TableName] extends {
+      Row: infer R;
     }
     ? R
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])
-    ? (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
-        Row: infer R
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema['Tables'] &
+        DefaultSchema['Views'])
+    ? (DefaultSchema['Tables'] &
+        DefaultSchema['Views'])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R;
       }
       ? R
       : never
-    : never
+    : never;
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
+    | keyof DefaultSchema['Tables']
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+      Insert: infer I;
     }
     ? I
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Insert: infer I
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I;
       }
       ? I
       : never
-    : never
+    : never;
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
+    | keyof DefaultSchema['Tables']
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+      Update: infer U;
     }
     ? U
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Update: infer U
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U;
       }
       ? U
       : never
-    : never
+    : never;
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema["Enums"]
+    | keyof DefaultSchema['Enums']
     | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
     : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
-    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
-    : never
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
+    ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
+    : never;
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema["CompositeTypes"]
+    | keyof DefaultSchema['CompositeTypes']
     | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-    : never
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
+    ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
+    : never;
 
 export const Constants = {
   graphql_public: {
@@ -465,5 +507,4 @@ export const Constants = {
   public: {
     Enums: {},
   },
-} as const
-
+} as const;

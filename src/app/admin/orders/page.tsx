@@ -524,7 +524,8 @@ export default function OrdersAdmin() {
                         className={`inline-flex items-center px-3 py-1.5 rounded-lg font-bold border ${getSubscriptionTypeBadge(order.subscriptionType || 'one-time')}`}
                       >
                         <span className="text-sm">
-                          {order.regime?.name || 'Regime Not Found'} | {getSubscriptionTypeDisplay(
+                          {order.regime?.name || 'Regime Not Found'} |{' '}
+                          {getSubscriptionTypeDisplay(
                             order.subscriptionType || 'one-time'
                           )}
                         </span>
@@ -588,7 +589,7 @@ export default function OrdersAdmin() {
                           <button
                             onClick={() =>
                               window.open(
-                                `https://myjeebly.jeebly.com/shipment-tracking/?uae=uae&service_type=Scheduled&awb=${order.trackingNumber}`,
+                                `https://tracking.skynetexpress.com/go/plm-tracking?stid=skynet&cn=${order.trackingNumber}`,
                                 '_blank'
                               )
                             }
@@ -890,7 +891,7 @@ export default function OrdersAdmin() {
                             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
                               <div className="space-y-2">
                                 <div className="flex items-center space-x-3">
-                                <Coins className="w-4 h-4 text-[#EF7E71]" />
+                                  <Coins className="w-4 h-4 text-[#EF7E71]" />
                                   <span className="text-neutral-600 font-bold text-sm">
                                     Final Amount:
                                   </span>

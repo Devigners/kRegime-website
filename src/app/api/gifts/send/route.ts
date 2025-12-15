@@ -6,7 +6,8 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: NextRequest) {
   try {
-    const { giftToken, method, recipientEmail, recipientName } = await request.json();
+    const { giftToken, method, recipientEmail, recipientName } =
+      await request.json();
 
     if (!giftToken) {
       return NextResponse.json(
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const giftLink = `${process.env.NEXT_PUBLIC_SITE_URL}/gift/${giftToken}`;
+    const giftLink = `${process.env.NEXT_PUBLIC_APP_URL}/gift/${giftToken}`;
 
     if (method === 'email' && recipientEmail) {
       // TODO: Create proper email template
@@ -86,9 +87,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error sending gift:', error);
-    return NextResponse.json(
-      { error: 'Failed to send gift' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to send gift' }, { status: 500 });
   }
 }
