@@ -4,10 +4,10 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { 
-  LayoutDashboard, 
-  Package, 
-  MessageSquare, 
+import {
+  LayoutDashboard,
+  Package,
+  MessageSquare,
   ShoppingCart,
   Mail,
   Tag,
@@ -16,7 +16,7 @@ import {
   Menu,
   X,
   Settings,
-  User
+  User,
 } from 'lucide-react';
 import { adminAuth } from '@/lib/adminAuth';
 
@@ -40,20 +40,22 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       const authenticated = adminAuth.isAuthenticated();
       setIsAuthenticated(authenticated);
       setIsLoading(false);
-      
+
       if (!authenticated && pathname !== '/admin') {
         router.push('/admin');
       }
     };
 
     checkAuth();
-    
+
     // Update session time every minute
     const timer = setInterval(() => {
       if (adminAuth.isAuthenticated()) {
         const remaining = adminAuth.getSessionTimeRemaining();
         const hours = Math.floor(remaining / (1000 * 60 * 60));
-        const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+        const minutes = Math.floor(
+          (remaining % (1000 * 60 * 60)) / (1000 * 60)
+        );
         setSessionTime(`${hours}h ${minutes}m`);
       } else {
         setSessionTime('');
@@ -67,7 +69,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsDropdownOpen(false);
       }
     };
@@ -88,7 +93,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { href: '/admin/reviews', icon: MessageSquare, label: 'Reviews' },
     { href: '/admin/orders', icon: ShoppingCart, label: 'Orders' },
     { href: '/admin/discount-codes', icon: Tag, label: 'Discount Codes' },
-    { href: '/admin/subscribers', icon: Mail, label: 'Subscribers' },
+    { href: '/admin/email', icon: Mail, label: 'Email' },
   ];
 
   // Show loading screen
@@ -115,7 +120,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <div className="flex items-center justify-between h-14">
             {/* Logo Section */}
             <div className="flex items-center space-x-4">
-              <Link href="/admin/dashboard" className="flex items-center space-x-2">
+              <Link
+                href="/admin/dashboard"
+                className="flex items-center space-x-2"
+              >
                 <Image
                   src="/logo.svg"
                   alt="KREGIME"
@@ -131,15 +139,15 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               {navigationItems.map((item) => {
                 const isActive = pathname === item.href;
                 const Icon = item.icon;
-                
+
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
                     className={`flex items-center space-x-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                       isActive
-                        ? "bg-primary !text-white shadow-md"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                        ? 'bg-primary !text-white shadow-md'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                     }`}
                   >
                     <Icon className="h-4 w-4" />
@@ -164,7 +172,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                 className="md:hidden p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
               >
-                {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                {isSidebarOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
               </button>
 
               {/* User Avatar Dropdown */}
@@ -209,7 +221,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
-          <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)} />
+          <div
+            className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm"
+            onClick={() => setIsSidebarOpen(false)}
+          />
           <div className="fixed top-0 left-0 bottom-0 w-64 bg-white border-r border-slate-200 shadow-xl">
             <div className="flex items-center justify-between p-4 border-b border-slate-200">
               <div className="flex items-center space-x-2">
@@ -232,7 +247,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               {navigationItems.map((item) => {
                 const isActive = pathname === item.href;
                 const Icon = item.icon;
-                
+
                 return (
                   <Link
                     key={item.href}
@@ -240,8 +255,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     onClick={() => setIsSidebarOpen(false)}
                     className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 w-full ${
                       isActive
-                        ? "bg-[#EF7E71] !text-white shadow-md"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                        ? 'bg-[#EF7E71] !text-white shadow-md'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                     }`}
                   >
                     <Icon className="h-4 w-4" />
@@ -255,9 +270,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       )}
 
       {/* Main Content */}
-      <main className="p-4 pt-24">
-        {children}
-      </main>
+      <main className="p-4 pt-24">{children}</main>
     </div>
   );
 }

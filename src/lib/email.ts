@@ -11,6 +11,14 @@ import {
 } from '@/emails/templates';
 import { Order, Regime } from '@/models/database';
 
+/**
+ * Helper function to prepend "Testing: " to email subjects in sandbox environment
+ */
+function formatEmailSubject(subject: string): string {
+  const isSandbox = process.env.NEXT_PUBLIC_STRIPE_ENV !== 'production';
+  return isSandbox ? `Testing: ${subject}` : subject;
+}
+
 export interface SendOrderReceivedEmailProps {
   order: Order;
   regime?: Regime;
@@ -41,9 +49,9 @@ export async function sendOrderReceivedEmail({
 }: SendOrderReceivedEmailProps): Promise<EmailResponse> {
   try {
     // Generate customer name from order data if not provided
-    const displayName = 
-      customerName || 
-      order.shippingAddress?.firstName || 
+    const displayName =
+      customerName ||
+      order.shippingAddress?.firstName ||
       order.contactInfo.email.split('@')[0];
 
     // Generate the email HTML
@@ -57,7 +65,9 @@ export async function sendOrderReceivedEmail({
     const { data, error } = await resend.emails.send({
       from: 'KREGIME <care@kregime.com>',
       to: [order.contactInfo.email],
-      subject: `Order Confirmed #${order.id} - Your KREGIME journey begins! 🌟`,
+      subject: formatEmailSubject(
+        `Order Confirmed #${order.id} - Your KREGIME journey begins! 🌟`
+      ),
       html: emailHtml,
     });
 
@@ -105,7 +115,7 @@ export async function sendOrderReceivedGiftEmail({
     const { data, error } = await resend.emails.send({
       from: 'KREGIME <care@kregime.com>',
       to: [order.contactInfo.email],
-      subject: `Thanks for your gift order! 🎁`,
+      subject: formatEmailSubject(`Thanks for your gift order! 🎁`),
       html: emailHtml,
     });
 
@@ -142,9 +152,9 @@ export async function sendOrderStatusUpdateEmail({
 }: SendOrderStatusUpdateEmailProps): Promise<EmailResponse> {
   try {
     // Generate customer name from order data if not provided
-    const displayName = 
-      customerName || 
-      order.shippingAddress?.firstName || 
+    const displayName =
+      customerName ||
+      order.shippingAddress?.firstName ||
       order.contactInfo.email.split('@')[0];
 
     // Generate subject line based on status
@@ -175,7 +185,7 @@ export async function sendOrderStatusUpdateEmail({
     const { data, error } = await resend.emails.send({
       from: 'KREGIME <care@kregime.com>',
       to: [order.contactInfo.email],
-      subject: getSubjectLine(order.status),
+      subject: formatEmailSubject(getSubjectLine(order.status)),
       html: emailHtml,
     });
 
@@ -187,7 +197,10 @@ export async function sendOrderStatusUpdateEmail({
       };
     }
 
-    console.log(`Order status update email sent successfully for status "${order.status}":`, data?.id);
+    console.log(
+      `Order status update email sent successfully for status "${order.status}":`,
+      data?.id
+    );
     return {
       success: true,
       id: data?.id,
@@ -228,7 +241,9 @@ export async function sendNewOrderAdminEmail({
     const { data, error } = await resend.emails.send({
       from: 'KREGIME <care@kregime.com>',
       to: [emailConfig.adminEmail],
-      subject: `🔔 New Order #${order.id} - ${order.shippingAddress?.firstName} ${order.shippingAddress?.lastName || ''}`,
+      subject: formatEmailSubject(
+        `🔔 New Order #${order.id} - ${order.shippingAddress?.firstName} ${order.shippingAddress?.lastName || ''}`
+      ),
       html: emailHtml,
     });
 
@@ -270,7 +285,7 @@ export async function sendNewsletterSubscriptionEmail(
     const { data, error } = await resend.emails.send({
       from: 'KREGIME <care@kregime.com>',
       to: [email],
-      subject: 'Welcome to KREGIME Newsletter! 💌',
+      subject: formatEmailSubject('Welcome to KREGIME Newsletter! 💌'),
       html: emailHtml,
     });
 
@@ -323,7 +338,9 @@ export async function sendGiftRecipientOrderEmail({
     const { data, error } = await resend.emails.send({
       from: 'KREGIME <care@kregime.com>',
       to: [order.contactInfo.email],
-      subject: `🎁 Gift Order Confirmed #${order.id} - Your skincare journey begins!`,
+      subject: formatEmailSubject(
+        `🎁 Gift Order Confirmed #${order.id} - Your skincare journey begins!`
+      ),
       html: emailHtml,
     });
 
@@ -375,7 +392,9 @@ export async function sendGiftClaimedEmail({
     const { data, error } = await resend.emails.send({
       from: 'KREGIME <care@kregime.com>',
       to: [giftGiverEmail],
-      subject: `🎉 ${recipientName} claimed your gift! - Order #${order.id}`,
+      subject: formatEmailSubject(
+        `🎉 ${recipientName} claimed your gift! - Order #${order.id}`
+      ),
       html: emailHtml,
     });
 
@@ -430,7 +449,9 @@ export async function sendGiftNotificationEmail({
     const { data, error } = await resend.emails.send({
       from: 'KREGIME <no-reply@kregime.com>',
       to: [recipientEmail],
-      subject: `${senderName} sent you a special skincare gift! 🎁`,
+      subject: formatEmailSubject(
+        `${senderName} sent you a special skincare gift! 🎁`
+      ),
       html: emailHtml,
     });
 

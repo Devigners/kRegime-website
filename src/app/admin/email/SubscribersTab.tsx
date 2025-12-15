@@ -13,11 +13,16 @@ import {
   Calendar,
   ChevronDown,
   ChevronUp,
+  Send,
+  Upload,
+  X,
+  FileText,
+  Copy,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 
-// Define subscriber types locally until database types are regenerated
+// Define subscriber types
 interface Subscriber {
   id: string;
   email: string;
@@ -39,7 +44,7 @@ interface SubscriberResponse {
 
 const ITEMS_PER_PAGE = 10;
 
-export default function SubscribersPage() {
+export default function SubscribersTab() {
   const [allSubscribers, setAllSubscribers] = useState<Subscriber[]>([]);
   const [filteredSubscribers, setFilteredSubscribers] = useState<Subscriber[]>(
     []
@@ -52,6 +57,14 @@ export default function SubscribersPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalSubscribers, setTotalSubscribers] = useState(0);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [showNewsletterModal, setShowNewsletterModal] = useState(false);
+  const [sending, setSending] = useState(false);
+
+  // Newsletter form state
+  const [newsletterTitle, setNewsletterTitle] = useState('');
+  const [htmlContent, setHtmlContent] = useState('');
+  const [selectedSources, setSelectedSources] = useState<string[]>([]);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
   // Statistics
   const [stats, setStats] = useState({
@@ -66,25 +79,30 @@ export default function SubscribersPage() {
     },
   });
 
+  // Calculate active subscribers for selected sources
+  const getActiveSubscriberCount = () => {
+    if (selectedSources.length === 0) return 0;
+    return allSubscribers.filter(
+      (s) => s.isActive && selectedSources.includes(s.source)
+    ).length;
+  };
+
   // Filter subscribers based on search and filters
   useEffect(() => {
     let filtered = allSubscribers;
 
-    // Filter by search term
     if (searchTerm) {
       filtered = filtered.filter((subscriber) =>
         subscriber.email.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    // Filter by source
     if (sourceFilter) {
       filtered = filtered.filter(
         (subscriber) => subscriber.source === sourceFilter
       );
     }
 
-    // Filter by status
     if (statusFilter) {
       const isActive = statusFilter === 'true';
       filtered = filtered.filter(
@@ -95,27 +113,23 @@ export default function SubscribersPage() {
     setFilteredSubscribers(filtered);
     setTotalSubscribers(filtered.length);
     setTotalPages(Math.ceil(filtered.length / ITEMS_PER_PAGE));
-    setCurrentPage(1); // Reset to first page when filters change
+    setCurrentPage(1);
   }, [allSubscribers, searchTerm, sourceFilter, statusFilter]);
 
-  // Get current page subscribers
   const getCurrentPageSubscribers = () => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
     return filteredSubscribers.slice(startIndex, endIndex);
   };
 
-  // Fetch all subscribers (only once)
   const fetchSubscribers = React.useCallback(async () => {
     setLoading(true);
     try {
-      // Fetch all subscribers without pagination
       const response = await fetch(`/api/subscribers?limit=1000`);
       if (response.ok) {
         const data: SubscriberResponse = await response.json();
         setAllSubscribers(data.subscribers);
       } else {
-        console.error('Failed to fetch subscribers');
         toast.error('Failed to fetch subscribers');
       }
     } catch (error) {
@@ -130,7 +144,6 @@ export default function SubscribersPage() {
     fetchSubscribers();
   }, [fetchSubscribers]);
 
-  // Handle subscriber status toggle
   const handleStatusToggle = async (id: string, currentStatus: boolean) => {
     try {
       const response = await fetch(`/api/subscribers/${id}`, {
@@ -140,11 +153,11 @@ export default function SubscribersPage() {
       });
 
       if (response.ok) {
-        fetchSubscribers(); // Refresh the list
-        const action = !currentStatus ? 'activated' : 'deactivated';
-        toast.success(`Subscriber ${action} successfully`);
+        fetchSubscribers();
+        toast.success(
+          `Subscriber ${!currentStatus ? 'activated' : 'deactivated'} successfully`
+        );
       } else {
-        console.error('Failed to update subscriber status');
         toast.error('Failed to update subscriber status');
       }
     } catch (error) {
@@ -153,7 +166,6 @@ export default function SubscribersPage() {
     }
   };
 
-  // Handle subscriber deletion
   const handleDelete = async (id: string) => {
     try {
       const response = await fetch(`/api/subscribers/${id}`, {
@@ -161,11 +173,10 @@ export default function SubscribersPage() {
       });
 
       if (response.ok) {
-        fetchSubscribers(); // Refresh the list
+        fetchSubscribers();
         setDeleteConfirm(null);
         toast.success('Subscriber deleted successfully');
       } else {
-        console.error('Failed to delete subscriber');
         toast.error('Failed to delete subscriber');
       }
     } catch (error) {
@@ -174,7 +185,6 @@ export default function SubscribersPage() {
     }
   };
 
-  // Export subscribers to CSV
   const handleExport = () => {
     const csvContent = [
       ['Email', 'Source', 'Status', 'Subscribed At', 'Updated At'],
@@ -207,7 +217,89 @@ export default function SubscribersPage() {
     toast.success('Subscribers exported successfully');
   };
 
-  // Calculate statistics
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type === 'text/html') {
+      setUploadedFile(file);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const content = event.target?.result as string;
+        setHtmlContent(content);
+      };
+      reader.readAsText(file);
+    } else {
+      toast.error('Please upload a valid HTML file');
+    }
+  };
+
+  const handleSourceToggle = (source: string) => {
+    setSelectedSources((prev) =>
+      prev.includes(source)
+        ? prev.filter((s) => s !== source)
+        : [...prev, source]
+    );
+  };
+
+  // Available variables for newsletter templates
+  const availableVariables = [
+    {
+      variable: '{{ email }}',
+      description: "Recipient's email address",
+    },
+    {
+      variable: '{{ app-url }}',
+      description: 'Application URL (e.g., https://kregime.com)',
+    },
+  ];
+
+  const handleSendNewsletter = async () => {
+    if (!newsletterTitle.trim()) {
+      toast.error('Please enter a newsletter title');
+      return;
+    }
+    if (!htmlContent.trim()) {
+      toast.error('Please provide HTML content');
+      return;
+    }
+    if (selectedSources.length === 0) {
+      toast.error('Please select at least one source');
+      return;
+    }
+
+    setSending(true);
+    try {
+      const response = await fetch('/api/newsletters', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: newsletterTitle,
+          htmlContent,
+          sources: selectedSources,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        toast.success(
+          `Newsletter sent to ${data.newsletter.sent_count} subscribers!`
+        );
+        setShowNewsletterModal(false);
+        setNewsletterTitle('');
+        setHtmlContent('');
+        setSelectedSources([]);
+        setUploadedFile(null);
+      } else {
+        const error = await response.json();
+        toast.error(error.error || 'Failed to send newsletter');
+      }
+    } catch (error) {
+      console.error('Error sending newsletter:', error);
+      toast.error('Failed to send newsletter');
+    } finally {
+      setSending(false);
+    }
+  };
+
   useEffect(() => {
     const active = allSubscribers.filter((s: Subscriber) => s.isActive).length;
     const inactive = allSubscribers.length - active;
@@ -232,11 +324,6 @@ export default function SubscribersPage() {
       },
     });
   }, [allSubscribers]);
-
-  // Reset page when filters change (remove this old effect)
-  // useEffect(() => {
-  //   setCurrentPage(1);
-  // }, [searchTerm, sourceFilter, statusFilter]);
 
   const getSourceLabel = (source: string) => {
     const labels = {
@@ -269,65 +356,29 @@ export default function SubscribersPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Header */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-[#EF7E71]/10 via-[#D4654F]/8 to-[#FFE066]/10 rounded-xl p-4 border border-white/30 backdrop-blur-xl">
-        {/* Background Pattern */}
-        <div className="absolute inset-0">
-          <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-[#EF7E71]/20 to-transparent rounded-full -translate-x-16 -translate-y-16"></div>
-          <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-[#D4654F]/20 to-transparent rounded-full translate-x-16 translate-y-16"></div>
-        </div>
+    <div className="space-y-6">
+      {/* Action Buttons */}
+      <div className="flex gap-3">
+        <motion.button
+          onClick={handleExport}
+          className="cursor-pointer w-fit group bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2.5 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 border border-white/30 flex items-center gap-2"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <Download className="w-4 h-4" />
+          <span className="text-sm font-semibold">Export CSV</span>
+        </motion.button>
 
-        <div className="relative z-10 grid lg:grid-cols-2 gap-4 items-center">
-          <div className="flex flex-col gap-3">
-            <h1 className="text-2xl font-black bg-gradient-to-r from-[#EF7E71] via-[#D4654F] to-[#FFE066] bg-clip-text text-transparent leading-tight">
-              Email Subscribers
-            </h1>
-            <p className="text-neutral-600 text-sm">
-              Manage your newsletter subscribers and track engagement
-            </p>
-            {/* Export Button */}
-            <motion.button
-              onClick={handleExport}
-              className="cursor-pointer w-fit group bg-gradient-to-r from-[#EF7E71] to-[#D4654F] text-white px-3 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 border border-white/30 flex items-center gap-2"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <Download className="w-4 h-4 transition-transform duration-300" />
-              <span className="text-sm font-semibold">Export CSV</span>
-            </motion.button>
-          </div>
-
-          <div className="flex flex-col sm:flex-row lg:flex-col gap-2 items-center lg:items-end">
-            {/* Stats Card */}
-            <div className="bg-white/80 backdrop-blur-xl rounded-xl p-3 border border-white/50 shadow-lg w-full sm:w-auto">
-              <div className="space-y-2">
-                <div className="w-10 h-10 bg-gradient-to-br from-[#EF7E71] to-[#D4654F] rounded-lg flex items-center justify-center mx-auto shadow-md">
-                  <Mail className="h-5 w-5 text-white" />
-                </div>
-                <div className="grid grid-cols-2 gap-2 text-center">
-                  <div className="space-y-0.5">
-                    <p className="text-xs font-bold text-neutral-600 uppercase tracking-wider">
-                      Total
-                    </p>
-                    <p className="text-lg font-black bg-gradient-to-r from-[#EF7E71] to-[#D4654F] bg-clip-text text-transparent">
-                      {stats.total}
-                    </p>
-                  </div>
-                  <div className="space-y-0.5">
-                    <p className="text-xs font-bold text-neutral-600 uppercase tracking-wider">
-                      Active
-                    </p>
-                    <p className="text-lg font-black text-green-600">
-                      {stats.active}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+        <motion.button
+          onClick={() => setShowNewsletterModal(true)}
+          className="cursor-pointer w-fit group bg-gradient-to-r from-[#EF7E71] to-[#D4654F] text-white px-4 py-2.5 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 border border-white/30 flex items-center gap-2"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <Send className="w-4 h-4" />
+          <span className="text-sm font-semibold">Create Newsletter</span>
+        </motion.button>
+      </div>
 
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -427,20 +478,17 @@ export default function SubscribersPage() {
       {/* Filters */}
       <div className="relative overflow-hidden rounded-xl">
         <div className="absolute inset-0 bg-gradient-to-br from-white/95 via-neutral-50/90 to-white/95 backdrop-blur-xl"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-neutral-100/20 to-neutral-200/20"></div>
         <div className="absolute inset-0 rounded-xl border border-white/60 shadow-lg"></div>
 
         <div className="relative z-10 p-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search by email..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-4 pr-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-[#EF7E71] focus:border-transparent bg-white/50 backdrop-blur-sm font-medium"
-              />
-            </div>
+            <input
+              type="text"
+              placeholder="Search by email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-[#EF7E71] focus:border-transparent bg-white/50 backdrop-blur-sm font-medium"
+            />
 
             <select
               value={sourceFilter}
@@ -582,7 +630,7 @@ export default function SubscribersPage() {
             </table>
           </div>
 
-          {getCurrentPageSubscribers().length === 0 && !loading && (
+          {getCurrentPageSubscribers().length === 0 && (
             <div className="text-center py-12">
               <Mail className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
               <h3 className="text-lg font-black text-neutral-900 mb-2">
@@ -655,38 +703,253 @@ export default function SubscribersPage() {
       )}
 
       {/* Delete Confirmation Modal */}
-      {deleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white/90 backdrop-blur-xl rounded-3xl max-w-lg w-full p-8 shadow-2xl border border-white/20">
-            <div className="text-center mb-8">
-              <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
-                <Trash2 className="h-10 w-10 text-red-600" />
+      <AnimatePresence>
+        {deleteConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white/90 backdrop-blur-xl rounded-3xl max-w-lg w-full p-8 shadow-2xl border border-white/20"
+            >
+              <div className="text-center mb-8">
+                <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+                  <Trash2 className="h-10 w-10 text-red-600" />
+                </div>
+                <h3 className="text-2xl font-black text-neutral-900 mb-4">
+                  Confirm Delete
+                </h3>
+                <p className="text-neutral-600 text-lg leading-relaxed">
+                  Are you sure you want to permanently delete this subscriber?
+                  This action cannot be undone.
+                </p>
               </div>
-              <h3 className="text-2xl font-black text-neutral-900 mb-4">
-                Confirm Delete
-              </h3>
-              <p className="text-neutral-600 text-lg leading-relaxed">
-                Are you sure you want to permanently delete this subscriber?
-                This action cannot be undone.
-              </p>
-            </div>
-            <div className="flex space-x-4">
-              <button
-                onClick={() => setDeleteConfirm(null)}
-                className="flex-1 px-6 py-4 text-neutral-600 border-2 border-neutral-300 rounded-2xl hover:bg-neutral-50 font-bold text-lg transition-all duration-300"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => deleteConfirm && handleDelete(deleteConfirm)}
-                className="flex-1 px-6 py-4 bg-red-600 text-white rounded-2xl hover:bg-red-700 font-bold text-lg transition-all duration-300 shadow-xl hover:shadow-2xl"
-              >
-                Delete Subscriber
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+              <div className="flex space-x-4">
+                <button
+                  onClick={() => setDeleteConfirm(null)}
+                  className="flex-1 px-6 py-4 text-neutral-600 border-2 border-neutral-300 rounded-2xl hover:bg-neutral-50 font-bold text-lg transition-all duration-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => deleteConfirm && handleDelete(deleteConfirm)}
+                  className="flex-1 px-6 py-4 bg-red-600 text-white rounded-2xl hover:bg-red-700 font-bold text-lg transition-all duration-300 shadow-xl hover:shadow-2xl"
+                >
+                  Delete
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Newsletter Modal */}
+      <AnimatePresence>
+        {showNewsletterModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white/95 backdrop-blur-xl rounded-3xl max-w-4xl w-full p-8 shadow-2xl border border-white/20 my-8"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-3xl font-black bg-gradient-to-r from-[#EF7E71] to-[#D4654F] bg-clip-text text-transparent">
+                  Create Newsletter
+                </h2>
+                <button
+                  onClick={() => setShowNewsletterModal(false)}
+                  className="p-2 hover:bg-neutral-100 rounded-lg transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Newsletter Title */}
+                <div>
+                  <label className="block text-sm font-bold text-neutral-700 mb-2">
+                    Newsletter Title
+                  </label>
+                  <input
+                    type="text"
+                    value={newsletterTitle}
+                    onChange={(e) => setNewsletterTitle(e.target.value)}
+                    placeholder="Enter newsletter title..."
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-[#EF7E71] focus:border-transparent font-medium"
+                  />
+                </div>
+
+                {/* HTML Content Input */}
+                <div>
+                  <label className="block text-sm font-bold text-neutral-700 mb-2">
+                    HTML Content
+                  </label>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <textarea
+                        value={htmlContent}
+                        onChange={(e) => setHtmlContent(e.target.value)}
+                        placeholder="Paste your HTML template here..."
+                        rows={10}
+                        className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-[#EF7E71] focus:border-transparent font-mono text-sm"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-3">
+                      <label className="cursor-pointer flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-neutral-300 rounded-lg hover:border-[#EF7E71] transition-colors">
+                        <Upload className="w-5 h-5" />
+                        <span className="font-semibold">Upload HTML File</span>
+                        <input
+                          type="file"
+                          accept=".html"
+                          onChange={handleFileUpload}
+                          className="hidden"
+                        />
+                      </label>
+                      {uploadedFile && (
+                        <div className="flex items-center gap-2 text-sm text-neutral-600 bg-neutral-50 p-2 rounded-lg">
+                          <FileText className="w-4 h-4" />
+                          <span className="font-medium">
+                            {uploadedFile.name}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Available Variables */}
+                <div className="">
+                  <label className="block text-sm font-bold text-gray-900 mb-3">
+                    Available Variables
+                  </label>
+                  <div className="space-y-2">
+                    {availableVariables.map((item, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center gap-2 bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-purple-200/50"
+                      >
+                        <code className="text-sm font-bold text-white bg-primary px-2 py-1 rounded whitespace-nowrap">
+                          {item.variable}
+                        </code>
+                        <span className="text-sm text-neutral-600 font-medium flex-1">
+                          {item.description}
+                        </span>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(item.variable);
+                            toast.success('Variable copied to clipboard!');
+                          }}
+                          className="p-1.5 hover:bg-gray-100 cursor-pointer rounded-lg transition-colors text-primary"
+                          title="Copy variable"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-gray-500 font-semibold mt-3">
+                    Use these variables in your HTML template. They will be
+                    replaced with actual values for each recipient.
+                  </p>
+                </div>
+
+                {/* HTML Preview */}
+                {htmlContent && (
+                  <div>
+                    <label className="block text-sm font-bold text-neutral-700 mb-2">
+                      Preview
+                    </label>
+                    <div className="border border-neutral-300 rounded-lg p-4 bg-white max-h-64 overflow-auto">
+                      <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+                    </div>
+                  </div>
+                )}
+
+                {/* Source Selection */}
+                <div>
+                  <label className="block text-sm font-bold text-neutral-700 mb-2">
+                    Select Subscriber Sources
+                  </label>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {['footer', 'coming_soon', 'checkout', 'manual'].map(
+                      (source) => (
+                        <label
+                          key={source}
+                          className={`cursor-pointer flex items-center gap-2 px-4 py-3 border-2 rounded-lg transition-all ${
+                            selectedSources.includes(source)
+                              ? 'border-[#EF7E71] bg-[#EF7E71]/10'
+                              : 'border-neutral-300 hover:border-neutral-400'
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedSources.includes(source)}
+                            onChange={() => handleSourceToggle(source)}
+                            className="w-4 h-4 text-[#EF7E71] rounded focus:ring-[#EF7E71]"
+                          />
+                          <span className="font-semibold text-sm">
+                            {getSourceLabel(source)}
+                          </span>
+                        </label>
+                      )
+                    )}
+                  </div>
+                </div>
+
+                {/* Active Subscribers Count */}
+                {selectedSources.length > 0 && (
+                  <div className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4">
+                    <p className="text-sm font-bold text-blue-900">
+                      <span className="text-2xl">
+                        {getActiveSubscriberCount()}
+                      </span>{' '}
+                      active subscribers will receive this newsletter
+                    </p>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex gap-4 pt-4">
+                  <button
+                    onClick={() => setShowNewsletterModal(false)}
+                    className="flex-1 px-6 py-4 text-neutral-600 border-2 border-neutral-300 rounded-2xl hover:bg-neutral-50 font-bold text-lg transition-all duration-300"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSendNewsletter}
+                    disabled={sending || getActiveSubscriberCount() === 0}
+                    className="flex-1 px-6 py-4 bg-gradient-to-r from-[#EF7E71] to-[#D4654F] text-white rounded-2xl hover:shadow-xl font-bold text-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {sending ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-5 h-5" />
+                        Send Newsletter
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
